@@ -1,0 +1,33 @@
+# FastAPI
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+
+# Database
+sqlalchemy==2.0.45
+aiosqlite==0.22.1
+
+# Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.1.2
+pyjwt==2.10.1
+
+# Email
+email-validator==2.3.0
+
+# HTTP Client
+httpx==0.28.1
+
+# Environment
+python-dotenv==1.0.1
+pydantic-settings==2.8.3
+
+# Utils
+pydantic==2.12.5
+
+# Rate Limiting
+slowapi==0.1.9
+
+# Production server
+gunicorn==24.0.0
