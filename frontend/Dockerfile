@@ -1,18 +1,23 @@
 # Build stage
 FROM node:18-alpine AS build
 
+# Set working directory
 WORKDIR /app
+
+# Set NODE_ENV to production for optimization
+ENV NODE_ENV=production
 
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies (need devDependencies for vite build)
-RUN npm install
+# Install dependencies with clean slate
+RUN npm ci --legacy-peer-deps
 
 # Copy source code
 COPY . .
 
-# Build the application
+# Build with increased memory limit
+ENV NODE_OPTIONS="--max-old-space-size=2048"
 RUN npm run build
 
 # Production stage
