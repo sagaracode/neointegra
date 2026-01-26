@@ -35,7 +35,14 @@ class Settings(BaseSettings):
     # iPaymu Payment Gateway
     IPAYMU_VA: str = os.getenv("IPAYMU_VA", "")
     IPAYMU_API_KEY: str = os.getenv("IPAYMU_API_KEY", "")
-    IPAYMU_BASE_URL: str = os.getenv("IPAYMU_BASE_URL", "https://my.ipaymu.com/api/v2")
+    IPAYMU_PRODUCTION: bool = os.getenv("IPAYMU_PRODUCTION", "false").lower() == "true"
+    
+    @property
+    def IPAYMU_BASE_URL(self) -> str:
+        """Return iPaymu URL based on production mode"""
+        if self.IPAYMU_PRODUCTION:
+            return "https://my.ipaymu.com/api/v2"
+        return "https://sandbox.ipaymu.com/api/v2"
     
     # Rate Limiting
     RATE_LIMIT_PER_MINUTE: int = 60
