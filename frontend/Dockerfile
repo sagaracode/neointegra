@@ -4,14 +4,12 @@ FROM node:18-alpine AS build
 # Set working directory
 WORKDIR /app
 
-# Set NODE_ENV to production for optimization
-ENV NODE_ENV=production
-
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies with clean slate
-RUN npm ci --legacy-peer-deps
+# Install ALL dependencies including devDependencies (needed for Vite build)
+# npm ci in production mode skips devDeps, so we use npm install
+RUN npm install --legacy-peer-deps
 
 # Copy source code
 COPY . .
