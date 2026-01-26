@@ -4,12 +4,13 @@ FROM node:18-alpine AS build
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy package files first for better caching
+COPY package.json package-lock.json* ./
 
-# Install ALL dependencies including devDependencies (needed for Vite build)
-# npm ci in production mode skips devDeps, so we use npm install
-RUN npm install --legacy-peer-deps
+# Install ALL dependencies (devDependencies needed for Vite)
+RUN npm install --legacy-peer-deps && \
+    npm list vite || echo "Checking vite installation..." && \
+    which vite || echo "Vite binary check..."
 
 # Copy source code
 COPY . .
