@@ -80,12 +80,11 @@ export default function SubscriptionExpiry() {
       // Step 3: Redirect to payment page or show payment instructions
       if (paymentData.payment_url) {
         window.location.href = paymentData.payment_url
-      } else if (paymentData.va_number) {
-        // Show VA number modal or redirect to payment instructions page
-        navigate('/dashboard/payments', { 
+      } else if (paymentData.va_number || paymentData.qr_code_url) {
+        // Show VA number or QRIS - redirect to payment pending page
+        navigate('/payment/pending', { 
           state: { 
-            paymentInfo: paymentData,
-            showInstructions: true 
+            paymentInfo: paymentData
           } 
         })
       } else {

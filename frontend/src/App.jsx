@@ -17,6 +17,9 @@ import FAQ from './pages/FAQ'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
+import Orders from './pages/Orders'
+import PaymentSuccess from './pages/PaymentSuccess'
+import PaymentPending from './pages/PaymentPending'
 import SubscriptionExpiry from './pages/SubscriptionExpiry'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
@@ -71,6 +74,9 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/dashboard/*" element={<Dashboard />} />
+          <Route path="/orders" element={<Orders />} />
+          <Route path="/payment/success" element={<PaymentSuccess />} />
+          <Route path="/payment/pending" element={<PaymentPending />} />
           <Route path="/subscription-expiry" element={<SubscriptionExpiry />} />
         </Routes>
       </main>

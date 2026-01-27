@@ -136,6 +136,7 @@ async def create_payment(
                 "email": user.email,
                 "amount": payment_data.amount,
                 "notify_url": f"{settings.FRONTEND_URL}/api/payments/callback",
+                "return_url": f"{settings.FRONTEND_URL}/payment/success?order_id={order.id}&order_number={order.order_number}&amount={payment_data.amount}",
                 "expired": 24,
                 "payment_channel": payment_data.payment_channel
             }
