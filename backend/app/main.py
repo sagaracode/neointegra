@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from datetime import datetime
@@ -29,10 +29,17 @@ app.add_middleware(
 
 # Add OPTIONS handler for all routes
 @app.options("/{full_path:path}")
-async def options_handler(full_path: str):
-    """Handle OPTIONS requests for CORS preflight"""
-    return JSONResponse(
-        content={"message": "OK"},
+async def options_handler(request: Request, full_path: str):
+    """
+    Handle OPTIONS requests for CORS preflight.
+    This is crucial for browsers to allow cross-origin requests with methods
+    like POST, PUT, DELETE, etc.
+    """
+    # The CORSMiddleware should ideally handle this.
+    # This is an explicit handler for maximum compatibility with proxies
+    # and complex setups.
+    return Response(
+        status_code=204,
         headers={
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, PATCH",
