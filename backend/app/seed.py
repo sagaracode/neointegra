@@ -17,44 +17,44 @@ def seed_services(db: Session):
     """Seed initial services"""
     services_data = [
         {
-            "name": "Website Development",
-            "description": "Custom website development with modern technologies",
-            "category": "web",
-            "price": 5000000,
+            "name": "Jual Beli Domain",
+            "description": "Registrasi dan transfer domain dengan 500+ TLD tersedia. Harga kompetitif dengan proses cepat.",
+            "category": "domain",
+            "price": 99000,
+            "duration_days": 365,
+            "features": '["500+ TLD", "DNS Management", "Transfer Mudah", "WHOIS Privacy"]'
+        },
+        {
+            "name": "Langganan Cloudflare",
+            "description": "CDN & Security premium dari Cloudflare untuk performa dan keamanan website optimal.",
+            "category": "security",
+            "price": 200000,
             "duration_days": 30,
-            "features": '["Responsive Design", "SEO Optimized", "Fast Loading", "Admin Panel"]'
+            "features": '["CDN Global", "SSL/TLS", "DDoS Protection", "Web Analytics"]'
         },
         {
-            "name": "Mobile App Development",
-            "description": "Native and cross-platform mobile applications",
-            "category": "mobile",
-            "price": 15000000,
-            "duration_days": 60,
-            "features": '["iOS & Android", "Cloud Integration", "Push Notifications", "Analytics"]'
+            "name": "Hosting",
+            "description": "High-performance hosting dengan SSD NVMe, 99.9% uptime guarantee, dan support 24/7.",
+            "category": "hosting",
+            "price": 50000,
+            "duration_days": 30,
+            "features": '["SSD NVMe", "Free SSL", "99.9% Uptime", "Daily Backup"]'
         },
         {
-            "name": "UI/UX Design",
-            "description": "Professional user interface and experience design",
-            "category": "design",
-            "price": 3000000,
-            "duration_days": 14,
-            "features": '["Wireframing", "Prototyping", "User Research", "Design System"]'
+            "name": "Mail Server",
+            "description": "Email hosting profesional dengan custom domain untuk branding bisnis yang lebih baik.",
+            "category": "email",
+            "price": 25000,
+            "duration_days": 30,
+            "features": '["Custom Domain", "Unlimited Alias", "Anti-Spam", "Mobile Sync"]'
         },
         {
-            "name": "IT Consulting",
-            "description": "Technology consulting and strategy planning",
-            "category": "consulting",
-            "price": 2000000,
-            "duration_days": 7,
-            "features": '["Technology Assessment", "Strategic Planning", "Implementation Support"]'
-        },
-        {
-            "name": "E-Commerce Solution",
-            "description": "Complete online store with payment integration",
-            "category": "web",
-            "price": 10000000,
-            "duration_days": 45,
-            "features": '["Product Management", "Payment Gateway", "Inventory", "Order Management"]'
+            "name": "SEO Service",
+            "description": "Optimasi mesin pencari profesional untuk meningkatkan visibilitas dan traffic website Anda.",
+            "category": "marketing",
+            "price": 1500000,
+            "duration_days": 30,
+            "features": '["Keyword Research", "Link Building", "On-Page SEO", "Monthly Report"]'
         }
     ]
     
