@@ -82,7 +82,6 @@ async def api_root():
             "users": "/api/users"
         }
     }
-    }
 
 # Exception handler
 @app.exception_handler(Exception)
