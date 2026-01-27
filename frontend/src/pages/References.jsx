@@ -1,5 +1,4 @@
 import { useEffect } from 'react'
-import { Helmet } from 'react-helmet-async'
 import { motion } from 'framer-motion'
 import { 
   CheckCircleIcon, 
@@ -154,11 +153,6 @@ const References = () => {
 
   return (
     <>
-      <Helmet>
-        <title>Our References - NeoIntegra Tech</title>
-        <meta name="description" content="Portfolio dan referensi project yang telah kami kerjakan untuk berbagai industri." />
-      </Helmet>
-
       <div className="min-h-screen bg-dark-300">
         {/* Hero Section */}
         <section className="relative py-20 bg-gradient-to-br from-primary-600/10 via-dark-200 to-dark-300 overflow-hidden">
