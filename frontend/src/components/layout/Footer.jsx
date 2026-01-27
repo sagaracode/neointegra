@@ -13,7 +13,9 @@ import {
 const quickLinks = [
   { name: 'Home', href: '/' },
   { name: 'About', href: '/about' },
+  { name: 'References', href: '/references' },
   { name: 'Contact', href: '/contact' },
+  { name: 'FAQ', href: '/faq' },
 ]
 
 const services = [
@@ -212,16 +214,16 @@ export default function Footer() {
             </p>
             <div className="flex items-center gap-6">
               <Link
-                to="/privacy"
-                className="text-gray-500 hover:text-gray-300 font-poppins text-sm transition-colors"
-              >
-                Privacy Policy
-              </Link>
-              <Link
                 to="/terms"
                 className="text-gray-500 hover:text-gray-300 font-poppins text-sm transition-colors"
               >
-                Terms of Service
+                Terms & Conditions
+              </Link>
+              <Link
+                to="/refund-policy"
+                className="text-gray-500 hover:text-gray-300 font-poppins text-sm transition-colors"
+              >
+                Refund Policy
               </Link>
             </div>
           </div>

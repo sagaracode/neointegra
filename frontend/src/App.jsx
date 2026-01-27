@@ -11,6 +11,9 @@ import About from './pages/About'
 import Services from './pages/Services'
 import Contact from './pages/Contact'
 import References from './pages/References'
+import Terms from './pages/Terms'
+import RefundPolicy from './pages/RefundPolicy'
+import FAQ from './pages/FAQ'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
@@ -59,6 +62,9 @@ function App() {
           <Route path="/services/:slug" element={<Services />} />
           <Route path="/references" element={<References />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/refund-policy" element={<RefundPolicy />} />
+          <Route path="/faq" element={<FAQ />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
