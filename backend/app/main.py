@@ -16,16 +16,30 @@ app = FastAPI(
     debug=settings.DEBUG
 )
 
-# Configure CORS
+# Configure CORS - MUST be before routes
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for now, can be restricted later
+    allow_origins=["*"],  # Allow all origins
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-    allow_headers=["*"],
+    allow_methods=["*"],  # Allow all methods
+    allow_headers=["*"],  # Allow all headers
     expose_headers=["*"],
     max_age=3600,
 )
+
+# Add OPTIONS handler for all routes
+@app.options("/{full_path:path}")
+async def options_handler(full_path: str):
+    """Handle OPTIONS requests for CORS preflight"""
+    return JSONResponse(
+        content={"message": "OK"},
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, PATCH",
+            "Access-Control-Allow-Headers": "*",
+            "Access-Control-Max-Age": "3600",
+        }
+    )
 
 # Include API router
 app.include_router(api_router)
@@ -38,7 +52,9 @@ async def root():
         "status": "online",
         "app": settings.APP_NAME,
         "version": settings.APP_VERSION,
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.utcnow().isoformat(),
+        "cors": "enabled",
+        "allowed_origins": "*"
     }
 
 @app.get("/health")
@@ -47,7 +63,25 @@ async def health_check():
     return {
         "status": "healthy",
         "database": "connected",
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.utcnow().isoformat(),
+        "cors_configured": True
+    }
+
+@app.get("/api")
+async def api_root():
+    """API root endpoint"""
+    return {
+        "message": "NeoIntegraTech API",
+        "version": settings.APP_VERSION,
+        "endpoints": {
+            "auth": "/api/auth",
+            "services": "/api/services",
+            "orders": "/api/orders",
+            "payments": "/api/payments",
+            "subscriptions": "/api/subscriptions",
+            "users": "/api/users"
+        }
+    }
     }
 
 # Exception handler
