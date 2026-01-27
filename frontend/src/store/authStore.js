@@ -50,7 +50,9 @@ const useAuthStore = create(
       register: async (data) => {
         set({ isLoading: true, error: null })
         try {
+          console.log('Attempting registration with data:', { ...data, password: '***' })
           const response = await authAPI.register(data)
+          console.log('Registration successful:', response.data)
           set({ isLoading: false })
           return { success: true, data: response.data }
         } catch (error) {
@@ -60,11 +62,20 @@ const useAuthStore = create(
           if (error.response) {
             // Server responded with error
             message = error.response.data?.detail || error.response.data?.message || message
-            console.error('Server error:', error.response.data)
+            console.error('Server error:', {
+              status: error.response.status,
+              data: error.response.data,
+              headers: error.response.headers
+            })
           } else if (error.request) {
             // Request made but no response
-            message = 'Cannot connect to server. Please check your connection.'
-            console.error('No response from server:', error.request)
+            message = 'Cannot connect to server. Please check if backend is running.'
+            console.error('No response from server. Request:', {
+              url: error.config?.url,
+              baseURL: error.config?.baseURL,
+              method: error.config?.method,
+              timeout: error.config?.timeout
+            })
           } else {
             // Error in request setup
             message = error.message || message
