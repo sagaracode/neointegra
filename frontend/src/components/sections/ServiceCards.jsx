@@ -160,76 +160,72 @@ export default function ServiceCards() {
         >
           {services.map((service) => (
             <motion.div
-              key={service.id() => handleCheckout(service.slug)}
-                    disabled={loadingService === service.slug}
-                    className="btn btn-primary w-full text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {loadingService === service.slug ? (
-                      <span className="flex items-center justify-center gap-2">
-                        <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                        </svg>
-                        Processing...
-                      </span>
-                    ) : (
-                      'Checkout & Bayar'
-                    )}
-                  </div>
-                  <span className="px-3 py-1 bg-primary-600/20 rounded-full text-primary-400 text-xs font-poppins">
-                    Popular
-                  </span>
+              key={service.id}
+              variants={cardVariants}
+              className="group relative bg-dark-200/50 backdrop-blur-sm rounded-2xl p-6 border border-white/5 hover:border-primary-400/50 transition-all duration-300 flex flex-col"
+            >
+              {/* Icon & Badge */}
+              <div className="flex items-start justify-between mb-4">
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${service.gradient} flex items-center justify-center text-2xl`}>
+                  {service.icon}
                 </div>
+                <span className="px-3 py-1 bg-primary-600/20 rounded-full text-primary-400 text-xs font-poppins">
+                  Popular
+                </span>
+              </div>
 
-                {/* Card Content */}
-                <h3 className="font-montserrat font-bold text-xl text-white mb-3 group-hover:text-primary-400 transition-colors">
-                  {service.title}
-                </h3>
-                <p className="font-poppins text-gray-400 text-sm mb-6 flex-grow">
-                  {service.description}
-                </p>
+              {/* Card Content */}
+              <h3 className="font-montserrat font-bold text-xl text-white mb-3 group-hover:text-primary-400 transition-colors">
+                {service.title}
+              </h3>
+              <p className="font-poppins text-gray-400 text-sm mb-6 flex-grow">
+                {service.description}
+              </p>
 
-                {/* Features */}
-                <div className="grid grid-cols-2 gap-2 mb-6">
-                  {service.features.map((feature, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-gray-400 text-sm">
-                      <svg className="w-4 h-4 text-primary-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              {/* Features */}
+              <div className="grid grid-cols-2 gap-2 mb-6">
+                {service.features.map((feature, idx) => (
+                  <div key={idx} className="flex items-center gap-2 text-gray-400 text-sm">
+                    <svg className="w-4 h-4 text-primary-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="font-poppins">{feature}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Price & CTA */}
+              <div className="pt-6 border-t border-white/10 mt-auto space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-gray-500 text-xs font-poppins">Kontrak Tahunan</span>
+                    <p className="text-white font-montserrat font-bold text-lg">{service.price}</p>
+                  </div>
+                  <Link
+                    to={`/services/${service.slug}`}
+                    className="flex items-center gap-2 text-primary-400 hover:text-primary-300 font-poppins text-sm transition-colors group/btn"
+                  >
+                    Detail
+                    <ArrowRightIcon className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                  </Link>
+                </div>
+                <button
+                  onClick={() => handleCheckout(service.slug)}
+                  disabled={loadingService === service.slug}
+                  className="btn btn-primary w-full text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loadingService === service.slug ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                       </svg>
-                      <span className="font-poppins">{feature}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Price & CTA */}
-                <div className="pt-6 border-t border-white/10 mt-auto space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-gray-500 text-xs font-poppins">Kontrak Tahunan</span>
-                      <p className="text-white font-montserrat font-bold text-lg">{service.price}</p>
-                    </div>
-                    <Link
-                      to={`/services/${service.slug}`}
-                      className="flex items-center gap-2 text-primary-400 hover:text-primary-300 font-poppins text-sm transition-colors group/btn"
-                    >
-                      Detail
-                      <ArrowRightIcon className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-                    </Link>
-                  </div>
-                  <button
-                    onClick={async () => {
-                      try {
-                        // Placeholder for checkout functionality
-                        alert('Fitur checkout segera hadir! Silakan hubungi kami untuk pemesanan.');
-                      } catch (err) {
-                        alert('Gagal checkout: ' + err.message);
-                      }
-                    }}
-                    className="btn btn-primary w-full text-sm"
-                  >
-                    Checkout & Bayar
-                  </button>
-                </div>
+                      Processing...
+                    </span>
+                  ) : (
+                    'Checkout & Bayar'
+                  )}
+                </button>
               </div>
             </motion.div>
           ))}
