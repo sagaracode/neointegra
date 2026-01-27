@@ -17,44 +17,44 @@ def seed_services(db: Session):
     """Seed initial services"""
     services_data = [
         {
-            "name": "Jual Beli Domain",
-            "description": "Registrasi dan transfer domain dengan 500+ TLD tersedia. Harga kompetitif dengan proses cepat.",
-            "category": "domain",
-            "price": 99000,
+            "name": "Paket All In Service",
+            "description": "Paket paling hemat & optimal untuk bisnis jangka panjang. Sudah termasuk Website, SEO, Mail Server, Cloudflare, dan Hosting.",
+            "category": "package",
+            "price": 81000000,
             "duration_days": 365,
-            "features": '["500+ TLD", "DNS Management", "Transfer Mudah", "WHOIS Privacy"]'
+            "features": '["Website Service - Custom UI/UX", "SEO Service (12 bulan)", "Mail Server Service", "Cloudflare Protection", "Hosting Performa Tinggi", "Support Teknis Lengkap"]'
         },
         {
-            "name": "Langganan Cloudflare",
-            "description": "CDN & Security premium dari Cloudflare untuk performa dan keamanan website optimal.",
-            "category": "security",
-            "price": 200000,
-            "duration_days": 30,
-            "features": '["CDN Global", "SSL/TLS", "DDoS Protection", "Web Analytics"]'
-        },
-        {
-            "name": "Hosting",
-            "description": "High-performance hosting dengan SSD NVMe, 99.9% uptime guarantee, dan support 24/7.",
-            "category": "hosting",
-            "price": 50000,
-            "duration_days": 30,
-            "features": '["SSD NVMe", "Free SSL", "99.9% Uptime", "Daily Backup"]'
-        },
-        {
-            "name": "Mail Server",
-            "description": "Email hosting profesional dengan custom domain untuk branding bisnis yang lebih baik.",
-            "category": "email",
-            "price": 25000,
-            "duration_days": 30,
-            "features": '["Custom Domain", "Unlimited Alias", "Anti-Spam", "Mobile Sync"]'
+            "name": "Website Service",
+            "description": "Website Service Profesional - Pembuatan website custom dengan performa tinggi.",
+            "category": "web",
+            "price": 36000000,
+            "duration_days": 365,
+            "features": '["Custom UI/UX", "Hosting Performa Tinggi", "Optimasi Kecepatan", "Maintenance & Update", "Backup & Keamanan", "Support Teknis"]'
         },
         {
             "name": "SEO Service",
-            "description": "Optimasi mesin pencari profesional untuk meningkatkan visibilitas dan traffic website Anda.",
+            "description": "SEO Service Berkelanjutan (12 Bulan) - Optimasi mesin pencari profesional.",
             "category": "marketing",
-            "price": 1500000,
-            "duration_days": 30,
-            "features": '["Keyword Research", "Link Building", "On-Page SEO", "Monthly Report"]'
+            "price": 42000000,
+            "duration_days": 365,
+            "features": '["SEO On-Page & Technical", "Optimasi Struktur & Kecepatan", "Google Search Console & Analytics", "Monitoring Keyword Bulanan", "Laporan Performa SEO", "Optimasi Berkelanjutan 12 Bulan"]'
+        },
+        {
+            "name": "Mail Server Service",
+            "description": "Mail Server Bisnis Profesional - Email bisnis dengan domain perusahaan.",
+            "category": "email",
+            "price": 15000000,
+            "duration_days": 365,
+            "features": '["Email dengan Domain Perusahaan", "Setup SPF, DKIM, DMARC", "Perlindungan Spam & Phishing", "Sinkronisasi Webmail & Perangkat", "Maintenance & Support"]'
+        },
+        {
+            "name": "Cloudflare Service",
+            "description": "Cloudflare Protection & Performance - Keamanan dan performa maksimal.",
+            "category": "security",
+            "price": 24000000,
+            "duration_days": 365,
+            "features": '["CDN Global & Caching", "Proteksi DDoS & Firewall", "SSL Full Encryption", "Proteksi Bot & Traffic Berbahaya", "Monitoring Keamanan 24/7"]'
         }
     ]
     
