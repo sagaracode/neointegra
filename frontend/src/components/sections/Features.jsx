@@ -156,6 +156,27 @@ export default function Features() {
             </div>
           </div>
         </motion.div>
+
+        {/* Accepted Payments */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.4 }}
+          className="mt-12 text-center"
+        >
+          <h3 className="font-poppins text-gray-400 text-sm mb-6">Metode Pembayaran yang Diterima</h3>
+          <div className="flex flex-wrap items-center justify-center gap-6 opacity-70 hover:opacity-100 transition-opacity">
+            <img src="/assets/bca.png" alt="BCA" className="h-8 grayscale hover:grayscale-0 transition-all" />
+            <img src="/assets/mandiri.png" alt="Mandiri" className="h-8 grayscale hover:grayscale-0 transition-all" />
+            <img src="/assets/bni.png" alt="BNI" className="h-8 grayscale hover:grayscale-0 transition-all" />
+            <img src="/assets/bri.png" alt="BRI" className="h-8 grayscale hover:grayscale-0 transition-all" />
+            <img src="/assets/permata.png" alt="Permata" className="h-8 grayscale hover:grayscale-0 transition-all" />
+            <img src="/assets/bsi.png" alt="BSI" className="h-8 grayscale hover:grayscale-0 transition-all" />
+            <img src="/assets/danamon.png" alt="Danamon" className="h-8 grayscale hover:grayscale-0 transition-all" />
+            <img src="/assets/niaga.png" alt="CIMB Niaga" className="h-8 grayscale hover:grayscale-0 transition-all" />
+          </div>
+        </motion.div>
       </div>
     </section>
   )

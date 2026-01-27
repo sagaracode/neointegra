@@ -40,7 +40,7 @@ export default function Hero() {
               className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600/20 border border-primary-500/30 rounded-full mb-8"
             >
               <SparklesIcon className="w-4 h-4 text-primary-400" />
-              <span className="text-primary-300 font-poppins text-sm" style={{ display: 'none' }}>
+              <span className="text-primary-300 font-poppins text-sm">
                 Powered by iPaymu Payment Gateway
               </span>
             </motion.div>
@@ -53,8 +53,7 @@ export default function Hero() {
 
             {/* Sub-headline */}
             <p className="font-poppins text-gray-400 text-lg md:text-xl leading-relaxed mb-10 max-w-xl mx-auto lg:mx-0">
-              Layanan Domain, Hosting, dan Cloudflare premium dengan sistem pembayaran otomatis. Solusi lengkap untuk transformasi digital bisnis Anda.
-              {/* pembayaran otomatis iPaymu. (sementara di-hide) */}
+              Layanan Domain, Hosting, dan Cloudflare premium dengan sistem pembayaran otomatis iPaymu. Solusi lengkap untuk transformasi digital bisnis Anda.
             </p>
 
             {/* CTA Buttons */}
@@ -160,7 +159,7 @@ export default function Hero() {
                   </div>
                   <div>
                     <div className="text-white font-montserrat font-semibold text-sm">Pembayaran</div>
-                    <div className="text-gray-400 text-xs" style={{ display: 'none' }}>Auto via iPaymu</div>
+                    <div className="text-gray-400 text-xs">Auto via iPaymu</div>
                   </div>
                 </div>
               </motion.div>
