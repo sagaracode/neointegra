@@ -5,53 +5,43 @@ import { ArrowRightIcon } from '@heroicons/react/24/outline'
 const services = [
   {
     id: 1,
-    title: 'Jual Beli Domain',
-    slug: 'domain',
-    description: 'Registrasi dan transfer domain dengan 500+ TLD tersedia. Harga kompetitif dengan proses cepat.',
+    title: 'Website Service',
+    slug: 'website',
+    description: 'Website Service Profesional - Pembuatan website custom dengan performa tinggi.',
     icon: '🌐',
     gradient: 'from-blue-500 to-cyan-500',
-    features: ['500+ TLD', 'Transfer Mudah', 'DNS Management', 'WHOIS Privacy'],
-    price: 'Mulai Rp 99.000/tahun',
+    features: ['Custom UI/UX', 'Hosting Performa Tinggi', 'Optimasi Kecepatan', 'Support Teknis'],
+    price: 'Rp 36.000.000/tahun',
   },
   {
     id: 2,
-    title: 'Langganan Cloudflare',
-    slug: 'cloudflare',
-    description: 'CDN & Security premium dari Cloudflare untuk performa dan keamanan website optimal.',
-    icon: '☁️',
-    gradient: 'from-orange-500 to-yellow-500',
-    features: ['CDN Global', 'DDoS Protection', 'SSL/TLS', 'Web Analytics'],
-    price: 'Mulai Rp 200.000/bulan',
+    title: 'SEO Service',
+    slug: 'seo',
+    description: 'SEO Service Berkelanjutan (12 Bulan) - Optimasi mesin pencari profesional.',
+    icon: '📈',
+    gradient: 'from-red-500 to-orange-500',
+    features: ['SEO On-Page', 'Google Analytics', 'Monitoring Keyword', 'Laporan Bulanan'],
+    price: 'Rp 42.000.000/tahun',
   },
   {
     id: 3,
-    title: 'Hosting',
-    slug: 'hosting',
-    description: 'High-performance hosting dengan SSD NVMe, 99.9% uptime guarantee, dan support 24/7.',
-    icon: '🖥️',
-    gradient: 'from-green-500 to-emerald-500',
-    features: ['SSD NVMe', '99.9% Uptime', 'Free SSL', 'Daily Backup'],
-    price: 'Mulai Rp 50.000/bulan',
+    title: 'Mail Server Service',
+    slug: 'mail-server',
+    description: 'Mail Server Bisnis Profesional - Email bisnis dengan domain perusahaan.',
+    icon: '✉️',
+    gradient: 'from-purple-500 to-pink-500',
+    features: ['Email Domain Custom', 'SPF/DKIM/DMARC', 'Anti-Spam', 'Webmail Sync'],
+    price: 'Rp 15.000.000/tahun',
   },
   {
     id: 4,
-    title: 'Mail Server',
-    slug: 'mail-server',
-    description: 'Email hosting profesional dengan custom domain untuk branding bisnis yang lebih baik.',
-    icon: '📧',
-    gradient: 'from-purple-500 to-pink-500',
-    features: ['Custom Domain', 'Anti-Spam', 'Unlimited Alias', 'Mobile Sync'],
-    price: 'Mulai Rp 25.000/bulan',
-  },
-  {
-    id: 5,
-    title: 'SEO Service',
-    slug: 'seo',
-    description: 'Optimasi mesin pencari profesional untuk meningkatkan visibilitas dan traffic website Anda.',
-    icon: '📈',
-    gradient: 'from-red-500 to-orange-500',
-    features: ['Keyword Research', 'On-Page SEO', 'Link Building', 'Monthly Report'],
-    price: 'Mulai Rp 1.500.000/bulan',
+    title: 'Cloudflare Service',
+    slug: 'cloudflare',
+    description: 'Cloudflare Protection & Performance - Keamanan dan performa maksimal.',
+    icon: '🛡️',
+    gradient: 'from-orange-500 to-yellow-500',
+    features: ['CDN Global', 'Proteksi DDoS', 'SSL Encryption', 'Monitoring 24/7'],
+    price: 'Rp 24.000.000/tahun',
   },
 ]
 
@@ -96,10 +86,10 @@ export default function ServiceCards() {
             Our Services
           </span>
           <h2 className="font-montserrat font-bold text-3xl md:text-4xl lg:text-5xl text-white mb-6">
-            Layanan <span className="gradient-text">Premium</span> untuk Bisnis Anda
+            Layanan <span className="gradient-text">Tahunan</span> untuk Bisnis Anda
           </h2>
           <p className="font-poppins text-gray-400 text-lg">
-            Solusi lengkap teknologi dengan harga kompetitif dan sistem pembayaran otomatis
+            Paket layanan tahunan dengan harga terbaik dan dukungan penuh
           </p>
         </motion.div>
 
@@ -151,20 +141,33 @@ export default function ServiceCards() {
                 </div>
 
                 {/* Price & CTA */}
-                <div className="pt-6 border-t border-white/10 mt-auto">
-                  <div className="flex items-end justify-between">
+                <div className="pt-6 border-t border-white/10 mt-auto space-y-3">
+                  <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-gray-500 text-xs font-poppins">Mulai dari</span>
-                      <p className="text-white font-montserrat font-bold text-lg">{service.price.replace('Mulai ', '')}</p>
+                      <span className="text-gray-500 text-xs font-poppins">Kontrak Tahunan</span>
+                      <p className="text-white font-montserrat font-bold text-lg">{service.price}</p>
                     </div>
                     <Link
                       to={`/services/${service.slug}`}
-                      className="flex items-center gap-2 text-primary-400 hover:text-primary-300 font-poppins font-medium transition-colors group/btn"
+                      className="flex items-center gap-2 text-primary-400 hover:text-primary-300 font-poppins text-sm transition-colors group/btn"
                     >
                       Detail
                       <ArrowRightIcon className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                     </Link>
                   </div>
+                  <button
+                    onClick={async () => {
+                      try {
+                        // Placeholder for checkout functionality
+                        alert('Fitur checkout segera hadir! Silakan hubungi kami untuk pemesanan.');
+                      } catch (err) {
+                        alert('Gagal checkout: ' + err.message);
+                      }
+                    }}
+                    className="btn btn-primary w-full text-sm"
+                  >
+                    Checkout & Bayar
+                  </button>
                 </div>
               </div>
             </motion.div>
