@@ -10,7 +10,7 @@ import {
   MagnifyingGlassIcon
 } from '@heroicons/react/24/outline'
 import { ordersAPI } from '../services/api'
-import { useAuthStore } from '../store/authStore'
+import useAuthStore from '../store/authStore'
 
 const statusConfig = {
   pending: {
