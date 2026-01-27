@@ -69,44 +69,51 @@ async def get_current_active_user(
 @router.post("/register", response_model=Token, status_code=status.HTTP_201_CREATED)
 async def register(user_data: UserCreate, db: Session = Depends(get_db)):
     """Register new user"""
-    # Check if email exists
-    existing_user = db.query(User).filter(User.email == user_data.email).first()
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    
-    # Create verification token
-    verification_token = secrets.token_urlsafe(32)
-    
-    # Create new user
-    new_user = User(
-        email=user_data.email,
-        full_name=user_data.full_name,
-        phone=user_data.phone,
-        company_name=user_data.company_name,
-        hashed_password=hash_password(user_data.password),
-        is_active=True,  # Auto-activate or require email verification
-        is_verified=False,
-        verification_token=verification_token
-    )
-    
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    
-    # Send verification email
     try:
-        send_verification_email(new_user.email, verification_token)
+        # Check if email exists
+        existing_user = db.query(User).filter(User.email == user_data.email).first()
+        if existing_user:
+            raise HTTPException(status_code=400, detail="Email already registered")
+        
+        # Create verification token
+        verification_token = secrets.token_urlsafe(32)
+        
+        # Create new user
+        new_user = User(
+            email=user_data.email,
+            full_name=user_data.full_name,
+            phone=user_data.phone,
+            company_name=user_data.company_name,
+            hashed_password=hash_password(user_data.password),
+            is_active=True,  # Auto-activate or require email verification
+            is_verified=False,
+            verification_token=verification_token
+        )
+        
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+        
+        # Send verification email
+        try:
+            send_verification_email(new_user.email, verification_token)
+        except Exception as e:
+            print(f"Failed to send verification email: {e}")
+        
+        # Create access token
+        access_token = create_access_token(data={"sub": new_user.email})
+        
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "user": new_user
+        }
+    except HTTPException:
+        raise
     except Exception as e:
-        print(f"Failed to send verification email: {e}")
-    
-    # Create access token
-    access_token = create_access_token(data={"sub": new_user.email})
-    
-    return {
-        "access_token": access_token,
-        "token_type": "bearer",
-        "user": new_user
-    }
+        print(f"Registration error: {str(e)}")
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Registration failed: {str(e)}")
 
 @router.post("/login", response_model=Token)
 async def login(credentials: UserLogin, db: Session = Depends(get_db)):

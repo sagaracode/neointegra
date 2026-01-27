@@ -50,11 +50,27 @@ const useAuthStore = create(
       register: async (data) => {
         set({ isLoading: true, error: null })
         try {
-          await authAPI.register(data)
+          const response = await authAPI.register(data)
           set({ isLoading: false })
-          return { success: true }
+          return { success: true, data: response.data }
         } catch (error) {
-          const message = error.response?.data?.detail || 'Registration failed'
+          console.error('Registration error:', error)
+          let message = 'Registration failed'
+          
+          if (error.response) {
+            // Server responded with error
+            message = error.response.data?.detail || error.response.data?.message || message
+            console.error('Server error:', error.response.data)
+          } else if (error.request) {
+            // Request made but no response
+            message = 'Cannot connect to server. Please check your connection.'
+            console.error('No response from server:', error.request)
+          } else {
+            // Error in request setup
+            message = error.message || message
+            console.error('Request setup error:', error.message)
+          }
+          
           set({ error: message, isLoading: false })
           return { success: false, error: message }
         }
