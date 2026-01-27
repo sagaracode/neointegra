@@ -1,6 +1,10 @@
+import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { ArrowRightIcon } from '@heroicons/react/24/outline'
+import { ordersAPI, paymentsAPI } from '../../services/api'
+import useAuthStore from '../../store/authStore'
+import toast from 'react-hot-toast'
 
 const services = [
   {
@@ -67,6 +71,59 @@ const cardVariants = {
 }
 
 export default function ServiceCards() {
+  const navigate = useNavigate()
+  const { isAuthenticated } = useAuthStore()
+  const [loadingService, setLoadingService] = useState(null)
+
+  const handleCheckout = async (serviceSlug) => {
+    // Check authentication
+    if (!isAuthenticated) {
+      toast.error('Silakan login terlebih dahulu')
+      navigate('/login?redirect=/services')
+      return
+    }
+
+    setLoadingService(serviceSlug)
+    try {
+      // 1. Create order
+      const orderResponse = await ordersAPI.create({
+        service_slug: serviceSlug,
+        quantity: 1,
+        notes: `Order from ServiceCards - ${serviceSlug}`
+      })
+      
+      const orderId = orderResponse.data.id
+
+      // 2. Create payment
+      const paymentResponse = await paymentsAPI.create({
+        order_id: orderId,
+        payment_method: 'va',
+        payment_channel: 'bca',
+        amount: orderResponse.data.total_price
+      })
+
+      const paymentData = paymentResponse.data
+
+      // 3. Redirect to payment
+      if (paymentData.payment_url) {
+        window.location.href = paymentData.payment_url
+      } else if (paymentData.va_number || paymentData.qr_code_url) {
+        navigate('/payment/pending', { 
+          state: { paymentInfo: paymentData } 
+        })
+      } else {
+        toast.success('Order berhasil dibuat!')
+        navigate('/orders')
+      }
+    } catch (error) {
+      console.error('Checkout error:', error)
+      const errorMsg = error.response?.data?.detail || error.message || 'Gagal checkout'
+      toast.error(errorMsg)
+    } finally {
+      setLoadingService(null)
+    }
+  }
+
   return (
     <section className="section bg-dark-300 relative overflow-hidden">
       {/* Background Elements */}
@@ -103,17 +160,21 @@ export default function ServiceCards() {
         >
           {services.map((service) => (
             <motion.div
-              key={service.id}
-              variants={cardVariants}
-              className="group"
-            >
-              <div className="card card-hover h-full flex flex-col">
-                {/* Card Header */}
-                <div className="flex items-start justify-between mb-6">
-                  <div
-                    className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${service.gradient} flex items-center justify-center text-3xl shadow-lg group-hover:scale-110 transition-transform duration-300`}
+              key={service.id() => handleCheckout(service.slug)}
+                    disabled={loadingService === service.slug}
+                    className="btn btn-primary w-full text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {service.icon}
+                    {loadingService === service.slug ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        Processing...
+                      </span>
+                    ) : (
+                      'Checkout & Bayar'
+                    )}
                   </div>
                   <span className="px-3 py-1 bg-primary-600/20 rounded-full text-primary-400 text-xs font-poppins">
                     Popular
