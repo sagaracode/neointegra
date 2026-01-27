@@ -166,15 +166,31 @@ export default function Features() {
           className="mt-12 text-center"
         >
           <h3 className="font-poppins text-gray-400 text-sm mb-6">Metode Pembayaran yang Diterima</h3>
-          <div className="flex flex-wrap items-center justify-center gap-6 opacity-70 hover:opacity-100 transition-opacity">
-            <img src="/assets/bca.png" alt="BCA" className="h-8 grayscale hover:grayscale-0 transition-all" />
-            <img src="/assets/mandiri.png" alt="Mandiri" className="h-8 grayscale hover:grayscale-0 transition-all" />
-            <img src="/assets/bni.png" alt="BNI" className="h-8 grayscale hover:grayscale-0 transition-all" />
-            <img src="/assets/bri.png" alt="BRI" className="h-8 grayscale hover:grayscale-0 transition-all" />
-            <img src="/assets/permata.png" alt="Permata" className="h-8 grayscale hover:grayscale-0 transition-all" />
-            <img src="/assets/bsi.png" alt="BSI" className="h-8 grayscale hover:grayscale-0 transition-all" />
-            <img src="/assets/danamon.png" alt="Danamon" className="h-8 grayscale hover:grayscale-0 transition-all" />
-            <img src="/assets/niaga.png" alt="CIMB Niaga" className="h-8 grayscale hover:grayscale-0 transition-all" />
+          <div className="flex flex-wrap items-center justify-center gap-6">
+            <div className="bg-white rounded-lg p-3 hover:scale-105 transition-transform">
+              <img src="/assets/bca.png" alt="BCA" className="h-8" />
+            </div>
+            <div className="bg-white rounded-lg p-3 hover:scale-105 transition-transform">
+              <img src="/assets/mandiri.png" alt="Mandiri" className="h-8" />
+            </div>
+            <div className="bg-white rounded-lg p-3 hover:scale-105 transition-transform">
+              <img src="/assets/bni.png" alt="BNI" className="h-8" />
+            </div>
+            <div className="bg-white rounded-lg p-3 hover:scale-105 transition-transform">
+              <img src="/assets/bri.png" alt="BRI" className="h-8" />
+            </div>
+            <div className="bg-white rounded-lg p-3 hover:scale-105 transition-transform">
+              <img src="/assets/permata.png" alt="Permata" className="h-8" />
+            </div>
+            <div className="bg-white rounded-lg p-3 hover:scale-105 transition-transform">
+              <img src="/assets/bsi.png" alt="BSI" className="h-8" />
+            </div>
+            <div className="bg-white rounded-lg p-3 hover:scale-105 transition-transform">
+              <img src="/assets/danamon.png" alt="Danamon" className="h-8" />
+            </div>
+            <div className="bg-white rounded-lg p-3 hover:scale-105 transition-transform">
+              <img src="/assets/niaga.png" alt="CIMB Niaga" className="h-8" />
+            </div>
           </div>
         </motion.div>
       </div>
