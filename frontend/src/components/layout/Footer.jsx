@@ -179,12 +179,17 @@ export default function Footer() {
             
             {/* iPaymu Logo */}
             <div className="mb-6 p-4 bg-white rounded-xl inline-block">
-              <img 
-                src="/assets/ipaymu.png" 
-                alt="iPaymu Payment Gateway" 
-                className="h-8"
-              />
-              <p className="text-gray-600 text-xs mt-2 font-poppins">Secure Payment Gateway</p>
+              <div className="flex items-center gap-3 mb-2">
+                <img 
+                  src="/assets/ipaymu.png" 
+                  alt="iPaymu" 
+                  className="h-8"
+                />
+                <div className="font-montserrat font-bold text-2xl text-gray-800">
+                  iPaymu
+                </div>
+              </div>
+              <p className="text-gray-600 text-xs font-poppins">Secure Payment Gateway</p>
             </div>
             
             {/* Payment Methods */}
