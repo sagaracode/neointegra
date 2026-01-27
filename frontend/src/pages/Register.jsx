@@ -22,7 +22,7 @@ export default function Register() {
     full_name: '',
     email: '',
     phone: '',
-    company: '',
+    company_name: '',
     password: '',
     confirmPassword: '',
   })
@@ -48,7 +48,7 @@ export default function Register() {
       full_name: formData.full_name,
       email: formData.email,
       phone: formData.phone,
-      company: formData.company,
+      company_name: formData.company_name,
       password: formData.password,
     })
 
@@ -161,8 +161,8 @@ export default function Register() {
                     <BuildingOfficeIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                     <input
                       type="text"
-                      name="company"
-                      value={formData.company}
+                      name="company_name"
+                      value={formData.company_name}
                       onChange={handleChange}
                       className="input pl-12"
                       placeholder="Nama perusahaan"
