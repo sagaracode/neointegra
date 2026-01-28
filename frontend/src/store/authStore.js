@@ -6,7 +6,7 @@ const useAuthStore = create((set, get) => ({
   user: null,
   token: null,
   isAuthenticated: false,
-  isLoading: true, // Start with true to handle initial load
+  isLoading: false,
   error: null,
 
       // Actions
@@ -97,34 +97,25 @@ const useAuthStore = create((set, get) => ({
       },
 
       // Action to rehydrate auth state on app load
-      rehydrate: async () => {
+      rehydrate: () => {
         const token = localStorage.getItem('access_token');
         
-        if (!token) {
+        if (token) {
+          console.log('Token found, setting authenticated state');
+          set({ token, isAuthenticated: true, isLoading: false });
+          // Fetch user data in background (non-blocking)
+          authAPI.getMe()
+            .then(response => {
+              set({ user: response.data });
+              console.log('User data loaded:', response.data);
+            })
+            .catch(error => {
+              console.error('Failed to load user data:', error);
+              // If token is invalid, it will be handled by axios interceptor
+            });
+        } else {
           console.log('No token found, setting unauthenticated state');
           set({ isLoading: false, isAuthenticated: false, user: null, token: null });
-          return;
-        }
-
-        console.log('Token found, attempting to restore session...');
-        set({ isLoading: true });
-        
-        try {
-          // Set token first to authorize the getMe request
-          set({ token }); 
-          const userResponse = await authAPI.getMe();
-          set({ 
-            user: userResponse.data, 
-            token,
-            isAuthenticated: true, 
-            isLoading: false 
-          });
-          console.log('Session restored successfully:', userResponse.data);
-        } catch (error) {
-          console.error("Session restore failed:", error.response?.status, error.response?.data);
-          // If token is invalid, clear auth state
-          localStorage.removeItem('access_token');
-          set({ user: null, token: null, isAuthenticated: false, isLoading: false });
         }
       },
 
