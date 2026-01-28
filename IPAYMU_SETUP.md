@@ -22,6 +22,7 @@ File: `backend/.env`
 IPAYMU_VA=1179001393387726
 IPAYMU_API_KEY=CED87086-8579-48DA-AC7D-0F8D461C9961
 IPAYMU_PRODUCTION=true
+IPAYMU_BASE_URL=https://my.ipaymu.com/api/v2
 ```
 
 **PENTING:** Pastikan credentials ini **BENAR** dan **AKTIF** di akun iPaymu Anda:

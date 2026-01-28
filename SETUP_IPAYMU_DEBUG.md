@@ -121,8 +121,8 @@ IPAYMU_PRODUCTION=true
 IPAYMU_BASE_URL=https://my.ipaymu.com/api/v2
 
 # Backend URL (untuk callback)
-BACKEND_URL=https://api.yourdomain.com
-FRONTEND_URL=https://yourdomain.com
+BACKEND_URL=https://api.neointegratech.com
+FRONTEND_URL=https://neointegratech.com
 
 # Database
 DATABASE_URL=sqlite:///./neointegratech.db
@@ -143,8 +143,8 @@ SMTP_PASSWORD=your-app-password
 1. Login ke https://my.ipaymu.com
 2. Go to: **Settings > API Settings > Callback URL**
 3. Set:
-   - **Notify URL (Callback)**: `https://api.yourdomain.com/api/payments/callback`
-   - **Return URL**: `https://yourdomain.com/payment/success`
+   - **Notify URL (Callback)**: `https://api.neointegratech.com/api/payments/callback`
+   - **Return URL**: `https://neointegratech.com/payment/success`
 
 ⚠️ **PENTING**: 
 - Callback URL HARUS public URL (https), bukan localhost

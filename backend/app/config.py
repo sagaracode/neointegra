@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     
     # CORS
     FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    BACKEND_URL: str = os.getenv("BACKEND_URL", "http://localhost:8000")
     ALLOWED_ORIGINS: list = [
         "http://localhost:5173",
         "http://localhost:3000",
