@@ -27,23 +27,30 @@ const useAuthStore = create(
 
       // API Actions
       login: async (email, password) => {
-        set({ isLoading: true, error: null })
+        set({ isLoading: true, error: null });
         try {
-          const response = await authAPI.login({ email, password })
-          const { access_token } = response.data
+          const response = await authAPI.login({ email, password });
+          const { access_token, user: userData } = response.data;
+
+          // Set token and basic user data immediately
+          localStorage.setItem('access_token', access_token);
+          set({ 
+            token: access_token, 
+            user: userData, 
+            isAuthenticated: true, 
+            isLoading: false 
+          });
+
+          // Optional: You can still fetch more detailed user data if needed,
+          // but the login is already considered successful.
+          // For now, we trust the user data from the login response.
           
-          localStorage.setItem('access_token', access_token)
-          set({ token: access_token, isAuthenticated: true })
-          
-          // Fetch user data
-          const userResponse = await authAPI.getMe()
-          set({ user: userResponse.data, isLoading: false })
-          
-          return { success: true }
+          return { success: true };
         } catch (error) {
-          const message = error.response?.data?.detail || 'Login failed'
-          set({ error: message, isLoading: false })
-          return { success: false, error: message }
+          const message = error.response?.data?.detail || 'Login failed';
+          set({ error: message, isLoading: false, isAuthenticated: false, user: null, token: null });
+          localStorage.removeItem('access_token'); // Clear invalid token
+          return { success: false, error: message };
         }
       },
 

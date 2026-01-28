@@ -186,14 +186,6 @@ async def reset_password(request: ResetPasswordRequest, db: Session = Depends(ge
     return {"message": "Password reset successfully"}
 
 @router.get("/me", response_model=UserResponse)
-async def get_current_user_info(
-    db: Session = Depends(get_db),
-    authorization: Optional[str] = None
-):
-    """Get current user information"""
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Not authenticated")
-    
-    token = authorization.replace("Bearer ", "")
-    user = get_current_user(token, db)
-    return user
+async def get_current_user_info(current_user: User = Depends(get_current_active_user)):
+    """Get current user information from token"""
+    return current_user
