@@ -290,11 +290,28 @@ export default function Services() {
                 Konsultasikan kebutuhan digital Anda dan dapatkan solusi paling efisien untuk pertumbuhan jangka panjang.
               </p>
               <div className="flex gap-4 justify-center flex-wrap">
-                <Link to="/contact" className="btn btn-primary">
-                  {service.cta}
-                </Link>
+                <button
+                  className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={() => handleCheckout('all-in')}
+                  disabled={checkoutLoading === 'all-in'}
+                >
+                  {checkoutLoading === 'all-in' ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      Memproses...
+                    </span>
+                  ) : (
+                    'Checkout & Bayar Sekarang'
+                  )}
+                </button>
                 <Link to="/services/comparison" className="btn btn-secondary">
                   Lihat Perbandingan Harga
+                </Link>
+                <Link to="/contact" className="btn btn-outline">
+                  Konsultasi Gratis
                 </Link>
               </div>
             </div>
@@ -502,8 +519,25 @@ export default function Services() {
                   </p>
                 </div>
                 
-                <div className="text-center">
-                  <Link to="/services/all-in" className="btn btn-primary w-full mb-4">
+                <div className="space-y-4">
+                  <button
+                    className="btn btn-success w-full disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={() => handleCheckout(slug)}
+                    disabled={checkoutLoading === slug}
+                  >
+                    {checkoutLoading === slug ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        Memproses...
+                      </span>
+                    ) : (
+                      'Checkout & Bayar Sekarang'
+                    )}
+                  </button>
+                  <Link to="/services/all-in" className="btn btn-primary w-full">
                     {service.cta}
                   </Link>
                   <Link to="/services/comparison" className="btn btn-secondary w-full">

@@ -43,6 +43,7 @@ class VerifyEmailRequest(BaseModel):
 # ============= SERVICE SCHEMAS =============
 class ServiceBase(BaseModel):
     name: str
+    slug: Optional[str] = None
     description: Optional[str] = None
     category: str
     price: float

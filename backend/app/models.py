@@ -29,6 +29,7 @@ class Service(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
+    slug = Column(String, unique=True, index=True, nullable=True)  # URL-friendly identifier
     description = Column(Text, nullable=True)
     category = Column(String, nullable=False)  # web, mobile, design, consulting
     price = Column(Float, nullable=False)

@@ -18,6 +18,7 @@ def seed_services(db: Session):
     services_data = [
         {
             "name": "Paket All In Service",
+            "slug": "all-in",
             "description": "Paket paling hemat & optimal untuk bisnis jangka panjang. Sudah termasuk Website, SEO, Mail Server, Cloudflare, dan Hosting.",
             "category": "package",
             "price": 81000000,
@@ -26,6 +27,7 @@ def seed_services(db: Session):
         },
         {
             "name": "Website Service",
+            "slug": "website",
             "description": "Website Service Profesional - Pembuatan website custom dengan performa tinggi.",
             "category": "web",
             "price": 36000000,
@@ -34,6 +36,7 @@ def seed_services(db: Session):
         },
         {
             "name": "SEO Service",
+            "slug": "seo",
             "description": "SEO Service Berkelanjutan (12 Bulan) - Optimasi mesin pencari profesional.",
             "category": "marketing",
             "price": 42000000,
@@ -42,6 +45,7 @@ def seed_services(db: Session):
         },
         {
             "name": "Mail Server Service",
+            "slug": "mail-server",
             "description": "Mail Server Bisnis Profesional - Email bisnis dengan domain perusahaan.",
             "category": "email",
             "price": 15000000,
@@ -50,6 +54,7 @@ def seed_services(db: Session):
         },
         {
             "name": "Cloudflare Service",
+            "slug": "cloudflare",
             "description": "Cloudflare Protection & Performance - Keamanan dan performa maksimal.",
             "category": "security",
             "price": 24000000,
@@ -59,10 +64,14 @@ def seed_services(db: Session):
     ]
     
     for service_data in services_data:
-        existing = db.query(Service).filter(Service.name == service_data["name"]).first()
+        existing = db.query(Service).filter(Service.slug == service_data["slug"]).first()
         if not existing:
             service = Service(**service_data)
             db.add(service)
+        else:
+            # Update existing service with slug if needed
+            for key, value in service_data.items():
+                setattr(existing, key, value)
     
     db.commit()
     print("✅ Services seeded successfully!")
