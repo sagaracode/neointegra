@@ -291,7 +291,7 @@ export default function Services() {
               </p>
               <div className="flex gap-4 justify-center flex-wrap">
                 <button
-                  className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn btn-primary border-4 border-yellow-400/50 shadow-xl shadow-yellow-500/30 hover:shadow-2xl hover:shadow-yellow-500/50 hover:border-yellow-400 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed px-8 py-4 text-lg font-bold"
                   onClick={() => handleCheckout('all-in')}
                   disabled={checkoutLoading === 'all-in'}
                 >
@@ -521,7 +521,7 @@ export default function Services() {
                 
                 <div className="space-y-4">
                   <button
-                    className="btn btn-success w-full disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="btn btn-success w-full border-4 border-green-400/50 shadow-xl shadow-green-500/30 hover:shadow-2xl hover:shadow-green-500/50 hover:border-green-400 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed py-4 text-lg font-bold"
                     onClick={() => handleCheckout(slug)}
                     disabled={checkoutLoading === slug}
                   >
@@ -701,7 +701,7 @@ export default function Services() {
                       </div>
                     </Link>
                     <button
-                      className="btn btn-success w-full mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="btn btn-success w-full mt-4 border-4 border-green-400/50 shadow-lg shadow-green-500/30 hover:shadow-xl hover:shadow-green-500/50 hover:border-green-400 hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed py-3 font-bold"
                       onClick={() => handleCheckout(key)}
                       disabled={checkoutLoading === key}
                     >
