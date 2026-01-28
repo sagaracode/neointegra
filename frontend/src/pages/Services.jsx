@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ArrowRightIcon, CheckIcon } from '@heroicons/react/24/outline'
-import { servicesAPI } from '../services/api'
+import { servicesAPI, ordersAPI, paymentsAPI } from '../services/api'
+import { useAuthStore } from '../store/authStore'
+import toast from 'react-hot-toast'
 
 const serviceData = {
   'all-in': {
@@ -124,8 +126,11 @@ const serviceData = {
 
 export default function Services() {
   const { slug } = useParams()
+  const navigate = useNavigate()
+  const { isAuthenticated } = useAuthStore()
   const [services, setServices] = useState([])
   const [loading, setLoading] = useState(true)
+  const [checkoutLoading, setCheckoutLoading] = useState(null)
 
   useEffect(() => {
     loadServices()
@@ -139,6 +144,51 @@ export default function Services() {
       console.error('Failed to load services:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleCheckout = async (serviceSlug) => {
+    if (!isAuthenticated) {
+      toast.error('Silakan login terlebih dahulu')
+      navigate('/login?redirect=/services')
+      return
+    }
+
+    setCheckoutLoading(serviceSlug)
+    
+    try {
+      // 1. Create order
+      const orderResponse = await ordersAPI.create({
+        service_slug: serviceSlug,
+        quantity: 1,
+        notes: `Order from Services page - ${serviceSlug}`
+      })
+      
+      const orderId = orderResponse.data.id
+      const totalPrice = orderResponse.data.total_price
+
+      // 2. Create payment
+      const paymentResponse = await paymentsAPI.create({
+        order_id: orderId,
+        payment_method: 'va',
+        payment_channel: 'bca',
+        amount: totalPrice
+      })
+
+      const paymentData = paymentResponse.data
+
+      // 3. Redirect to payment URL
+      if (paymentData.payment_url) {
+        window.location.href = paymentData.payment_url
+      } else {
+        toast.error('URL pembayaran tidak tersedia')
+      }
+    } catch (error) {
+      console.error('Checkout error:', error)
+      const errorMessage = error?.response?.data?.detail || error.message || 'Gagal melakukan checkout'
+      toast.error(errorMessage)
+    } finally {
+      setCheckoutLoading(null)
     }
   }
 
@@ -617,24 +667,21 @@ export default function Services() {
                       </div>
                     </Link>
                     <button
-                      className="btn btn-success w-full mt-4"
-                      onClick={async (e) => {
-                        e.preventDefault();
-                        try {
-                          // 1. Create order
-                          const orderRes = await window.ordersAPI.create({ service_slug: key });
-                          const orderId = orderRes.data.id;
-                          // 2. Create payment
-                          const paymentRes = await window.paymentsAPI.create({ order_id: orderId });
-                          const paymentUrl = paymentRes.data.payment_url;
-                          // 3. Redirect to payment
-                          window.location.href = paymentUrl;
-                        } catch (err) {
-                          alert('Gagal checkout: ' + (err?.response?.data?.detail || err.message));
-                        }
-                      }}
+                      className="btn btn-success w-full mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                      onClick={() => handleCheckout(key)}
+                      disabled={checkoutLoading === key}
                     >
-                      Checkout & Bayar
+                      {checkoutLoading === key ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                          </svg>
+                          Memproses...
+                        </span>
+                      ) : (
+                        'Checkout & Bayar'
+                      )}
                     </button>
                   </div>
                 </motion.div>
