@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Header
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from typing import Optional
@@ -54,15 +54,22 @@ def get_current_user(token: str, db: Session):
 
 # Dependency for protected routes
 async def get_current_active_user(
-    token: str = Depends(lambda: None),  # Will be set by route
+    authorization: Optional[str] = Header(None),
     db: Session = Depends(get_db)
 ) -> User:
     """Dependency to get current active user from token"""
-    if not token:
-        raise HTTPException(status_code=401, detail="Not authenticated")
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(
+            status_code=401, 
+            detail="Not authenticated. Please provide Authorization header."
+        )
+    
+    token = authorization.replace("Bearer ", "")
     user = get_current_user(token, db)
+    
     if not user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
+    
     return user
 
 # ============= ENDPOINTS =============
@@ -73,7 +80,10 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
         # Check if email exists
         existing_user = db.query(User).filter(User.email == user_data.email).first()
         if existing_user:
-            raise HTTPException(status_code=400, detail="Email already registered")
+            raise HTTPException(
+                status_code=400, 
+                detail="Email sudah terdaftar. Silakan gunakan email lain atau login."
+            )
         
         # Create verification token
         verification_token = secrets.token_urlsafe(32)
@@ -109,11 +119,12 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
             "user": new_user
         }
     except HTTPException:
+        db.rollback()
         raise
     except Exception as e:
         print(f"Registration error: {str(e)}")
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Registration failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Registrasi gagal: {str(e)}")
 
 @router.post("/login", response_model=Token)
 async def login(credentials: UserLogin, db: Session = Depends(get_db)):

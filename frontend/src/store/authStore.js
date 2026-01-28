@@ -1,16 +1,13 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
 import { authAPI } from '../services/api'
 
-const useAuthStore = create(
-  persist(
-    (set, get) => ({
-      // State
-      user: null,
-      token: null,
-      isAuthenticated: false,
-      isLoading: false,
-      error: null,
+const useAuthStore = create((set, get) => ({
+  // State
+  user: null,
+  token: null,
+  isAuthenticated: false,
+  isLoading: true, // Start with true to handle initial load
+  error: null,
 
       // Actions
       setUser: (user) => set({ user, isAuthenticated: !!user }),
@@ -102,27 +99,38 @@ const useAuthStore = create(
       // Action to rehydrate auth state on app load
       rehydrate: async () => {
         const token = localStorage.getItem('access_token');
-        if (token && !get().isAuthenticated) {
-          set({ isLoading: true });
-          try {
-            // Set token first to authorize the getMe request
-            set({ token, isAuthenticated: true }); 
-            const userResponse = await authAPI.getMe();
-            set({ user: userResponse.data, isLoading: false });
-          } catch (error) {
-            console.error("Session restore failed:", error);
-            // If token is invalid, clear auth state
-            localStorage.removeItem('access_token');
-            set({ user: null, token: null, isAuthenticated: false, isLoading: false });
-          }
-        } else {
-          set({ isLoading: false }); // Ensure loading is false if no token
+        
+        if (!token) {
+          set({ isLoading: false, isAuthenticated: false, user: null, token: null });
+          return;
+        }
+
+        set({ isLoading: true });
+        try {
+          // Set token first to authorize the getMe request
+          set({ token }); 
+          const userResponse = await authAPI.getMe();
+          set({ 
+            user: userResponse.data, 
+            token,
+            isAuthenticated: true, 
+            isLoading: false 
+          });
+          console.log('Session restored successfully');
+        } catch (error) {
+          console.error("Session restore failed:", error);
+          // If token is invalid, clear auth state
+          localStorage.removeItem('access_token');
+          set({ user: null, token: null, isAuthenticated: false, isLoading: false });
         }
       },
 
       fetchUser: async () => {
         const token = localStorage.getItem('access_token');
-        if (!token) return;
+        if (!token) {
+          set({ isLoading: false });
+          return;
+        }
         
         set({ isLoading: true });
         try {
@@ -133,8 +141,10 @@ const useAuthStore = create(
           set({ user: null, isAuthenticated: false, isLoading: false })
         }
       },
-    }),
-    {
+    }
+))
+
+export default useAuthStore
       name: 'auth-storage',
       partialize: (state) => ({ token: state.token }),
     }
