@@ -145,10 +145,3 @@ const useAuthStore = create((set, get) => ({
 ))
 
 export default useAuthStore
-      name: 'auth-storage',
-      partialize: (state) => ({ token: state.token }),
-    }
-  )
-)
-
-export default useAuthStore
