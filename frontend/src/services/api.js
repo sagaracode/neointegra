@@ -47,7 +47,7 @@ export const authAPI = {
 
 // Services API
 export const servicesAPI = {
-  getAll: (params) => api.get('/services', { params }),
+  getAll: (params) => api.get('/services/', { params }),
   getFeatured: () => api.get('/services/featured'),
   getTypes: () => api.get('/services/types'),
   getBySlug: (slug) => api.get(`/services/${slug}`),
@@ -56,15 +56,15 @@ export const servicesAPI = {
 
 // Orders API
 export const ordersAPI = {
-  create: (data) => api.post('/orders', data),
-  getAll: (params) => api.get('/orders', { params }),
+  create: (data) => api.post('/orders/', data),
+  getAll: (params) => api.get('/orders/', { params }),
   getByNumber: (orderNumber) => api.get(`/orders/${orderNumber}`),
   cancel: (orderNumber) => api.delete(`/orders/${orderNumber}`),
 }
 
 // Payments API
 export const paymentsAPI = {
-  create: (data) => api.post('/payments/create', data),
+  create: (data) => api.post('/payments/', data),
   getById: (id) => api.get(`/payments/${id}`),
   getByOrder: (orderId) => api.get(`/payments/order/${orderId}`),
   checkStatus: (paymentId) => api.post(`/payments/check-status/${paymentId}`),

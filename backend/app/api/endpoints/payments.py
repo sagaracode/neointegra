@@ -22,18 +22,32 @@ def get_user_from_token(authorization: Optional[str], db: Session):
     return get_current_user(token, db)
 
 def generate_ipaymu_signature(body: dict, method: str = "POST") -> str:
-    """Generate iPaymu signature according to official documentation"""
+    """Generate iPaymu signature according to official documentation
+    
+    Format: SHA256(METHOD:VA:BODY_JSON:API_KEY)
+    - METHOD: POST or GET (uppercase)
+    - VA: Virtual Account number
+    - BODY_JSON: JSON body with NO SPACES after colon, lowercase keys
+    - API_KEY: Your API Key
+    """
     va = settings.IPAYMU_VA
     api_key = settings.IPAYMU_API_KEY
     
-    # Create body string (lowercase keys, no spaces after colon)
-    body_encoded = json.dumps(body, separators=(',', ':')).lower()
+    # Create body string - JSON with NO SPACES, but preserve case for values
+    body_encoded = json.dumps(body, separators=(',', ':'))
     
-    # Create string to sign: POST/GET:VA:BODY:APIKEY
+    # Create string to sign: METHOD:VA:BODY:APIKEY
     string_to_sign = f"{method.upper()}:{va}:{body_encoded}:{api_key}"
     
     # Generate SHA256 hash
     signature = hashlib.sha256(string_to_sign.encode()).hexdigest()
+    
+    print(f"[iPaymu Signature Debug]")
+    print(f"  VA: {va}")
+    print(f"  API Key: {api_key[:20]}...")
+    print(f"  Body: {body_encoded}")
+    print(f"  String to sign: {string_to_sign[:100]}...")
+    print(f"  Signature: {signature}")
     
     return signature
 

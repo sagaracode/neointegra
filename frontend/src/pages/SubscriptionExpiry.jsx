@@ -69,7 +69,7 @@ export default function SubscriptionExpiry() {
       const { order_id } = orderResponse.data
 
       // Step 2: Create payment
-      const paymentResponse = await api.post('/payments/create', {
+      const paymentResponse = await api.post('/payments/', {
         order_id: order_id,
         payment_method: selectedMethod,
         payment_channel: selectedChannel,
