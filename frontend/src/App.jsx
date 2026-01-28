@@ -29,10 +29,22 @@ import VerifyEmail from './pages/VerifyEmail'
 import PrivateRoute from './components/PrivateRoute';
 
 function App() {
-  const { rehydrate } = useAuthStore();
+  const { rehydrate, isLoading } = useAuthStore();
 
   useEffect(() => {
-    rehydrate();
+    // Set a timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      const { isLoading } = useAuthStore.getState();
+      if (isLoading) {
+        console.error('Rehydrate timeout - forcing unauthenticated state');
+        useAuthStore.setState({ isLoading: false, isAuthenticated: false, user: null, token: null });
+        localStorage.removeItem('access_token');
+      }
+    }, 5000); // 5 second timeout
+
+    rehydrate().finally(() => clearTimeout(timeoutId));
+
+    return () => clearTimeout(timeoutId);
   }, [rehydrate]);
 
   return (
