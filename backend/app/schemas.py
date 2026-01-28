@@ -71,6 +71,12 @@ class OrderCreate(OrderBase):
     unit_price: float
     total_price: float
 
+class OrderCreateSimple(BaseModel):
+    """Simplified order creation - only requires service_slug"""
+    service_slug: str
+    quantity: int = 1
+    notes: Optional[str] = None
+
 class OrderResponse(BaseModel):
     id: int
     user_id: int

@@ -5,7 +5,7 @@ from datetime import datetime
 
 from ...database import get_db
 from ...models import Order, Service, User
-from ...schemas import OrderCreate, OrderResponse
+from ...schemas import OrderCreate, OrderCreateSimple, OrderResponse
 from .auth import get_current_user
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
@@ -24,11 +24,48 @@ def generate_order_number() -> str:
 
 @router.post("/", response_model=OrderResponse, status_code=201)
 async def create_order(
+    order_data: OrderCreateSimple,
+    authorization: Optional[str] = Header(None),
+    db: Session = Depends(get_db)
+):
+    """Create new order with service slug (simplified)"""
+    user = get_user_from_token(authorization, db)
+    
+    # Find service by slug
+    service = db.query(Service).filter(Service.slug == order_data.service_slug).first()
+    if not service:
+        raise HTTPException(status_code=404, detail=f"Service dengan slug '{order_data.service_slug}' tidak ditemukan")
+    
+    # Calculate prices
+    unit_price = service.price
+    total_price = unit_price * order_data.quantity
+    
+    # Create order
+    new_order = Order(
+        user_id=user.id,
+        order_number=generate_order_number(),
+        service_id=service.id,
+        service_name=service.name,
+        quantity=order_data.quantity,
+        unit_price=unit_price,
+        total_price=total_price,
+        notes=order_data.notes,
+        status="pending"
+    )
+    
+    db.add(new_order)
+    db.commit()
+    db.refresh(new_order)
+    
+    return new_order
+
+@router.post("/full", response_model=OrderResponse, status_code=201)
+async def create_order_full(
     order_data: OrderCreate,
     authorization: Optional[str] = Header(None),
     db: Session = Depends(get_db)
 ):
-    """Create new order"""
+    """Create new order with full details (backward compatibility)"""
     user = get_user_from_token(authorization, db)
     
     # Verify service exists if service_id provided
