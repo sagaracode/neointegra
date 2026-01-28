@@ -10,7 +10,6 @@ import {
   MagnifyingGlassIcon
 } from '@heroicons/react/24/outline'
 import { ordersAPI } from '../services/api'
-import useAuthStore from '../store/authStore'
 
 const statusConfig = {
   pending: {
@@ -52,19 +51,14 @@ const statusConfig = {
 
 export default function Orders() {
   const navigate = useNavigate()
-  const { isAuthenticated } = useAuthStore()
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login?redirect=/orders')
-      return
-    }
     loadOrders()
-  }, [isAuthenticated, navigate])
+  }, [])
 
   const loadOrders = async () => {
     try {

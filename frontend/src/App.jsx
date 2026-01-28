@@ -29,12 +29,11 @@ import VerifyEmail from './pages/VerifyEmail'
 import PrivateRoute from './components/PrivateRoute';
 
 function App() {
-  const { rehydrate } = useAuthStore();
+  const { initialize } = useAuthStore();
 
   useEffect(() => {
-    // Rehydrate is now synchronous, no timeout needed
-    rehydrate();
-  }, [rehydrate]);
+    initialize();
+  }, []);
 
   return (
     <div className="min-h-screen bg-dark-300 flex flex-col">

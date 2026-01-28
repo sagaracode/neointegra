@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
-import { Routes, Route, Navigate, Link, useLocation } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Routes, Route, Link, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
   HomeIcon,
@@ -8,22 +8,78 @@ import {
   UserIcon,
   Cog6ToothIcon,
   ArrowRightOnRectangleIcon,
+  ClockIcon,
+  CheckCircleIcon,
+  XCircleIcon,
 } from '@heroicons/react/24/outline'
+import toast from 'react-hot-toast'
 import useAuthStore from '../store/authStore'
+import { ordersAPI, paymentsAPI, usersAPI } from '../services/api'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
-  { name: 'Orders', href: '/dashboard/orders', icon: ShoppingCartIcon },
-  { name: 'Payments', href: '/dashboard/payments', icon: CreditCardIcon },
-  { name: 'Profile', href: '/dashboard/profile', icon: UserIcon },
-  { name: 'Settings', href: '/dashboard/settings', icon: Cog6ToothIcon },
+  { name: 'Pesanan Saya', href: '/dashboard/orders', icon: ShoppingCartIcon },
+  { name: 'Riwayat Pembayaran', href: '/dashboard/payments', icon: CreditCardIcon },
+  { name: 'Profil', href: '/dashboard/profile', icon: UserIcon },
+  { name: 'Pengaturan', href: '/dashboard/settings', icon: Cog6ToothIcon },
 ]
 
+const statusConfig = {
+  pending: { label: 'Menunggu', color: 'text-yellow-400', bg: 'bg-yellow-600/20' },
+  paid: { label: 'Dibayar', color: 'text-green-400', bg: 'bg-green-600/20' },
+  processing: { label: 'Diproses', color: 'text-blue-400', bg: 'bg-blue-600/20' },
+  completed: { label: 'Selesai', color: 'text-green-400', bg: 'bg-green-600/20' },
+  cancelled: { label: 'Dibatalkan', color: 'text-red-400', bg: 'bg-red-600/20' },
+  failed: { label: 'Gagal', color: 'text-red-400', bg: 'bg-red-600/20' },
+}
+
+// Dashboard Home Component
 function DashboardHome() {
   const { user } = useAuthStore()
+  const [stats, setStats] = useState({
+    totalOrders: 0,
+    pendingOrders: 0,
+    completedOrders: 0,
+    totalSpent: 0
+  })
+  const [recentOrders, setRecentOrders] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    loadDashboardData()
+  }, [])
+
+  const loadDashboardData = async () => {
+    try {
+      const response = await ordersAPI.getAll()
+      const orders = response.data || []
+      
+      setRecentOrders(orders.slice(0, 5))
+      setStats({
+        totalOrders: orders.length,
+        pendingOrders: orders.filter(o => o.status === 'pending').length,
+        completedOrders: orders.filter(o => o.status === 'completed').length,
+        totalSpent: orders.filter(o => o.status === 'paid' || o.status === 'completed')
+          .reduce((sum, o) => sum + (o.total_amount || 0), 0)
+      })
+    } catch (error) {
+      console.error('Failed to load dashboard data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0
+    }).format(amount)
+  }
 
   return (
     <div className="space-y-6">
+      {/* Welcome */}
       <div>
         <h1 className="font-montserrat font-bold text-2xl text-white">
           Selamat Datang, {user?.full_name || 'User'}!
@@ -33,13 +89,13 @@ function DashboardHome() {
         </p>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid md:grid-cols-4 gap-6">
+      {/* Stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Active Services', value: '3', color: 'from-blue-500 to-cyan-500' },
-          { label: 'Pending Orders', value: '1', color: 'from-yellow-500 to-orange-500' },
-          { label: 'Total Spent', value: 'Rp 2.5M', color: 'from-green-500 to-emerald-500' },
-          { label: 'Support Tickets', value: '0', color: 'from-purple-500 to-pink-500' },
+          { label: 'Total Pesanan', value: stats.totalOrders, color: 'from-blue-500 to-cyan-500' },
+          { label: 'Menunggu Bayar', value: stats.pendingOrders, color: 'from-yellow-500 to-orange-500' },
+          { label: 'Selesai', value: stats.completedOrders, color: 'from-green-500 to-emerald-500' },
+          { label: 'Total Belanja', value: formatCurrency(stats.totalSpent), color: 'from-purple-500 to-pink-500' },
         ].map((stat, index) => (
           <motion.div
             key={index}
@@ -48,10 +104,12 @@ function DashboardHome() {
             transition={{ delay: index * 0.1 }}
             className="card"
           >
-            <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center mb-4`}>
-              <span className="text-white text-xl font-bold">{stat.value.charAt(0)}</span>
+            <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${stat.color} flex items-center justify-center mb-3`}>
+              <span className="text-white text-sm font-bold">
+                {typeof stat.value === 'number' ? stat.value : '💰'}
+              </span>
             </div>
-            <div className="font-montserrat font-bold text-2xl text-white mb-1">
+            <div className="font-montserrat font-bold text-xl text-white mb-1">
               {stat.value}
             </div>
             <div className="text-gray-400 font-poppins text-sm">
@@ -63,174 +121,454 @@ function DashboardHome() {
 
       {/* Quick Actions */}
       <div className="card">
-        <h2 className="font-montserrat font-bold text-xl text-white mb-6">
-          Quick Actions
+        <h2 className="font-montserrat font-bold text-lg text-white mb-4">
+          Aksi Cepat
         </h2>
         <div className="grid md:grid-cols-3 gap-4">
           <Link
             to="/services"
-            className="p-4 rounded-xl bg-dark-200 hover:bg-dark-100 border border-white/5 hover:border-primary-500/30 transition-all group"
+            className="p-4 rounded-xl bg-dark-200 hover:bg-dark-100 border border-white/5 hover:border-primary-500/30 transition-all"
           >
-            <div className="font-montserrat font-semibold text-white group-hover:text-primary-400">
-              Order New Service
-            </div>
-            <p className="text-gray-500 text-sm">Browse our services</p>
+            <div className="font-montserrat font-semibold text-white">Order Layanan Baru</div>
+            <p className="text-gray-500 text-sm">Lihat katalog layanan kami</p>
           </Link>
           <Link
             to="/dashboard/orders"
-            className="p-4 rounded-xl bg-dark-200 hover:bg-dark-100 border border-white/5 hover:border-primary-500/30 transition-all group"
+            className="p-4 rounded-xl bg-dark-200 hover:bg-dark-100 border border-white/5 hover:border-primary-500/30 transition-all"
           >
-            <div className="font-montserrat font-semibold text-white group-hover:text-primary-400">
-              View Orders
-            </div>
-            <p className="text-gray-500 text-sm">Check order status</p>
+            <div className="font-montserrat font-semibold text-white">Lihat Pesanan</div>
+            <p className="text-gray-500 text-sm">Cek status pesanan Anda</p>
           </Link>
           <Link
             to="/contact"
-            className="p-4 rounded-xl bg-dark-200 hover:bg-dark-100 border border-white/5 hover:border-primary-500/30 transition-all group"
+            className="p-4 rounded-xl bg-dark-200 hover:bg-dark-100 border border-white/5 hover:border-primary-500/30 transition-all"
           >
-            <div className="font-montserrat font-semibold text-white group-hover:text-primary-400">
-              Get Support
-            </div>
-            <p className="text-gray-500 text-sm">Contact our team</p>
+            <div className="font-montserrat font-semibold text-white">Bantuan</div>
+            <p className="text-gray-500 text-sm">Hubungi tim support</p>
           </Link>
         </div>
       </div>
+
+      {/* Recent Orders */}
+      <div className="card">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="font-montserrat font-bold text-lg text-white">Pesanan Terbaru</h2>
+          <Link to="/dashboard/orders" className="text-primary-400 text-sm hover:text-primary-300">
+            Lihat Semua →
+          </Link>
+        </div>
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-400 mx-auto"></div>
+          </div>
+        ) : recentOrders.length === 0 ? (
+          <p className="text-gray-400 text-center py-8">
+            Belum ada pesanan. <Link to="/services" className="text-primary-400">Order sekarang</Link>
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {recentOrders.map(order => {
+              const status = statusConfig[order.status] || statusConfig.pending
+              return (
+                <div key={order.id} className="flex items-center justify-between p-3 bg-dark-200 rounded-lg">
+                  <div>
+                    <div className="font-medium text-white">{order.order_number}</div>
+                    <div className="text-sm text-gray-400">{order.service_name}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-medium text-white">{formatCurrency(order.total_amount)}</div>
+                    <span className={`text-xs px-2 py-1 rounded ${status.bg} ${status.color}`}>
+                      {status.label}
+                    </span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
 
+// Dashboard Orders Component
 function DashboardOrders() {
+  const [orders, setOrders] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    loadOrders()
+  }, [])
+
+  const loadOrders = async () => {
+    try {
+      const response = await ordersAPI.getAll()
+      setOrders(response.data || [])
+    } catch (error) {
+      console.error('Failed to load orders:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency', currency: 'IDR', minimumFractionDigits: 0
+    }).format(amount)
+  }
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('id-ID', {
+      day: 'numeric', month: 'short', year: 'numeric'
+    })
+  }
+
   return (
     <div>
-      <h1 className="font-montserrat font-bold text-2xl text-white mb-6">
-        My Orders
-      </h1>
-      <div className="card">
-        <p className="text-gray-400 text-center py-8">
-          No orders yet. <Link to="/services" className="text-primary-400 hover:text-primary-300">Browse our services</Link> to get started.
-        </p>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="font-montserrat font-bold text-2xl text-white">Pesanan Saya</h1>
+        <Link to="/services" className="btn btn-primary text-sm">
+          + Order Baru
+        </Link>
       </div>
+      
+      {loading ? (
+        <div className="card text-center py-12">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-400 mx-auto mb-4"></div>
+          <p className="text-gray-400">Memuat pesanan...</p>
+        </div>
+      ) : orders.length === 0 ? (
+        <div className="card text-center py-12">
+          <ShoppingCartIcon className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+          <p className="text-gray-400 mb-4">Belum ada pesanan.</p>
+          <Link to="/services" className="btn btn-primary">Lihat Layanan</Link>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {orders.map(order => {
+            const status = statusConfig[order.status] || statusConfig.pending
+            return (
+              <div key={order.id} className="card">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="font-montserrat font-bold text-white">{order.order_number}</span>
+                      <span className={`text-xs px-2 py-1 rounded ${status.bg} ${status.color}`}>
+                        {status.label}
+                      </span>
+                    </div>
+                    <p className="text-gray-400">{order.service_name}</p>
+                    <p className="text-gray-500 text-sm">{formatDate(order.created_at)}</p>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-montserrat font-bold text-xl text-white mb-2">
+                      {formatCurrency(order.total_amount)}
+                    </div>
+                    {order.status === 'pending' && order.payment_url && (
+                      <a 
+                        href={order.payment_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-primary text-sm"
+                      >
+                        Bayar Sekarang
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }
 
+// Dashboard Payments Component
 function DashboardPayments() {
+  const [payments, setPayments] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    loadPayments()
+  }, [])
+
+  const loadPayments = async () => {
+    try {
+      // Get all orders and extract payment info
+      const response = await ordersAPI.getAll()
+      const orders = response.data || []
+      // Filter orders that have payment info
+      const paidOrders = orders.filter(o => o.status !== 'pending' && o.status !== 'cancelled')
+      setPayments(paidOrders)
+    } catch (error) {
+      console.error('Failed to load payments:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency', currency: 'IDR', minimumFractionDigits: 0
+    }).format(amount)
+  }
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('id-ID', {
+      day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+    })
+  }
+
   return (
     <div>
-      <h1 className="font-montserrat font-bold text-2xl text-white mb-6">
-        Payment History
-      </h1>
-      <div className="card">
-        <p className="text-gray-400 text-center py-8">
-          No payment history yet.
-        </p>
-      </div>
+      <h1 className="font-montserrat font-bold text-2xl text-white mb-6">Riwayat Pembayaran</h1>
+      
+      {loading ? (
+        <div className="card text-center py-12">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-400 mx-auto mb-4"></div>
+          <p className="text-gray-400">Memuat riwayat...</p>
+        </div>
+      ) : payments.length === 0 ? (
+        <div className="card text-center py-12">
+          <CreditCardIcon className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+          <p className="text-gray-400">Belum ada riwayat pembayaran.</p>
+        </div>
+      ) : (
+        <div className="card overflow-hidden">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-white/10">
+                <th className="text-left py-3 px-4 text-gray-400 font-medium">Order</th>
+                <th className="text-left py-3 px-4 text-gray-400 font-medium">Layanan</th>
+                <th className="text-left py-3 px-4 text-gray-400 font-medium">Tanggal</th>
+                <th className="text-right py-3 px-4 text-gray-400 font-medium">Jumlah</th>
+                <th className="text-center py-3 px-4 text-gray-400 font-medium">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {payments.map(payment => {
+                const status = statusConfig[payment.status] || statusConfig.paid
+                return (
+                  <tr key={payment.id} className="border-b border-white/5">
+                    <td className="py-3 px-4 text-white font-medium">{payment.order_number}</td>
+                    <td className="py-3 px-4 text-gray-300">{payment.service_name}</td>
+                    <td className="py-3 px-4 text-gray-400">{formatDate(payment.created_at)}</td>
+                    <td className="py-3 px-4 text-white text-right font-medium">{formatCurrency(payment.total_amount)}</td>
+                    <td className="py-3 px-4 text-center">
+                      <span className={`text-xs px-2 py-1 rounded ${status.bg} ${status.color}`}>
+                        {status.label}
+                      </span>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   )
 }
 
+// Dashboard Profile Component
 function DashboardProfile() {
-  const { user } = useAuthStore()
+  const { user, fetchUser } = useAuthStore()
+  const [formData, setFormData] = useState({
+    full_name: '',
+    email: '',
+    phone: '',
+    company_name: ''
+  })
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        full_name: user.full_name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        company_name: user.company_name || ''
+      })
+    }
+  }, [user])
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value })
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setSaving(true)
+    try {
+      await usersAPI.updateProfile(formData)
+      toast.success('Profil berhasil diperbarui!')
+      fetchUser()
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Gagal memperbarui profil')
+    } finally {
+      setSaving(false)
+    }
+  }
 
   return (
     <div>
-      <h1 className="font-montserrat font-bold text-2xl text-white mb-6">
-        Profile Settings
-      </h1>
+      <h1 className="font-montserrat font-bold text-2xl text-white mb-6">Profil Saya</h1>
+      
       <div className="card max-w-2xl">
-        <div className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <label className="block font-poppins text-gray-300 mb-2">Full Name</label>
+              <label className="block font-poppins text-gray-300 mb-2">Nama Lengkap</label>
               <input
                 type="text"
-                defaultValue={user?.full_name}
+                name="full_name"
+                value={formData.full_name}
+                onChange={handleChange}
                 className="input"
+                required
               />
             </div>
             <div>
               <label className="block font-poppins text-gray-300 mb-2">Email</label>
               <input
                 type="email"
-                defaultValue={user?.email}
-                className="input"
+                name="email"
+                value={formData.email}
+                className="input bg-dark-100 cursor-not-allowed"
                 disabled
               />
+              <p className="text-xs text-gray-500 mt-1">Email tidak dapat diubah</p>
             </div>
             <div>
-              <label className="block font-poppins text-gray-300 mb-2">Phone</label>
+              <label className="block font-poppins text-gray-300 mb-2">No. Telepon</label>
               <input
                 type="tel"
-                defaultValue={user?.phone}
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
                 className="input"
               />
             </div>
             <div>
-              <label className="block font-poppins text-gray-300 mb-2">Company</label>
+              <label className="block font-poppins text-gray-300 mb-2">Perusahaan</label>
               <input
                 type="text"
-                defaultValue={user?.company}
+                name="company_name"
+                value={formData.company_name}
+                onChange={handleChange}
                 className="input"
               />
             </div>
           </div>
-          <button className="btn btn-primary">
-            Save Changes
+          <button type="submit" className="btn btn-primary" disabled={saving}>
+            {saving ? 'Menyimpan...' : 'Simpan Perubahan'}
           </button>
-        </div>
+        </form>
       </div>
     </div>
   )
 }
 
+// Dashboard Settings Component
 function DashboardSettings() {
+  const [passwords, setPasswords] = useState({
+    current: '',
+    new: '',
+    confirm: ''
+  })
+  const [saving, setSaving] = useState(false)
+
+  const handleChange = (e) => {
+    setPasswords({ ...passwords, [e.target.name]: e.target.value })
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    
+    if (passwords.new !== passwords.confirm) {
+      toast.error('Password baru tidak cocok!')
+      return
+    }
+    
+    if (passwords.new.length < 8) {
+      toast.error('Password minimal 8 karakter!')
+      return
+    }
+
+    setSaving(true)
+    try {
+      await usersAPI.updateProfile({ password: passwords.new })
+      toast.success('Password berhasil diperbarui!')
+      setPasswords({ current: '', new: '', confirm: '' })
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Gagal mengubah password')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   return (
     <div>
-      <h1 className="font-montserrat font-bold text-2xl text-white mb-6">
-        Account Settings
-      </h1>
+      <h1 className="font-montserrat font-bold text-2xl text-white mb-6">Pengaturan Akun</h1>
+      
       <div className="card max-w-2xl">
-        <div className="space-y-6">
+        <h3 className="font-montserrat font-semibold text-lg text-white mb-4">Ubah Password</h3>
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <h3 className="font-montserrat font-semibold text-lg text-white mb-4">
-              Change Password
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block font-poppins text-gray-300 mb-2">Current Password</label>
-                <input type="password" className="input" />
-              </div>
-              <div>
-                <label className="block font-poppins text-gray-300 mb-2">New Password</label>
-                <input type="password" className="input" />
-              </div>
-              <div>
-                <label className="block font-poppins text-gray-300 mb-2">Confirm New Password</label>
-                <input type="password" className="input" />
-              </div>
-              <button className="btn btn-primary">
-                Update Password
-              </button>
-            </div>
+            <label className="block font-poppins text-gray-300 mb-2">Password Saat Ini</label>
+            <input 
+              type="password" 
+              name="current"
+              value={passwords.current}
+              onChange={handleChange}
+              className="input" 
+              required
+            />
           </div>
-        </div>
+          <div>
+            <label className="block font-poppins text-gray-300 mb-2">Password Baru</label>
+            <input 
+              type="password" 
+              name="new"
+              value={passwords.new}
+              onChange={handleChange}
+              className="input" 
+              required
+              minLength={8}
+            />
+          </div>
+          <div>
+            <label className="block font-poppins text-gray-300 mb-2">Konfirmasi Password Baru</label>
+            <input 
+              type="password" 
+              name="confirm"
+              value={passwords.confirm}
+              onChange={handleChange}
+              className="input" 
+              required
+            />
+          </div>
+          <button type="submit" className="btn btn-primary" disabled={saving}>
+            {saving ? 'Menyimpan...' : 'Ubah Password'}
+          </button>
+        </form>
       </div>
     </div>
   )
 }
 
+// Main Dashboard Component
 export default function Dashboard() {
   const location = useLocation()
-  const { isAuthenticated, logout, fetchUser } = useAuthStore()
+  const { user, logout, fetchUser } = useAuthStore()
 
   useEffect(() => {
-    fetchUser()
+    if (!user) {
+      fetchUser()
+    }
   }, [])
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
-  }
 
   const isActive = (href) => location.pathname === href
 
@@ -245,6 +583,18 @@ export default function Dashboard() {
             className="lg:col-span-1"
           >
             <div className="card sticky top-28">
+              {/* User Info */}
+              <div className="text-center pb-4 border-b border-white/10 mb-4">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary-500 to-accent-purple mx-auto mb-3 flex items-center justify-center">
+                  <span className="text-white text-xl font-bold">
+                    {user?.full_name?.charAt(0) || 'U'}
+                  </span>
+                </div>
+                <h3 className="font-medium text-white truncate">{user?.full_name || 'User'}</h3>
+                <p className="text-sm text-gray-400 truncate">{user?.email || ''}</p>
+              </div>
+
+              {/* Navigation */}
               <nav className="space-y-1">
                 {navigation.map((item) => (
                   <Link
@@ -257,7 +607,7 @@ export default function Dashboard() {
                     }`}
                   >
                     <item.icon className="w-5 h-5" />
-                    <span className="font-poppins">{item.name}</span>
+                    <span className="font-poppins text-sm">{item.name}</span>
                   </Link>
                 ))}
                 <button
@@ -265,7 +615,7 @@ export default function Dashboard() {
                   className="flex items-center gap-3 px-4 py-3 rounded-lg text-red-400 hover:text-red-300 hover:bg-red-600/10 transition-all w-full"
                 >
                   <ArrowRightOnRectangleIcon className="w-5 h-5" />
-                  <span className="font-poppins">Logout</span>
+                  <span className="font-poppins text-sm">Keluar</span>
                 </button>
               </nav>
             </div>

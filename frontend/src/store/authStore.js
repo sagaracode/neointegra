@@ -2,140 +2,110 @@ import { create } from 'zustand'
 import { authAPI } from '../services/api'
 
 const useAuthStore = create((set, get) => ({
-  // State
+  // State - Initialize from localStorage immediately
   user: null,
-  token: null,
-  isAuthenticated: false,
+  token: localStorage.getItem('access_token') || null,
+  isAuthenticated: !!localStorage.getItem('access_token'),
   isLoading: false,
   error: null,
 
-      // Actions
-      setUser: (user) => set({ user, isAuthenticated: !!user }),
+  // Actions
+  setUser: (user) => set({ user, isAuthenticated: !!user }),
+  
+  setToken: (token) => {
+    localStorage.setItem('access_token', token)
+    set({ token, isAuthenticated: true })
+  },
+  
+  clearAuth: () => {
+    localStorage.removeItem('access_token')
+    set({ user: null, token: null, isAuthenticated: false })
+  },
+
+  // Login
+  login: async (email, password) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await authAPI.login({ email, password });
+      const { access_token, user: userData } = response.data;
+
+      localStorage.setItem('access_token', access_token);
+      set({ 
+        token: access_token, 
+        user: userData, 
+        isAuthenticated: true, 
+        isLoading: false 
+      });
       
-      setToken: (token) => {
-        localStorage.setItem('access_token', token)
-        set({ token, isAuthenticated: true })
-      },
-      
-      clearAuth: () => {
-        localStorage.removeItem('access_token')
-        set({ user: null, token: null, isAuthenticated: false })
-      },
-
-      // API Actions
-      login: async (email, password) => {
-        set({ isLoading: true, error: null });
-        try {
-          const response = await authAPI.login({ email, password });
-          const { access_token, user: userData } = response.data;
-
-          // Set token and basic user data immediately
-          localStorage.setItem('access_token', access_token);
-          set({ 
-            token: access_token, 
-            user: userData, 
-            isAuthenticated: true, 
-            isLoading: false 
-          });
-
-          // Optional: You can still fetch more detailed user data if needed,
-          // but the login is already considered successful.
-          // For now, we trust the user data from the login response.
-          
-          return { success: true };
-        } catch (error) {
-          const message = error.response?.data?.detail || 'Login failed';
-          set({ error: message, isLoading: false, isAuthenticated: false, user: null, token: null });
-          localStorage.removeItem('access_token'); // Clear invalid token
-          return { success: false, error: message };
-        }
-      },
-
-      register: async (data) => {
-        set({ isLoading: true, error: null })
-        try {
-          console.log('Attempting registration with data:', { ...data, password: '***' })
-          const response = await authAPI.register(data)
-          console.log('Registration successful:', response.data)
-          set({ isLoading: false })
-          return { success: true, data: response.data }
-        } catch (error) {
-          console.error('Registration error:', error)
-          let message = 'Registration failed'
-          
-          if (error.response) {
-            // Server responded with error
-            message = error.response.data?.detail || error.response.data?.message || message
-            console.error('Server error:', {
-              status: error.response.status,
-              data: error.response.data,
-              headers: error.response.headers
-            })
-          } else if (error.request) {
-            // Request made but no response
-            message = 'Cannot connect to server. Please check if backend is running.'
-            console.error('No response from server. Request:', {
-              url: error.config?.url,
-              baseURL: error.config?.baseURL,
-              method: error.config?.method,
-              timeout: error.config?.timeout
-            })
-          } else {
-            // Error in request setup
-            message = error.message || message
-            console.error('Request setup error:', error.message)
-          }
-          
-          set({ error: message, isLoading: false })
-          return { success: false, error: message }
-        }
-      },
-
-      logout: () => {
-        localStorage.removeItem('access_token');
-        set({ user: null, token: null, isAuthenticated: false, isLoading: false });
-      },
-
-      // Action to rehydrate auth state on app load
-      rehydrate: () => {
-        const token = localStorage.getItem('access_token');
-        
-        if (token) {
-          console.log('Token found, setting authenticated state');
-          set({ token, isAuthenticated: true, isLoading: false });
-          // Fetch user data in background (non-blocking)
-          authAPI.getMe()
-            .then(response => {
-              set({ user: response.data });
-              console.log('User data loaded:', response.data);
-            })
-            .catch(error => {
-              console.error('Failed to load user data:', error);
-              // If token is invalid, it will be handled by axios interceptor
-            });
-        } else {
-          console.log('No token found, setting unauthenticated state');
-          set({ isLoading: false, isAuthenticated: false, user: null, token: null });
-        }
-      },
-
-      fetchUser: async () => {
-        const token = localStorage.getItem('access_token');
-        if (!token) {
-          set({ isLoading: false });
-          return;
-        }
-        
-        set({ isLoading: true });
-        try {
-          const response = await authAPI.getMe()
-          set({ user: response.data, isAuthenticated: true, isLoading: false })
-        } catch (error) {
-          localStorage.removeItem('access_token')
-          set({ user: null, isAuthenticated: false, isLoading: false })
-        }
-      },
+      return { success: true };
+    } catch (error) {
+      const message = error.response?.data?.detail || 'Login gagal';
+      set({ error: message, isLoading: false, isAuthenticated: false, user: null, token: null });
+      localStorage.removeItem('access_token');
+      return { success: false, error: message };
     }
-))
+  },
+
+  // Register
+  register: async (data) => {
+    set({ isLoading: true, error: null })
+    try {
+      const response = await authAPI.register(data)
+      set({ isLoading: false })
+      return { success: true, data: response.data }
+    } catch (error) {
+      let message = 'Registrasi gagal'
+      
+      if (error.response) {
+        message = error.response.data?.detail || error.response.data?.message || message
+      } else if (error.request) {
+        message = 'Tidak dapat terhubung ke server.'
+      } else {
+        message = error.message || message
+      }
+      
+      set({ error: message, isLoading: false })
+      return { success: false, error: message }
+    }
+  },
+
+  // Logout
+  logout: () => {
+    localStorage.removeItem('access_token');
+    set({ user: null, token: null, isAuthenticated: false, isLoading: false });
+  },
+
+  // Initialize - called once on app load
+  initialize: () => {
+    const token = localStorage.getItem('access_token');
+    
+    if (token) {
+      set({ token, isAuthenticated: true });
+      // Fetch user data in background
+      authAPI.getMe()
+        .then(response => {
+          set({ user: response.data });
+        })
+        .catch(error => {
+          console.error('Failed to load user:', error);
+          // Don't logout here - let API interceptor handle 401
+        });
+    }
+  },
+
+  // Fetch current user (non-blocking)
+  fetchUser: () => {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+    
+    authAPI.getMe()
+      .then(response => {
+        set({ user: response.data, isAuthenticated: true });
+      })
+      .catch(error => {
+        console.error('Failed to fetch user:', error);
+      });
+  },
+}))
 
 export default useAuthStore
