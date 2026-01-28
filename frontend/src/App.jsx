@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
+import useAuthStore from './store/authStore';
 
 // Layout Components
 import Navbar from './components/layout/Navbar'
@@ -24,8 +26,15 @@ import SubscriptionExpiry from './pages/SubscriptionExpiry'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import VerifyEmail from './pages/VerifyEmail'
+import PrivateRoute from './components/PrivateRoute';
 
 function App() {
+  const { rehydrate } = useAuthStore();
+
+  useEffect(() => {
+    rehydrate();
+  }, [rehydrate]);
+
   return (
     <div className="min-h-screen bg-dark-300 flex flex-col">
       {/* Toast Notifications */}
@@ -73,8 +82,13 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
-          <Route path="/dashboard/*" element={<Dashboard />} />
-          <Route path="/orders" element={<Orders />} />
+          
+          {/* Protected Routes */}
+          <Route element={<PrivateRoute />}>
+            <Route path="/dashboard/*" element={<Dashboard />} />
+            <Route path="/orders" element={<Orders />} />
+          </Route>
+
           <Route path="/payment/success" element={<PaymentSuccess />} />
           <Route path="/payment/pending" element={<PaymentPending />} />
           <Route path="/subscription-expiry" element={<SubscriptionExpiry />} />

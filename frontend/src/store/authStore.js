@@ -95,15 +95,36 @@ const useAuthStore = create(
       },
 
       logout: () => {
-        localStorage.removeItem('access_token')
-        set({ user: null, token: null, isAuthenticated: false })
+        localStorage.removeItem('access_token');
+        set({ user: null, token: null, isAuthenticated: false, isLoading: false });
+      },
+
+      // Action to rehydrate auth state on app load
+      rehydrate: async () => {
+        const token = localStorage.getItem('access_token');
+        if (token && !get().isAuthenticated) {
+          set({ isLoading: true });
+          try {
+            // Set token first to authorize the getMe request
+            set({ token, isAuthenticated: true }); 
+            const userResponse = await authAPI.getMe();
+            set({ user: userResponse.data, isLoading: false });
+          } catch (error) {
+            console.error("Session restore failed:", error);
+            // If token is invalid, clear auth state
+            localStorage.removeItem('access_token');
+            set({ user: null, token: null, isAuthenticated: false, isLoading: false });
+          }
+        } else {
+          set({ isLoading: false }); // Ensure loading is false if no token
+        }
       },
 
       fetchUser: async () => {
-        const token = localStorage.getItem('access_token')
-        if (!token) return
+        const token = localStorage.getItem('access_token');
+        if (!token) return;
         
-        set({ isLoading: true })
+        set({ isLoading: true });
         try {
           const response = await authAPI.getMe()
           set({ user: response.data, isAuthenticated: true, isLoading: false })
