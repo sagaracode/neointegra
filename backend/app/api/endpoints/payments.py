@@ -4,6 +4,7 @@ from typing import List, Optional
 from datetime import datetime, timedelta
 import httpx
 import hashlib
+import hmac
 import json
 
 from ...database import get_db
@@ -22,38 +23,57 @@ def get_user_from_token(authorization: Optional[str], db: Session):
     return get_current_user(token, db)
 
 def generate_ipaymu_signature(body: dict, method: str = "POST") -> str:
-    """Generate iPaymu signature according to official documentation
+    """Generate iPaymu signature according to official documentation v2
     
-    Format: SHA256(METHOD:VA:BODY_JSON:API_KEY)
-    - METHOD: POST or GET (uppercase)
-    - VA: Virtual Account number
-    - BODY_JSON: JSON body with NO SPACES after colon, lowercase keys
-    - API_KEY: Your API Key
+    Format: HMAC-SHA256(StringToSign, ApiKey)
+    StringToSign = HTTPMethod:VaNumber:Lowercase(SHA-256(RequestBody)):ApiKey
+    
+    - HTTPMethod: POST or GET (UPPERCASE)
+    - VaNumber: VA iPaymu
+    - RequestBody: JSON body, hashed with SHA-256, then lowercased
+    - ApiKey: Your API Key
     """
     va = settings.IPAYMU_VA
     api_key = settings.IPAYMU_API_KEY
     
-    # Create body string - JSON with NO SPACES, but preserve case for values
-    body_encoded = json.dumps(body, separators=(',', ':'))
+    # Step 1: Create JSON body (no spaces after colon)
+    body_json = json.dumps(body, separators=(',', ':'))
     
-    # Create string to sign: METHOD:VA:BODY:APIKEY
-    string_to_sign = f"{method.upper()}:{va}:{body_encoded}:{api_key}"
+    # Step 2: Hash body with SHA-256 and lowercase it
+    body_hash = hashlib.sha256(body_json.encode()).hexdigest().lower()
     
-    # Generate SHA256 hash
-    signature = hashlib.sha256(string_to_sign.encode()).hexdigest()
+    # Step 3: Create string to sign: METHOD:VA:BODY_HASH:APIKEY
+    string_to_sign = f"{method.upper()}:{va}:{body_hash}:{api_key}"
     
-    print(f"[iPaymu Signature Debug]")
+    # Step 4: Generate HMAC-SHA256 signature using ApiKey as secret
+    signature = hmac.new(
+        api_key.encode(),
+        string_to_sign.encode(),
+        hashlib.sha256
+    ).hexdigest()
+    
+    print(f"[iPaymu Signature Debug v2]")
     print(f"  VA: {va}")
     print(f"  API Key: {api_key[:20]}...")
-    print(f"  Body: {body_encoded}")
-    print(f"  String to sign: {string_to_sign[:100]}...")
-    print(f"  Signature: {signature}")
+    print(f"  Body JSON: {body_json[:100]}...")
+    print(f"  Body Hash (SHA256 lowercase): {body_hash}")
+    print(f"  String to sign: {string_to_sign[:150]}...")
+    print(f"  Signature (HMAC-SHA256): {signature}")
     
     return signature
 
 async def create_ipaymu_payment(payment_data: dict, payment_method: str):
     """Create payment via iPaymu API"""
     url = f"{settings.IPAYMU_BASE_URL}/payment"
+    
+    # Prepare product list for iPaymu
+    product_list = payment_data.get("product", [
+        {
+            "name": payment_data.get("product_name", "Layanan NeoIntegra Tech"),
+            "price": int(payment_data["amount"]),
+            "qty": 1
+        }
+    ])
     
     # Prepare request body based on payment method
     if payment_method == "va":
@@ -66,7 +86,8 @@ async def create_ipaymu_payment(payment_data: dict, payment_method: str):
             "expired": payment_data["expired"],
             "expiredType": "hours",
             "paymentMethod": "va",
-            "paymentChannel": payment_data["payment_channel"]
+            "paymentChannel": payment_data["payment_channel"],
+            "product": product_list
         }
     elif payment_method == "qris":
         body = {
@@ -77,7 +98,8 @@ async def create_ipaymu_payment(payment_data: dict, payment_method: str):
             "notifyUrl": payment_data["notify_url"],
             "expired": payment_data["expired"],
             "expiredType": "hours",
-            "paymentMethod": "qris"
+            "paymentMethod": "qris",
+            "product": product_list
         }
     else:
         raise ValueError(f"Unsupported payment method: {payment_method}")
@@ -85,12 +107,15 @@ async def create_ipaymu_payment(payment_data: dict, payment_method: str):
     # Generate signature
     signature = generate_ipaymu_signature(body, "POST")
     
+    # Generate timestamp in format YYYYMMDDhhmmss
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    
     # Prepare headers
     headers = {
         "Content-Type": "application/json",
         "va": settings.IPAYMU_VA,
         "signature": signature,
-        "timestamp": str(int(datetime.now().timestamp()))
+        "timestamp": timestamp
     }
     
     # Make API request
