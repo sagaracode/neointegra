@@ -8,7 +8,7 @@ import hmac
 import json
 
 from ...database import get_db
-from ...models import Payment, Order
+from ...models import Payment, Order, Service
 from ...schemas import PaymentCreate, PaymentResponse, PaymentCallbackRequest, MessageResponse
 from ...config import settings
 from .auth import get_current_user
@@ -110,6 +110,12 @@ async def create_ipaymu_payment(payment_data: dict, payment_method: str):
     # Generate timestamp in format YYYYMMDDhhmmss
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     
+    # Debug print
+    print(f"[iPaymu Request] Method: {payment_method}")
+    print(f"[iPaymu Request] Body: {body}")
+    print(f"[iPaymu Request] Signature: {signature}")
+    print(f"[iPaymu Request] Timestamp: {timestamp}")
+    
     # Prepare headers
     headers = {
         "Content-Type": "application/json",
@@ -122,19 +128,30 @@ async def create_ipaymu_payment(payment_data: dict, payment_method: str):
     async with httpx.AsyncClient() as client:
         response = await client.post(url, json=body, headers=headers, timeout=30.0)
         
+        print(f"[iPaymu Response] Status: {response.status_code}")
+        print(f"[iPaymu Response] Body: {response.text[:500]}")
+        
         if response.status_code != 200:
+            error_detail = response.text
+            print(f"[iPaymu Error] HTTP {response.status_code}: {error_detail}")
             raise HTTPException(
                 status_code=response.status_code,
-                detail=f"iPaymu API error: {response.text}"
+                detail=f"iPaymu API error (HTTP {response.status_code}): {error_detail}"
             )
         
         result = response.json()
         
         if result.get("Status") != 200:
+            error_msg = result.get('Message', 'Unknown error')
+            error_data = result.get('Data')
+            print(f"[iPaymu Error] Status {result.get('Status')}: {error_msg}, Data: {error_data}")
             raise HTTPException(
                 status_code=400,
-                detail=f"iPaymu error: {result.get('Message', 'Unknown error')}"
+                detail=f"iPaymu error: {error_msg}"
             )
+        
+        print(f"[iPaymu Success] TransactionId: {result.get('Data', {}).get('TransactionId')}")
+        print(f"[iPaymu Success] Payment URL: {result.get('Data', {}).get('Url')}")
         
         return result.get("Data", {})
 
@@ -169,6 +186,10 @@ async def create_payment(
     # Create payment via iPaymu if not COD
     if payment_data.payment_method != "cod":
         try:
+            # Get service name from order
+            service = db.query(Service).filter(Service.id == order.service_id).first()
+            service_name = service.name if service else "Layanan NeoIntegra Tech"
+            
             ipaymu_data = {
                 "name": user.full_name,
                 "phone": user.phone or "08123456789",
@@ -177,8 +198,11 @@ async def create_payment(
                 "notify_url": f"{settings.FRONTEND_URL}/api/payments/callback",
                 "return_url": f"{settings.FRONTEND_URL}/payment/success?order_id={order.id}&order_number={order.order_number}&amount={payment_data.amount}",
                 "expired": 24,
-                "payment_channel": payment_data.payment_channel
+                "payment_channel": payment_data.payment_channel,
+                "product_name": service_name
             }
+            
+            print(f"[Payment Creation] Calling iPaymu API for order {order.order_number}, amount: Rp {payment_data.amount:,.0f}")
             
             ipaymu_response = await create_ipaymu_payment(ipaymu_data, payment_data.payment_method)
             
@@ -192,12 +216,32 @@ async def create_payment(
             elif payment_data.payment_method == "va":
                 new_payment.va_number = ipaymu_response.get("Va")
             
+            if not new_payment.payment_url:
+                print(f"[Payment Creation Warning] No payment_url in response!")
+                print(f"[Payment Creation Warning] Response: {ipaymu_response}")
+            
             db.commit()
             db.refresh(new_payment)
             
+            print(f"[Payment Creation] Success! Payment ID: {new_payment.id}, URL: {new_payment.payment_url}")
+            
+        except HTTPException as e:
+            # iPaymu API error - delete payment record and re-raise
+            db.delete(new_payment)
+            db.commit()
+            print(f"[Payment Creation Error] iPaymu API failed: {e.detail}")
+            raise
         except Exception as e:
-            print(f"iPaymu API Error: {str(e)}")
-            # Don't fail the whole request, payment can be processed manually
+            # Unexpected error - delete payment record
+            db.delete(new_payment)
+            db.commit()
+            print(f"[Payment Creation Error] Unexpected error: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            raise HTTPException(
+                status_code=500,
+                detail=f"Payment creation failed: {str(e)}"
+            )
             new_payment.status = "pending"
             db.commit()
     else:
@@ -245,10 +289,20 @@ async def get_payment(
 
 @router.post("/callback", response_model=MessageResponse)
 async def payment_callback(request: Request, db: Session = Depends(get_db)):
-    """Handle iPaymu payment callback"""
+    """Handle iPaymu payment callback - supports both JSON and form-urlencoded"""
     try:
-        # Get callback data
-        body = await request.json()
+        # Get callback data - support both JSON and form-urlencoded
+        content_type = request.headers.get("content-type", "")
+        
+        if "application/json" in content_type:
+            # JSON format
+            body = await request.json()
+        else:
+            # Form-urlencoded format (default)
+            form_data = await request.form()
+            body = dict(form_data)
+        
+        print(f"[iPaymu Callback] Received: {body}")
         
         trx_id = body.get("trx_id")
         status = body.get("status")
@@ -258,7 +312,10 @@ async def payment_callback(request: Request, db: Session = Depends(get_db)):
         payment = db.query(Payment).filter(Payment.ipaymu_transaction_id == trx_id).first()
         
         if not payment:
+            print(f"[iPaymu Callback] Payment not found for trx_id: {trx_id}")
             return {"message": "Payment not found"}
+        
+        print(f"[iPaymu Callback] Processing payment ID {payment.id}, status_code: {status_code}")
         
         # Update payment status
         if status_code == "1":  # Success
@@ -269,17 +326,22 @@ async def payment_callback(request: Request, db: Session = Depends(get_db)):
             order = db.query(Order).filter(Order.id == payment.order_id).first()
             if order:
                 order.status = "paid"
+                print(f"[iPaymu Callback] Order {order.order_number} marked as paid")
         
         elif status_code == "0":  # Pending
             payment.status = "pending"
+            print(f"[iPaymu Callback] Payment still pending")
         
         else:  # Failed or expired
             payment.status = "failed"
+            print(f"[iPaymu Callback] Payment failed with status_code: {status_code}")
         
         db.commit()
         
         return {"message": "Callback processed"}
     
     except Exception as e:
-        print(f"Callback error: {str(e)}")
+        print(f"[iPaymu Callback Error] {str(e)}")
+        import traceback
+        traceback.print_exc()
         return {"message": "Callback error"}
