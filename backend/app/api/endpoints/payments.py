@@ -154,9 +154,20 @@ async def create_ipaymu_payment(payment_data: dict, payment_method: str):
             )
         
         print(f"[iPaymu Success] TransactionId: {result.get('Data', {}).get('TransactionId')}")
-        print(f"[iPaymu Success] Payment URL: {result.get('Data', {}).get('Url')}")
+        print(f"[iPaymu Success] SessionID: {result.get('Data', {}).get('SessionID')}")
+        print(f"[iPaymu Success] Data keys: {list(result.get('Data', {}).keys())}")
         
-        return result.get("Data", {})
+        # Log all possible payment info fields
+        data = result.get("Data", {})
+        print(f"[iPaymu Success] Va: {data.get('Va')}")
+        print(f"[iPaymu Success] VaNumber: {data.get('VaNumber')}")
+        print(f"[iPaymu Success] PaymentNo: {data.get('PaymentNo')}")
+        print(f"[iPaymu Success] Url: {data.get('Url')}")
+        print(f"[iPaymu Success] PaymentUrl: {data.get('PaymentUrl')}")
+        print(f"[iPaymu Success] QRImage: {data.get('QRImage')}")
+        print(f"[iPaymu Success] QrString: {data.get('QrString')}")
+        
+        return data
 
 @router.post("/", response_model=PaymentResponse, status_code=201)
 async def create_payment(
@@ -218,21 +229,44 @@ async def create_payment(
             # Update payment with iPaymu data
             new_payment.ipaymu_transaction_id = ipaymu_response.get("TransactionId")
             new_payment.ipaymu_session_id = ipaymu_response.get("SessionID")
+            
+            # For redirect payment methods
             new_payment.payment_url = ipaymu_response.get("Url") or ipaymu_response.get("PaymentUrl")
+            
+            # Get payment-specific info based on method
+            payment_info_found = False
             
             if payment_data.payment_method == "qris":
                 new_payment.qr_code_url = ipaymu_response.get("QRImage") or ipaymu_response.get("QrString")
                 print(f"[Payment QRIS] QR Code URL: {new_payment.qr_code_url}")
+                if new_payment.qr_code_url:
+                    payment_info_found = True
+                    
             elif payment_data.payment_method == "va":
-                new_payment.va_number = ipaymu_response.get("Va") or ipaymu_response.get("VaNumber")
+                # Try multiple field names for VA number
+                new_payment.va_number = (
+                    ipaymu_response.get("Va") or 
+                    ipaymu_response.get("VaNumber") or 
+                    ipaymu_response.get("PaymentNo") or
+                    ipaymu_response.get("PaymentCode")
+                )
                 print(f"[Payment VA] VA Number: {new_payment.va_number}")
+                if new_payment.va_number:
+                    payment_info_found = True
             
-            if not new_payment.payment_url and not new_payment.va_number and not new_payment.qr_code_url:
+            # Fallback: if payment_url exists, consider it success
+            if new_payment.payment_url:
+                payment_info_found = True
+                print(f"[Payment] Payment URL: {new_payment.payment_url}")
+            
+            # Only raise error if NO payment info at all
+            if not payment_info_found:
                 print(f"[Payment Creation ERROR] No payment info in response!")
                 print(f"[Payment Creation ERROR] Response keys: {list(ipaymu_response.keys())}")
+                print(f"[Payment Creation ERROR] Full response: {json.dumps(ipaymu_response, indent=2)}")
                 raise HTTPException(
                     status_code=500,
-                    detail="iPaymu tidak mengembalikan informasi pembayaran. Silakan coba lagi atau hubungi admin."
+                    detail=f"iPaymu tidak mengembalikan informasi pembayaran. Response: {list(ipaymu_response.keys())}"
                 )
             
             db.commit()
