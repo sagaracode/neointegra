@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Initialize Services - NeoIntegra Tech</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .info {
+            background: #f0f4ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        .info p {
+            color: #555;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+        button {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        .result.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .result.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .result.loading {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+        .loader {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #856404;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .services-list {
+            margin-top: 15px;
+            padding-left: 20px;
+        }
+        .services-list li {
+            color: #155724;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Initialize Services</h1>
+        <p class="subtitle">NeoIntegra Tech - Database Setup</p>
+        
+        <div class="info">
+            <p><strong>⚠️ Petunjuk:</strong></p>
+            <p>Klik tombol di bawah untuk menginisialisasi services di database production. Endpoint ini akan membuat 5 services yang dibutuhkan untuk sistem checkout.</p>
+        </div>
+
+        <button id="initBtn" onclick="initializeServices()">
+            Initialize Services Sekarang
+        </button>
+
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        async function initializeServices() {
+            const btn = document.getElementById('initBtn');
+            const resultDiv = document.getElementById('result');
+            
+            // Show loading
+            btn.disabled = true;
+            resultDiv.className = 'result loading';
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<span class="loader"></span> Menginisialisasi services...';
+            
+            try {
+                const response = await fetch('https://api.neointegratech.com/api/admin/init-services', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <strong>✅ Berhasil!</strong>
+                        <p>${data.message}</p>
+                        <ul class="services-list">
+                            <li>Paket All In Service (all-in)</li>
+                            <li>Website Service (website)</li>
+                            <li>SEO Service (seo)</li>
+                            <li>Mail Server Service (mail-server)</li>
+                            <li>Cloudflare Service (cloudflare)</li>
+                        </ul>
+                        <p style="margin-top: 15px;"><strong>Sekarang Anda bisa melakukan checkout!</strong></p>
+                    `;
+                } else {
+                    throw new Error(data.detail || 'Terjadi kesalahan');
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `
+                    <strong>❌ Error!</strong>
+                    <p>${error.message}</p>
+                    <p style="margin-top: 10px;">Pastikan backend sudah di-deploy dan API URL benar.</p>
+                `;
+            } finally {
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
