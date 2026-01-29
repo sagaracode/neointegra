@@ -72,13 +72,13 @@ async def create_ipaymu_payment(payment_data: dict, payment_method: str):
     url = f"{settings.IPAYMU_BASE_URL}/payment/direct"
     
     # Prepare request body based on payment method
-    # Direct payment format (VA/QRIS) - simpler than redirect payment
+    # Direct payment format (VA/QRIS) - EXACTLY as GitHub sample
     if payment_method == "va":
         body = {
             "name": payment_data["name"],
             "phone": payment_data["phone"],
             "email": payment_data["email"],
-            "amount": int(payment_data["amount"]),
+            "amount": str(int(payment_data["amount"])),  # String, not int!
             "notifyUrl": payment_data["notify_url"],
             "referenceId": payment_data.get("reference_id", payment_data.get("order_number", "")),
             "paymentMethod": "va",
@@ -89,7 +89,7 @@ async def create_ipaymu_payment(payment_data: dict, payment_method: str):
             "name": payment_data["name"],
             "phone": payment_data["phone"],
             "email": payment_data["email"],
-            "amount": int(payment_data["amount"]),
+            "amount": str(int(payment_data["amount"])),  # String, not int!
             "notifyUrl": payment_data["notify_url"],
             "referenceId": payment_data.get("reference_id", payment_data.get("order_number", "")),
             "paymentMethod": "qris"
@@ -97,7 +97,11 @@ async def create_ipaymu_payment(payment_data: dict, payment_method: str):
     else:
         raise ValueError(f"Unsupported payment method: {payment_method}")
     
-    # Generate signature
+    # CRITICAL: Serialize body to JSON string EXACTLY as GitHub sample
+    # This MUST be done before signature generation and used for request
+    body_json = json.dumps(body, separators=(',', ':'))
+    
+    # Generate signature using the EXACT JSON string that will be sent
     signature = generate_ipaymu_signature(body, "POST")
     
     # Generate timestamp in format YYYYMMDDhhmmss
@@ -105,21 +109,23 @@ async def create_ipaymu_payment(payment_data: dict, payment_method: str):
     
     # Debug print
     print(f"[iPaymu Request] Method: {payment_method}")
-    print(f"[iPaymu Request] Body: {body}")
+    print(f"[iPaymu Request] Body JSON: {body_json}")
     print(f"[iPaymu Request] Signature: {signature}")
     print(f"[iPaymu Request] Timestamp: {timestamp}")
     
-    # Prepare headers
+    # Prepare headers - EXACTLY as GitHub sample
     headers = {
         "Content-Type": "application/json",
-        "va": settings.IPAYMU_VA,
+        "Accept": "application/json",
         "signature": signature,
+        "va": settings.IPAYMU_VA,
         "timestamp": timestamp
     }
     
-    # Make API request
+    # Make API request - CRITICAL: Use data= with JSON string, NOT json= with dict
+    # This ensures the exact string used for signature is sent to server
     async with httpx.AsyncClient() as client:
-        response = await client.post(url, json=body, headers=headers, timeout=30.0)
+        response = await client.post(url, data=body_json, headers=headers, timeout=30.0)
         
         print(f"[iPaymu Response] Status: {response.status_code}")
         print(f"[iPaymu Response] Body: {response.text[:500]}")
