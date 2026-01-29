@@ -78,6 +78,83 @@ async def global_exception_handler(request: Request, exc: Exception):
         content={"detail": "Internal server error", "error": str(exc)}
     )
 
+# Function to initialize default services
+def init_default_services():
+    """Initialize default services in database"""
+    from .database import SessionLocal
+    from .models import Service
+    
+    db = SessionLocal()
+    try:
+        default_services = [
+            {
+                "name": "Paket All In Service",
+                "slug": "all-in",
+                "description": "Paket paling hemat & optimal untuk bisnis jangka panjang. Sudah termasuk Website, SEO, Mail Server, Cloudflare, dan Hosting.",
+                "category": "package",
+                "price": 81000000,
+                "duration_days": 365,
+                "features": '["Website Service - Custom UI/UX", "SEO Service (12 bulan)", "Mail Server Service", "Cloudflare Protection", "Hosting Performa Tinggi", "Support Teknis Lengkap"]',
+                "is_active": True
+            },
+            {
+                "name": "Website Service",
+                "slug": "website",
+                "description": "Website Service Profesional - Pembuatan website custom dengan performa tinggi.",
+                "category": "web",
+                "price": 36000000,
+                "duration_days": 365,
+                "features": '["Custom UI/UX", "Hosting Performa Tinggi", "Optimasi Kecepatan", "Maintenance & Update", "Backup & Keamanan", "Support Teknis"]',
+                "is_active": True
+            },
+            {
+                "name": "SEO Service",
+                "slug": "seo",
+                "description": "SEO Service Berkelanjutan (12 Bulan) - Optimasi mesin pencari profesional.",
+                "category": "marketing",
+                "price": 42000000,
+                "duration_days": 365,
+                "features": '["SEO On-Page & Technical", "Optimasi Struktur & Kecepatan", "Google Search Console & Analytics", "Monitoring Keyword Bulanan", "Laporan Performa SEO", "Optimasi Berkelanjutan 12 Bulan"]',
+                "is_active": True
+            },
+            {
+                "name": "Mail Server Service",
+                "slug": "mail-server",
+                "description": "Mail Server Bisnis Profesional - Email bisnis dengan domain perusahaan.",
+                "category": "email",
+                "price": 15000000,
+                "duration_days": 365,
+                "features": '["Email dengan Domain Perusahaan", "Setup SPF, DKIM, DMARC", "Perlindungan Spam & Phishing", "Sinkronisasi Webmail & Perangkat", "Maintenance & Support"]',
+                "is_active": True
+            },
+            {
+                "name": "Cloudflare Service",
+                "slug": "cloudflare",
+                "description": "Cloudflare Protection & Performance - Keamanan dan performa maksimal.",
+                "category": "security",
+                "price": 24000000,
+                "duration_days": 365,
+                "features": '["CDN Global & Caching", "Proteksi DDoS & Firewall", "SSL Full Encryption", "Proteksi Bot & Traffic Berbahaya", "Monitoring Keamanan 24/7"]',
+                "is_active": True
+            }
+        ]
+        
+        created = 0
+        for service_data in default_services:
+            existing = db.query(Service).filter(Service.slug == service_data["slug"]).first()
+            if not existing:
+                service = Service(**service_data)
+                db.add(service)
+                created += 1
+        
+        db.commit()
+        return created
+    except Exception as e:
+        db.rollback()
+        raise e
+    finally:
+        db.close()
+
 # Startup event
 @app.on_event("startup")
 async def startup_event():
@@ -91,6 +168,16 @@ async def startup_event():
         print("✅ Database initialized")
     except Exception as e:
         print(f"❌ Database initialization error: {e}")
+    
+    # Auto-initialize default services
+    try:
+        created = init_default_services()
+        if created > 0:
+            print(f"✅ Default services initialized: {created} created")
+        else:
+            print("✅ Default services already exist")
+    except Exception as e:
+        print(f"⚠️ Services initialization warning: {e}")
     
     # Start rate limit cleanup task
     asyncio.create_task(cleanup_rate_limit_storage())
