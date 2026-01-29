@@ -32,10 +32,21 @@ async def create_order(
     """Create new order with service slug (simplified)"""
     user = get_user_from_token(authorization, db)
     
+    # Debug logging
+    print(f"[Order Creation] Received slug: '{order_data.service_slug}'")
+    
     # Find service by slug
     service = db.query(Service).filter(Service.slug == order_data.service_slug).first()
     if not service:
-        raise HTTPException(status_code=404, detail=f"Service dengan slug '{order_data.service_slug}' tidak ditemukan")
+        # List available services for debugging
+        available_services = db.query(Service).all()
+        available_slugs = [s.slug for s in available_services]
+        print(f"[Order Creation Error] Slug not found: '{order_data.service_slug}'")
+        print(f"[Order Creation Error] Available slugs: {available_slugs}")
+        raise HTTPException(
+            status_code=404, 
+            detail=f"Service dengan slug '{order_data.service_slug}' tidak ditemukan. Tersedia: {', '.join(available_slugs)}"
+        )
     
     # Calculate prices
     unit_price = service.price
