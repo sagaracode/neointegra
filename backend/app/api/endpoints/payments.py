@@ -64,16 +64,15 @@ def generate_ipaymu_signature(body: dict, method: str = "POST") -> str:
     return signature
 
 async def create_ipaymu_payment(payment_data: dict, payment_method: str):
-    """Create payment via iPaymu API"""
-    url = f"{settings.IPAYMU_BASE_URL}/payment"
+    """Create payment via iPaymu API - Direct Payment (VA/QRIS)
     
-    # Get quantity from payment_data, default to 1
-    quantity = payment_data.get("quantity", 1)
-    product_name = payment_data.get("product_name", "Layanan NeoIntegra Tech")
-    unit_price = int(payment_data["amount"]) // quantity if quantity > 0 else int(payment_data["amount"])
+    Based on official iPaymu sample: https://github.com/ipaymu/ipaymu-payment-v2-sample-python
+    Direct payment does NOT require product, qty, price fields.
+    """
+    url = f"{settings.IPAYMU_BASE_URL}/payment/direct"
     
     # Prepare request body based on payment method
-    # iPaymu requires product, qty, price as arrays
+    # Direct payment format (VA/QRIS) - simpler than redirect payment
     if payment_method == "va":
         body = {
             "name": payment_data["name"],
@@ -81,14 +80,9 @@ async def create_ipaymu_payment(payment_data: dict, payment_method: str):
             "email": payment_data["email"],
             "amount": int(payment_data["amount"]),
             "notifyUrl": payment_data["notify_url"],
-            "expired": payment_data["expired"],
-            "expiredType": "hours",
+            "referenceId": payment_data.get("reference_id", payment_data.get("order_number", "")),
             "paymentMethod": "va",
-            "paymentChannel": payment_data["payment_channel"],
-            # iPaymu API requires these as arrays
-            "product": [product_name],
-            "qty": [quantity],
-            "price": [unit_price]
+            "paymentChannel": payment_data["payment_channel"]
         }
     elif payment_method == "qris":
         body = {
@@ -97,13 +91,8 @@ async def create_ipaymu_payment(payment_data: dict, payment_method: str):
             "email": payment_data["email"],
             "amount": int(payment_data["amount"]),
             "notifyUrl": payment_data["notify_url"],
-            "expired": payment_data["expired"],
-            "expiredType": "hours",
-            "paymentMethod": "qris",
-            # iPaymu API requires these as arrays
-            "product": [product_name],
-            "qty": [quantity],
-            "price": [unit_price]
+            "referenceId": payment_data.get("reference_id", payment_data.get("order_number", "")),
+            "paymentMethod": "qris"
         }
     else:
         raise ValueError(f"Unsupported payment method: {payment_method}")
