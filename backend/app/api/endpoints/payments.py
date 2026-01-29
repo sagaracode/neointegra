@@ -301,6 +301,25 @@ async def get_order_payments(
     payments = db.query(Payment).filter(Payment.order_id == order_id).all()
     return payments
 
+@router.get("/{payment_id}", response_model=PaymentResponse)
+async def get_payment(
+    payment_id: int,
+    authorization: Optional[str] = Header(None),
+    db: Session = Depends(get_db)
+):
+    """Get specific payment"""
+    user = get_user_from_token(authorization, db)
+    
+    payment = db.query(Payment).join(Order).filter(
+        Payment.id == payment_id,
+        Order.user_id == user.id
+    ).first()
+    
+    if not payment:
+        raise HTTPException(status_code=404, detail="Payment not found")
+    
+    return payment
+
 @router.post("/callback", response_model=MessageResponse)
 async def payment_callback(request: Request, db: Session = Depends(get_db)):
     """Handle iPaymu payment callback - supports both JSON and form-urlencoded"""
@@ -309,24 +328,6 @@ async def payment_callback(request: Request, db: Session = Depends(get_db)):
         content_type = request.headers.get("content-type", "")
         
         if "application/json" in content_type:
-            @router.get("/{payment_id}", response_model=PaymentResponse)
-            async def get_payment(
-                payment_id: int,
-                authorization: Optional[str] = Header(None),
-                db: Session = Depends(get_db)
-            ):
-                """Get specific payment"""
-                user = get_user_from_token(authorization, db)
-    
-                payment = db.query(Payment).join(Order).filter(
-                    Payment.id == payment_id,
-                    Order.user_id == user.id
-                ).first()
-    
-                if not payment:
-                    raise HTTPException(status_code=404, detail="Payment not found")
-    
-                return payment
             # JSON format
             body = await request.json()
         else:
