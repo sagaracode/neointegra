@@ -1,10 +1,22 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ArrowRightIcon, CheckIcon } from '@heroicons/react/24/outline'
+import { ArrowRightIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { servicesAPI, ordersAPI, paymentsAPI } from '../services/api'
 import { useAuthStore } from '../store/authStore'
 import toast from 'react-hot-toast'
+
+// Available payment channels from iPaymu
+const BANK_CHANNELS = [
+  { code: 'bca', name: 'BCA', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/bca.png' },
+  { code: 'bni', name: 'BNI', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/bni.png' },
+  { code: 'bri', name: 'BRI', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/bri.png' },
+  { code: 'mandiri', name: 'Mandiri', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/mandiri.png' },
+  { code: 'cimb', name: 'CIMB Niaga', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/niaga.png' },
+  { code: 'permata', name: 'Permata', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/permata.png' },
+  { code: 'bsi', name: 'BSI', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/bsi.png' },
+  { code: 'danamon', name: 'Danamon', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/danamon.png' },
+]
 
 const serviceData = {
   'all-in': {
@@ -131,6 +143,11 @@ export default function Services() {
   const [services, setServices] = useState([])
   const [loading, setLoading] = useState(true)
   const [checkoutLoading, setCheckoutLoading] = useState(null)
+  
+  // Bank selection modal state
+  const [showBankModal, setShowBankModal] = useState(false)
+  const [selectedService, setSelectedService] = useState(null)
+  const [selectedBank, setSelectedBank] = useState('bca')
 
   useEffect(() => {
     loadServices()
@@ -164,24 +181,33 @@ export default function Services() {
       return;
     }
 
-    setCheckoutLoading(serviceSlug)
+    // Open bank selection modal
+    setSelectedService(serviceSlug)
+    setShowBankModal(true)
+  }
+  
+  const handleBankSelected = async () => {
+    if (!selectedBank || !selectedService) return
+    
+    setShowBankModal(false)
+    setCheckoutLoading(selectedService)
     
     try {
       // 1. Create order (quantity always 1 for services)
       const orderResponse = await ordersAPI.create({
-        service_slug: serviceSlug,
+        service_slug: selectedService,
         quantity: 1,
-        notes: `Order from Services page - ${serviceSlug}`
+        notes: `Order from Services page - ${selectedService}`
       })
       
       const orderId = orderResponse.data.id
       const totalPrice = orderResponse.data.total_price
 
-      // 2. Create payment
+      // 2. Create payment with selected bank
       const paymentResponse = await paymentsAPI.create({
         order_id: orderId,
         payment_method: 'va',
-        payment_channel: 'bag',  // Multi-bank aggregator - shows all active banks
+        payment_channel: selectedBank,
         amount: totalPrice
       })
 
@@ -206,6 +232,7 @@ export default function Services() {
       toast.error(errorMessage)
     } finally {
       setCheckoutLoading(null)
+      setSelectedService(null)
     }
   }
 
@@ -793,6 +820,78 @@ export default function Services() {
           </div>
         </div>
       </section>
+      
+      {/* Bank Selection Modal */}
+      {showBankModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-dark-300 rounded-2xl border border-gray-700/50 p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="font-montserrat font-bold text-2xl text-white">
+                Pilih Bank untuk Pembayaran
+              </h3>
+              <button
+                onClick={() => {
+                  setShowBankModal(false)
+                  setSelectedService(null)
+                }}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <XMarkIcon className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <p className="text-gray-400 mb-6">
+              Pilih bank untuk mendapatkan nomor Virtual Account
+            </p>
+            
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+              {BANK_CHANNELS.map((bank) => (
+                <button
+                  key={bank.code}
+                  onClick={() => setSelectedBank(bank.code)}
+                  className={`p-4 rounded-xl border-2 transition-all ${
+                    selectedBank === bank.code
+                      ? 'border-primary-500 bg-primary-500/10'
+                      : 'border-gray-700 hover:border-gray-600 bg-dark-200'
+                  }`}
+                >
+                  <img
+                    src={bank.logo}
+                    alt={bank.name}
+                    className="h-12 mx-auto object-contain mb-2"
+                  />
+                  <p className="text-sm text-gray-300 font-medium text-center">
+                    {bank.name}
+                  </p>
+                </button>
+              ))}
+            </div>
+            
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowBankModal(false)
+                  setSelectedService(null)
+                }}
+                className="flex-1 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl transition-colors"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleBankSelected}
+                disabled={!selectedBank}
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-primary-600 to-purple-600 hover:from-primary-700 hover:to-purple-700 text-white font-medium rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Lanjutkan Pembayaran
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   )
 }

@@ -74,9 +74,9 @@ async def create_ipaymu_payment(payment_data: dict, payment_method: str):
     # Prepare request body based on payment method
     # Direct payment format (VA/QRIS) - EXACTLY as GitHub sample
     if payment_method == "va":
-        # Get payment channel from request, default to "bag" (multi-bank aggregator)
-        # Options: "bca", "bni", "bri", "mandiri", "cimb", "permata", "bag" (multi-bank)
-        payment_channel = payment_data.get("payment_channel", "bag")
+        # Get payment channel from request, default to "bca" (most common)
+        # Available channels: "bca", "bni", "bri", "mandiri", "cimb", "permata", "bsi", "danamon"
+        payment_channel = payment_data.get("payment_channel", "bca")
         
         body = {
             "name": payment_data["name"],

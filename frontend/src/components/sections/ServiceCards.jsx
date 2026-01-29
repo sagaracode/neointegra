@@ -105,7 +105,7 @@ export default function ServiceCards() {
       const paymentResponse = await paymentsAPI.create({
         order_id: orderId,
         payment_method: 'va',
-        payment_channel: 'bag',  // Multi-bank aggregator - shows all active banks
+        payment_channel: 'bca',  // User can select bank in Services page
         amount: orderResponse.data.total_price
       })
 
