@@ -104,17 +104,11 @@ export default function ServiceCards() {
 
       const paymentData = paymentResponse.data
 
-      // 3. Redirect to payment
-      if (paymentData.payment_url) {
-        window.location.href = paymentData.payment_url
-      } else if (paymentData.va_number || paymentData.qr_code_url) {
-        navigate('/payment/pending', { 
-          state: { paymentInfo: paymentData } 
-        })
-      } else {
-        toast.success('Order berhasil dibuat!')
-        navigate('/orders')
-      }
+      // 3. Show success and redirect to dashboard orders
+      toast.success('🎉 Order berhasil dibuat! Silakan lanjutkan pembayaran.')
+      
+      // Redirect to dashboard orders page
+      navigate('/dashboard/orders')
     } catch (error) {
       console.error('Checkout error:', error)
       const errorMsg = error.response?.data?.detail || error.message || 'Gagal checkout'

@@ -195,6 +195,7 @@ function DashboardHome() {
 function DashboardOrders() {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
+  const [orderPayments, setOrderPayments] = useState({}) // Store payment info for each order
 
   useEffect(() => {
     loadOrders()
@@ -203,7 +204,25 @@ function DashboardOrders() {
   const loadOrders = async () => {
     try {
       const response = await ordersAPI.getAll()
-      setOrders(response.data || [])
+      const ordersData = response.data || []
+      setOrders(ordersData)
+      
+      // Load payment info for pending orders
+      const pendingOrders = ordersData.filter(o => o.status === 'pending')
+      for (const order of pendingOrders) {
+        try {
+          const paymentResponse = await paymentsAPI.getByOrder(order.id)
+          if (paymentResponse.data && paymentResponse.data.length > 0) {
+            const latestPayment = paymentResponse.data[0] // Get the latest payment
+            setOrderPayments(prev => ({
+              ...prev,
+              [order.id]: latestPayment
+            }))
+          }
+        } catch (err) {
+          console.log(`No payment found for order ${order.id}`)
+        }
+      }
     } catch (error) {
       console.error('Failed to load orders:', error)
     } finally {
@@ -247,31 +266,55 @@ function DashboardOrders() {
         <div className="space-y-4">
           {orders.map(order => {
             const status = statusConfig[order.status] || statusConfig.pending
+            const payment = orderPayments[order.id] // Get payment info for this order
+            
             return (
               <div key={order.id} className="card">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div>
+                <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                  <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <span className="font-montserrat font-bold text-white">{order.order_number}</span>
                       <span className={`text-xs px-2 py-1 rounded ${status.bg} ${status.color}`}>
                         {status.label}
                       </span>
                     </div>
-                    <p className="text-gray-400">{order.service_name}</p>
-                    <p className="text-gray-500 text-sm">{formatDate(order.created_at)}</p>
+                    <p className="text-gray-400 mb-1">{order.service_name}</p>
+                    <p className="text-gray-500 text-sm mb-3">{formatDate(order.created_at)}</p>
+                    
+                    {/* Payment Info for Pending Orders */}
+                    {order.status === 'pending' && payment && (
+                      <div className="bg-dark-100 border border-primary-500/20 rounded-lg p-3 mt-3">
+                        <p className="text-xs text-gray-400 mb-2">Informasi Pembayaran:</p>
+                        {payment.va_number && (
+                          <div className="mb-2">
+                            <p className="text-xs text-gray-500">Virtual Account {payment.payment_channel?.toUpperCase()}</p>
+                            <p className="text-white font-mono font-semibold">{payment.va_number}</p>
+                          </div>
+                        )}
+                        {payment.qr_code_url && (
+                          <p className="text-xs text-primary-400">QRIS tersedia</p>
+                        )}
+                        {payment.expired_at && (
+                          <p className="text-xs text-yellow-400 mt-2">
+                            Berlaku sampai: {formatDate(payment.expired_at)}
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
-                  <div className="text-right">
-                    <div className="font-montserrat font-bold text-xl text-white mb-2">
+                  
+                  <div className="text-right flex-shrink-0">
+                    <div className="font-montserrat font-bold text-xl text-white mb-3">
                       {formatCurrency(order.total_price)}
                     </div>
-                    {order.status === 'pending' && order.payment_url && (
+                    {order.status === 'pending' && payment?.payment_url && (
                       <a 
-                        href={order.payment_url}
+                        href={payment.payment_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="btn btn-primary text-sm"
+                        className="btn btn-primary text-sm inline-block"
                       >
-                        Bayar Sekarang
+                        💳 Bayar Sekarang
                       </a>
                     )}
                   </div>

@@ -177,12 +177,11 @@ export default function Services() {
 
       const paymentData = paymentResponse.data
 
-      // 3. Redirect to payment URL
-      if (paymentData.payment_url) {
-        window.location.href = paymentData.payment_url
-      } else {
-        toast.error('URL pembayaran tidak tersedia')
-      }
+      // 3. Show success and redirect to dashboard orders
+      toast.success('🎉 Order berhasil dibuat! Silakan lanjutkan pembayaran.')
+      
+      // Redirect to dashboard orders page
+      navigate('/dashboard/orders')
     } catch (error) {
       console.error('Checkout error:', error)
       const errorMessage = error?.response?.data?.detail || error.message || 'Gagal melakukan checkout'
