@@ -21,17 +21,81 @@ const BANK_CHANNELS = [
 // Payment instructions for each bank
 const getPaymentInstructions = (bankCode) => {
   const instructions = {
-    bca: '1. Login m-BCA/KlikBCA\n2. Pilih Transfer > BCA Virtual Account\n3. Masukkan nomor VA\n4. Konfirmasi pembayaran',
-    bni: '1. Login BNI Mobile/Internet Banking\n2. Pilih Transfer > Virtual Account Billing\n3. Masukkan nomor VA\n4. Konfirmasi pembayaran',
-    bri: '1. Login BRI Mobile/Internet Banking\n2. Pilih Pembayaran > BRIVA\n3. Masukkan nomor VA\n4. Konfirmasi pembayaran',
-    mandiri: '1. Login Livin by Mandiri\n2. Pilih Bayar > Multipayment\n3. Masukkan nomor VA\n4. Konfirmasi pembayaran',
-    cimb: '1. Login OCTO Mobile/Clicks\n2. Pilih Transfer > Virtual Account\n3. Masukkan nomor VA\n4. Konfirmasi pembayaran',
-    permata: '1. Login PermataMobile X\n2. Pilih Bayar > Virtual Account\n3. Masukkan nomor VA\n4. Konfirmasi pembayaran',
-    bsi: '1. Login BSI Mobile\n2. Pilih Transfer > BSI Virtual Account\n3. Masukkan nomor VA\n4. Konfirmasi pembayaran',
-    danamon: '1. Login D-Bank PRO\n2. Pilih Transfer > Virtual Account\n3. Masukkan nomor VA\n4. Konfirmasi pembayaran'
+    bca: [
+      'Login ke m-BCA atau KlikBCA',
+      'Pilih menu Transfer',
+      'Pilih BCA Virtual Account',
+      'Masukkan nomor Virtual Account',
+      'Masukkan jumlah yang akan dibayar',
+      'Konfirmasi pembayaran'
+    ],
+    bni: [
+      'Login ke BNI Mobile Banking atau Internet Banking',
+      'Pilih menu Transfer',
+      'Pilih Virtual Account Billing',
+      'Masukkan nomor Virtual Account',
+      'Masukkan jumlah yang akan dibayar',
+      'Konfirmasi pembayaran'
+    ],
+    bri: [
+      'Login ke BRI Mobile atau Internet Banking',
+      'Pilih menu Pembayaran',
+      'Pilih BRIVA',
+      'Masukkan nomor Virtual Account',
+      'Masukkan jumlah yang akan dibayar',
+      'Konfirmasi pembayaran'
+    ],
+    mandiri: [
+      'Login ke Livin by Mandiri',
+      'Pilih menu Bayar',
+      'Pilih Multipayment',
+      'Pilih penyedia jasa (iPaymu/NeoIntegra)',
+      'Masukkan nomor Virtual Account',
+      'Masukkan jumlah yang akan dibayar',
+      'Konfirmasi pembayaran'
+    ],
+    cimb: [
+      'Login ke OCTO Mobile atau OCTO Clicks',
+      'Pilih menu Transfer',
+      'Pilih Transfer ke Virtual Account',
+      'Masukkan nomor Virtual Account',
+      'Masukkan jumlah yang akan dibayar',
+      'Konfirmasi pembayaran'
+    ],
+    permata: [
+      'Login ke PermataMobile X',
+      'Pilih menu Bayar',
+      'Pilih Virtual Account',
+      'Masukkan nomor Virtual Account',
+      'Masukkan jumlah yang akan dibayar',
+      'Konfirmasi pembayaran'
+    ],
+    bsi: [
+      'Login ke BSI Mobile',
+      'Pilih menu Transfer',
+      'Pilih BSI Virtual Account',
+      'Masukkan nomor Virtual Account',
+      'Masukkan jumlah yang akan dibayar',
+      'Konfirmasi pembayaran'
+    ],
+    danamon: [
+      'Login ke D-Bank PRO',
+      'Pilih menu Transfer',
+      'Pilih Virtual Account',
+      'Masukkan nomor Virtual Account',
+      'Masukkan jumlah yang akan dibayar',
+      'Konfirmasi pembayaran'
+    ]
   }
   
-  return instructions[bankCode] || '1. Buka aplikasi mobile banking\n2. Pilih Transfer/Bayar Virtual Account\n3. Masukkan nomor VA\n4. Konfirmasi pembayaran'
+  return instructions[bankCode] || [
+    'Buka aplikasi mobile banking Anda',
+    'Pilih menu Transfer atau Bayar',
+    'Pilih Virtual Account',
+    'Masukkan nomor Virtual Account',
+    'Masukkan jumlah yang akan dibayar',
+    'Konfirmasi pembayaran'
+  ]
 }
 
 const serviceData = {
@@ -975,9 +1039,11 @@ export default function Services() {
               <p className="text-blue-400 font-medium mb-3">
                 📋 Cara Pembayaran via {paymentResult.bank}:
               </p>
-              <div className="text-gray-300 text-sm space-y-2 whitespace-pre-line">
-                {getPaymentInstructions(paymentResult.bankCode)}
-              </div>
+              <ol className="text-gray-300 text-sm space-y-2 list-decimal list-inside">
+                {getPaymentInstructions(paymentResult.bankCode).map((step, index) => (
+                  <li key={index} className="leading-relaxed">{step}</li>
+                ))}
+              </ol>
             </div>
             
             {/* Action Buttons */}
