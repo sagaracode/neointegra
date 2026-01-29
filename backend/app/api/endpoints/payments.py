@@ -199,7 +199,9 @@ async def create_payment(
                 "expired": 24,
                 "payment_channel": payment_data.payment_channel,
                 "product_name": service_name,
-                "quantity": order.quantity
+                "quantity": 1,  # Always 1 for services
+                "order_number": order.order_number,  # For iPaymu referenceId
+                "reference_id": order.order_number
             }
             
             print(f"[Payment Creation] Calling iPaymu API for order {order.order_number}, amount: Rp {payment_data.amount:,.0f}")

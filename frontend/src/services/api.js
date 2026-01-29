@@ -27,14 +27,32 @@ api.interceptors.request.use(
 )
 
 // Response interceptor - Handle errors
+// CRITICAL: Do NOT auto-redirect on 401 - let components handle it
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Log error for debugging
+    console.error('[API Error]', {
+      url: error.config?.url,
+      status: error.response?.status,
+      data: error.response?.data
+    });
+    
+    // Only clear token if it's truly an auth endpoint failure
+    // Do NOT redirect here - let the component/store handle navigation
     if (error.response?.status === 401) {
-      localStorage.removeItem('access_token')
-      window.location.href = '/login'
+      const isAuthEndpoint = error.config?.url?.includes('/auth/');
+      
+      // Only clear token for non-auth endpoints (meaning token is invalid)
+      // For auth endpoints (login/register), don't clear - just let error propagate
+      if (!isAuthEndpoint) {
+        console.warn('[API] Token may be invalid, clearing auth state');
+        localStorage.removeItem('access_token');
+        // Don't redirect here! Let PrivateRoute handle it on next render
+      }
     }
-    return Promise.reject(error)
+    
+    return Promise.reject(error);
   }
 )
 

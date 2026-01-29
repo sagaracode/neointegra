@@ -81,14 +81,20 @@ const useAuthStore = create((set, get) => ({
     
     if (token) {
       set({ token, isAuthenticated: true });
-      // Fetch user data in background
+      // Fetch user data in background - but don't break auth if it fails
       authAPI.getMe()
         .then(response => {
           set({ user: response.data });
         })
         .catch(error => {
           console.error('Failed to load user:', error);
-          // Don't logout here - let API interceptor handle 401
+          // Only clear auth if server explicitly says token is invalid (401)
+          if (error.response?.status === 401) {
+            console.warn('[Auth] Token invalid, clearing session');
+            localStorage.removeItem('access_token');
+            set({ user: null, token: null, isAuthenticated: false });
+          }
+          // For other errors (network, 500, etc), keep the session
         });
     }
   },

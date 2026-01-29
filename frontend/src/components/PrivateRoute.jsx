@@ -1,12 +1,20 @@
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
 
 const PrivateRoute = () => {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, token } = useAuthStore();
+  const location = useLocation();
 
-  // Simply check if authenticated - no loading state needed
-  // Token check is done synchronously in store initialization
-  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
+  // Double-check: verify token exists in localStorage AND store
+  const hasToken = token || localStorage.getItem('access_token');
+  
+  if (!isAuthenticated && !hasToken) {
+    // Save the attempted URL for redirecting after login
+    console.log('[PrivateRoute] Not authenticated, redirecting to login');
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return <Outlet />;
 };
 
 export default PrivateRoute;

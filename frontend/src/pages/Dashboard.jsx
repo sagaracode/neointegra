@@ -262,12 +262,24 @@ function DashboardOrders() {
       // Redirect to payment URL if available
       if (paymentData.payment_url) {
         window.open(paymentData.payment_url, '_blank')
+      } else if (paymentData.va_number) {
+        // If VA number returned, show it
+        toast.success(`VA Number: ${paymentData.va_number}`)
+        loadOrders() // Reload to get updated payment info
       } else {
         toast.success('Payment created! Refresh to see payment details.')
         loadOrders() // Reload to get updated payment info
       }
     } catch (error) {
       console.error('Failed to create payment:', error)
+      
+      // Handle 401 specifically with user-friendly message
+      if (error.response?.status === 401) {
+        toast.error('Sesi Anda telah berakhir. Silakan login kembali.')
+        navigate('/login?redirect=/dashboard/orders')
+        return
+      }
+      
       const errorMsg = error.response?.data?.detail || 'Gagal membuat pembayaran'
       toast.error(errorMsg)
     } finally {

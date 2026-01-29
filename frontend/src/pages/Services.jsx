@@ -148,7 +148,10 @@ export default function Services() {
   }
 
   const handleCheckout = async (serviceSlug) => {
-    if (!isAuthenticated) {
+    // Re-check authentication status from localStorage (more reliable)
+    const token = localStorage.getItem('access_token');
+    
+    if (!isAuthenticated && !token) {
       toast.error('Silakan login terlebih dahulu')
       navigate('/login?redirect=/services')
       return
@@ -164,7 +167,7 @@ export default function Services() {
     setCheckoutLoading(serviceSlug)
     
     try {
-      // 1. Create order
+      // 1. Create order (quantity always 1 for services)
       const orderResponse = await ordersAPI.create({
         service_slug: serviceSlug,
         quantity: 1,
@@ -191,6 +194,14 @@ export default function Services() {
       navigate('/dashboard/orders')
     } catch (error) {
       console.error('Checkout error:', error)
+      
+      // Handle 401 specifically - don't let api interceptor redirect
+      if (error.response?.status === 401) {
+        toast.error('Sesi Anda telah berakhir. Silakan login kembali.')
+        navigate('/login?redirect=/services')
+        return
+      }
+      
       const errorMessage = error?.response?.data?.detail || error.message || 'Gagal melakukan checkout'
       toast.error(errorMessage)
     } finally {
