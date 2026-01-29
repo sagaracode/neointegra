@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from .endpoints import auth, services, orders, payments, subscriptions, users
+from .endpoints import auth, services, orders, payments, subscriptions, users, admin
 
 # Create main API router
 api_router = APIRouter(prefix="/api")
@@ -11,3 +11,4 @@ api_router.include_router(orders.router)
 api_router.include_router(payments.router)
 api_router.include_router(subscriptions.router)
 api_router.include_router(users.router)
+api_router.include_router(admin.router)
