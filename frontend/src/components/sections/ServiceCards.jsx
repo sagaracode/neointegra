@@ -7,14 +7,14 @@ import useAuthStore from '../../store/authStore'
 import toast from 'react-hot-toast'
 
 const BANK_CHANNELS = [
-  { id: 'bca', name: 'BCA', logo: '🏦' },
-  { id: 'bni', name: 'BNI', logo: '🏦' },
-  { id: 'bri', name: 'BRI', logo: '🏦' },
-  { id: 'mandiri', name: 'Mandiri', logo: '🏦' },
-  { id: 'cimb', name: 'CIMB Niaga', logo: '🏦' },
-  { id: 'permata', name: 'Permata', logo: '🏦' },
-  { id: 'bsi', name: 'BSI', logo: '🏦' },
-  { id: 'danamon', name: 'Danamon', logo: '🏦' },
+  { code: 'bca', name: 'BCA', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/bca.png' },
+  { code: 'bni', name: 'BNI', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/bni.png' },
+  { code: 'bri', name: 'BRI', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/bri.png' },
+  { code: 'mandiri', name: 'Mandiri', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/mandiri.png' },
+  { code: 'cimb', name: 'CIMB Niaga', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/niaga.png' },
+  { code: 'permata', name: 'Permata', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/permata.png' },
+  { code: 'bsi', name: 'BSI', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/bsi.png' },
+  { code: 'danamon', name: 'Danamon', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/danamon.png' },
 ]
 
 const services = [
@@ -303,15 +303,15 @@ export default function ServiceCards() {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
               {BANK_CHANNELS.map((bank) => (
                 <button
-                  key={bank.id}
-                  onClick={() => setSelectedBank(bank.id)}
+                  key={bank.code}
+                  onClick={() => setSelectedBank(bank.code)}
                   className={`p-4 rounded-xl border-2 transition-all duration-200 ${
-                    selectedBank === bank.id
+                    selectedBank === bank.code
                       ? 'border-primary-500 bg-primary-500/20'
                       : 'border-white/10 hover:border-primary-400/50 bg-dark-100/50'
                   }`}
                 >
-                  <div className="text-3xl mb-2">{bank.logo}</div>
+                  <img src={bank.logo} alt={bank.name} className="h-12 w-auto mx-auto mb-2 object-contain" />
                   <div className="font-poppins font-semibold text-white text-sm">
                     {bank.name}
                   </div>
