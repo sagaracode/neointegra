@@ -1,9 +1,29 @@
 import axios from 'axios'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+// Determine API URL based on environment
+// In production (built app), use production API URL
+// In development, use environment variable or localhost
+const getApiUrl = () => {
+  // If VITE_API_URL is explicitly set, use it
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL
+  }
+  
+  // If running on production domain, use production API
+  if (window.location.hostname === 'neointegratech.com' || 
+      window.location.hostname === 'www.neointegratech.com') {
+    return 'https://api.neointegratech.com/api'
+  }
+  
+  // Default to localhost for development
+  return 'http://localhost:8000/api'
+}
+
+const API_URL = getApiUrl()
 
 // Log API URL for debugging
 console.log('API URL:', API_URL)
+console.log('Current hostname:', window.location.hostname)
 
 // Create axios instance
 const api = axios.create({
