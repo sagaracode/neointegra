@@ -43,12 +43,21 @@ def get_current_user(token: str, db: Session):
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         email: str = payload.get("sub")
         if email is None:
-            raise HTTPException(status_code=401, detail="Invalid token")
-    except jwt.PyJWTError:
+            print("[Auth Error] Token payload missing 'sub' field")
+            raise HTTPException(status_code=401, detail="Invalid token: missing email")
+    except jwt.ExpiredSignatureError:
+        print("[Auth Error] Token expired")
+        raise HTTPException(status_code=401, detail="Token expired. Please login again.")
+    except jwt.InvalidSignatureError:
+        print("[Auth Error] Token signature invalid - SECRET_KEY mismatch?")
+        raise HTTPException(status_code=401, detail="Invalid token signature")
+    except jwt.PyJWTError as e:
+        print(f"[Auth Error] JWT decode failed: {type(e).__name__}: {str(e)}")
         raise HTTPException(status_code=401, detail="Invalid token")
     
     user = db.query(User).filter(User.email == email).first()
     if user is None:
+        print(f"[Auth Error] User not found in database: {email}")
         raise HTTPException(status_code=401, detail="User not found")
     return user
 

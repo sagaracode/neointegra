@@ -20,6 +20,15 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
     
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # CRITICAL: Validate SECRET_KEY in production
+        if not self.DEBUG and self.SECRET_KEY == "your-secret-key-change-in-production":
+            raise ValueError(
+                "CRITICAL SECURITY ERROR: SECRET_KEY must be set in production! "
+                "Add SECRET_KEY environment variable to your deployment."
+            )
+    
     # CORS
     FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173")
     BACKEND_URL: str = os.getenv("BACKEND_URL", "http://localhost:8000")
