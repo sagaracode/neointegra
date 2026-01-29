@@ -6,6 +6,7 @@ from datetime import datetime
 from ...database import get_db
 from ...models import Order, Service, User
 from ...schemas import OrderCreate, OrderCreateSimple, OrderResponse
+from ...email import send_order_confirmation_email
 from .auth import get_current_user
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
@@ -56,6 +57,23 @@ async def create_order(
     db.add(new_order)
     db.commit()
     db.refresh(new_order)
+    
+    # Send order confirmation email
+    try:
+        send_order_confirmation_email(
+            to_email=user.email,
+            order_data={
+                'customer_name': user.full_name,
+                'order_number': new_order.order_number,
+                'service_name': service.name,
+                'quantity': order_data.quantity,
+                'total_amount': total_price,
+                'status': 'pending'
+            }
+        )
+    except Exception as e:
+        print(f"Failed to send order confirmation email: {str(e)}")
+        # Don't fail the order creation if email fails
     
     return new_order
 

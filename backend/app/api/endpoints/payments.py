@@ -11,6 +11,7 @@ from ...database import get_db
 from ...models import Payment, Order, Service
 from ...schemas import PaymentCreate, PaymentResponse, PaymentCallbackRequest, MessageResponse
 from ...config import settings
+from ...email import send_payment_pending_email, send_payment_confirmation_email
 from .auth import get_current_user
 
 router = APIRouter(prefix="/payments", tags=["Payments"])
@@ -225,6 +226,24 @@ async def create_payment(
             
             print(f"[Payment Creation] Success! Payment ID: {new_payment.id}, URL: {new_payment.payment_url}")
             
+            # Send payment pending email with payment instructions
+            try:
+                send_payment_pending_email(
+                    to_email=user.email,
+                    payment_data={
+                        'customer_name': user.full_name,
+                        'order_number': order.order_number,
+                        'amount': payment_data.amount,
+                        'payment_method': payment_data.payment_method,
+                        'payment_channel': payment_data.payment_channel,
+                        'payment_url': new_payment.payment_url,
+                        'va_number': new_payment.va_number,
+                        'qr_code_url': new_payment.qr_code_url
+                    }
+                )
+            except Exception as e:
+                print(f"Failed to send payment pending email: {str(e)}")
+            
         except HTTPException as e:
             # iPaymu API error - delete payment record and re-raise
             db.delete(new_payment)
@@ -327,6 +346,24 @@ async def payment_callback(request: Request, db: Session = Depends(get_db)):
             if order:
                 order.status = "paid"
                 print(f"[iPaymu Callback] Order {order.order_number} marked as paid")
+                
+                # Send payment confirmation email
+                try:
+                    user = db.query(Order).join(Order).filter(Order.id == order.id).first().user
+                    send_payment_confirmation_email(
+                        to_email=user.email,
+                        payment_data={
+                            'customer_name': user.full_name,
+                            'order_number': order.order_number,
+                            'amount': payment.amount,
+                            'payment_method': payment.payment_method,
+                            'status': 'success',
+                            'transaction_id': payment.ipaymu_transaction_id
+                        }
+                    )
+                    print(f"[iPaymu Callback] Payment confirmation email sent to {user.email}")
+                except Exception as e:
+                    print(f"[iPaymu Callback] Failed to send confirmation email: {str(e)}")
         
         elif status_code == "0":  # Pending
             payment.status = "pending"
