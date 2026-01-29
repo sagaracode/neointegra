@@ -18,26 +18,8 @@ const BANK_CHANNELS = [
   { code: 'danamon', name: 'Danamon', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/danamon.png' },
 ]
 
-const PAYMENT_METHODS = [
-  { 
-    code: 'va', 
-    name: 'Transfer Bank (Virtual Account)', 
-    icon: '🏦',
-    description: 'Transfer melalui Virtual Account bank pilihan Anda'
-  },
-  { 
-    code: 'qris', 
-    name: 'QRIS', 
-    icon: '📱',
-    description: 'Scan QR Code dengan aplikasi e-wallet atau mobile banking'
-  },
-  { 
-    code: 'cstore', 
-    name: 'Alfamart/Indomaret', 
-    icon: '🏪',
-    description: 'Bayar tunai di Alfamart atau Indomaret terdekat'
-  },
-]
+// Only VA payment method is supported
+// QRIS and Alfamart removed due to iPaymu API limitations
 
 // Payment instructions for each bank
 const getPaymentInstructions = (bankCode) => {
@@ -106,30 +88,6 @@ const getPaymentInstructions = (bankCode) => {
       'Masukkan nomor Virtual Account',
       'Masukkan jumlah yang akan dibayar',
       'Konfirmasi pembayaran'
-    ],
-    qris: [
-      'Buka aplikasi e-wallet atau mobile banking Anda (GoPay, OVO, Dana, ShopeePay, dll)',
-      'Pilih menu Scan QR atau QRIS',
-      'Scan QR Code yang ditampilkan',
-      'Periksa nominal pembayaran',
-      'Konfirmasi pembayaran',
-      'Simpan bukti pembayaran'
-    ],
-    alfamart: [
-      'Kunjungi Alfamart atau Indomaret terdekat',
-      'Tunjukkan Kode Pembayaran ke kasir',
-      'Kasir akan memproses pembayaran',
-      'Lakukan pembayaran tunai',
-      'Simpan struk pembayaran sebagai bukti',
-      'Status pembayaran akan otomatis diperbarui'
-    ],
-    indomaret: [
-      'Kunjungi Alfamart atau Indomaret terdekat',
-      'Tunjukkan Kode Pembayaran ke kasir',
-      'Kasir akan memproses pembayaran',
-      'Lakukan pembayaran tunai',
-      'Simpan struk pembayaran sebagai bukti',
-      'Status pembayaran akan otomatis diperbarui'
     ]
   }
   
@@ -269,13 +227,9 @@ export default function Services() {
   const [loading, setLoading] = useState(true)
   const [checkoutLoading, setCheckoutLoading] = useState(null)
   
-  // Payment method selection modal state
-  const [showPaymentModal, setShowPaymentModal] = useState(false)
-  const [selectedService, setSelectedService] = useState(null)
-  const [paymentMethod, setPaymentMethod] = useState('va') // 'va', 'qris', 'cstore'
-  
-  // Bank selection modal state (for VA only)
+  // Bank selection modal state
   const [showBankModal, setShowBankModal] = useState(false)
+  const [selectedService, setSelectedService] = useState(null)
   const [selectedBank, setSelectedBank] = useState('bca')
   
   // Payment result modal state
@@ -314,31 +268,14 @@ export default function Services() {
       return;
     }
 
-    // Open payment method selection modal
+    // Open bank selection modal directly (only VA supported)
     setSelectedService(serviceSlug)
-    setShowPaymentModal(true)
-  }
-  
-  const handlePaymentMethodSelected = (method) => {
-    setPaymentMethod(method)
-    setShowPaymentModal(false)
-    
-    // If VA, show bank selection modal
-    if (method === 'va') {
-      setShowBankModal(true)
-    } else {
-      // For QRIS and Alfamart, proceed directly
-      handleCreatePayment(method)
-    }
+    setShowBankModal(true)
   }
   
   const handleBankSelected = async () => {
     if (!selectedBank || !selectedService) return
     setShowBankModal(false)
-    handleCreatePayment('va', selectedBank)
-  }
-  
-  const handleCreatePayment = async (method, channel = null) => {
     setCheckoutLoading(selectedService)
     
     try {
@@ -352,65 +289,29 @@ export default function Services() {
       const orderId = orderResponse.data.id
       const totalPrice = orderResponse.data.total_price
 
-      // 2. Create payment with selected method
-      const paymentPayload = {
+      // 2. Create payment with selected bank (VA only)
+      const paymentResponse = await paymentsAPI.create({
         order_id: orderId,
-        payment_method: method,
+        payment_method: 'va',
+        payment_channel: selectedBank,
         amount: totalPrice
-      }
+      })
       
-      // Add channel for VA payments
-      if (method === 'va' && channel) {
-        paymentPayload.payment_channel = channel
-      }
-
-      const paymentResponse = await paymentsAPI.create(paymentPayload)
       const paymentData = paymentResponse.data
 
-      // 3. Show payment info in modal based on method
-      if (method === 'va' && paymentData.va_number) {
-        const bankName = BANK_CHANNELS.find(b => b.code === channel)?.name || channel?.toUpperCase()
+      // 3. Show VA number in modal with instructions
+      if (paymentData.va_number) {
+        const bankName = BANK_CHANNELS.find(b => b.code === selectedBank)?.name || selectedBank.toUpperCase()
         
         setPaymentResult({
           type: 'va',
           vaNumber: paymentData.va_number,
           bank: bankName,
-          bankCode: channel,
+          bankCode: selectedBank,
           amount: totalPrice,
           orderId: orderId
         })
         setShowPaymentResultModal(true)
-      } else if (method === 'qris') {
-        // QRIS - check for qr_code_url or qr_string
-        const qrImage = paymentData.qr_code_url || paymentData.qr_string
-        if (qrImage) {
-          setPaymentResult({
-            type: 'qris',
-            qrImage: qrImage,
-            qrString: paymentData.qr_string,
-            amount: totalPrice,
-            orderId: orderId
-          })
-          setShowPaymentResultModal(true)
-        } else {
-          toast.error('QRIS QR Code tidak tersedia. Cek dashboard.')
-          navigate('/dashboard/orders')
-        }
-      } else if (method === 'cstore') {
-        // Convenience store - check for payment_code
-        if (paymentData.payment_code) {
-          setPaymentResult({
-            type: 'cstore',
-            paymentCode: paymentData.payment_code,
-            paymentName: paymentData.payment_name || 'Alfamart/Indomaret',
-            amount: totalPrice,
-            orderId: orderId
-          })
-          setShowPaymentResultModal(true)
-        } else {
-          toast.error('Kode pembayaran tidak tersedia. Cek dashboard.')
-          navigate('/dashboard/orders')
-        }
       } else {
         toast.success('🎉 Order berhasil dibuat! Cek dashboard untuk detail pembayaran.')
         navigate('/dashboard/orders')
@@ -1018,69 +919,7 @@ export default function Services() {
         </div>
       </section>
       
-      {/* Payment Method Selection Modal */}
-      {showPaymentModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-dark-300 rounded-2xl border border-gray-700/50 p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto"
-          >
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="font-montserrat font-bold text-2xl text-white">
-                Pilih Metode Pembayaran
-              </h3>
-              <button
-                onClick={() => {
-                  setShowPaymentModal(false)
-                  setSelectedService(null)
-                }}
-                className="text-gray-400 hover:text-white transition-colors"
-              >
-                <XMarkIcon className="w-6 h-6" />
-              </button>
-            </div>
-            
-            <p className="text-gray-400 mb-6">
-              Pilih metode pembayaran yang Anda inginkan
-            </p>
-            
-            <div className="space-y-4 mb-6">
-              {PAYMENT_METHODS.map((method) => (
-                <button
-                  key={method.code}
-                  onClick={() => handlePaymentMethodSelected(method.code)}
-                  className="w-full p-5 rounded-xl border-2 border-gray-700 hover:border-primary-500 bg-dark-200 hover:bg-primary-500/10 transition-all text-left"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="text-4xl">{method.icon}</div>
-                    <div className="flex-1">
-                      <p className="text-lg font-medium text-white mb-1">
-                        {method.name}
-                      </p>
-                      <p className="text-sm text-gray-400">
-                        {method.description}
-                      </p>
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-            
-            <button
-              onClick={() => {
-                setShowPaymentModal(false)
-                setSelectedService(null)
-              }}
-              className="w-full px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl transition-colors"
-            >
-              Batal
-            </button>
-          </motion.div>
-        </div>
-      )}
-      
-      {/* Bank Selection Modal (for VA only) */}
+      {/* Bank Selection Modal */}
       {showBankModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
           <motion.div
@@ -1168,15 +1007,12 @@ export default function Services() {
                 Pembayaran Berhasil Dibuat!
               </h3>
               <p className="text-gray-400">
-                {paymentResult.type === 'va' && `Silakan lakukan pembayaran melalui ${paymentResult.bank}`}
-                {paymentResult.type === 'qris' && 'Scan QR Code di bawah untuk membayar'}
-                {paymentResult.type === 'cstore' && 'Bayar di Alfamart/Indomaret terdekat'}
+                Silakan lakukan pembayaran melalui {paymentResult.bank}
               </p>
             </div>
             
             {/* VA Number Box */}
-            {paymentResult.type === 'va' && (
-              <div className="bg-dark-200 rounded-xl p-6 mb-6">
+            <div className="bg-dark-200 rounded-xl p-6 mb-6">
                 <p className="text-gray-400 text-sm mb-2">Nomor Virtual Account:</p>
                 <div className="flex items-center justify-between gap-4">
                   <p className="font-mono text-2xl font-bold text-white">
@@ -1199,70 +1035,15 @@ export default function Services() {
                     Rp {paymentResult.amount.toLocaleString('id-ID')}
                   </p>
                 </div>
-              </div>
-            )}
-            
-            {/* QRIS QR Code Box */}
-            {paymentResult.type === 'qris' && (
-              <div className="bg-dark-200 rounded-xl p-6 mb-6">
-                <div className="bg-white rounded-xl p-4 mb-4">
-                  <img
-                    src={paymentResult.qrImage}
-                    alt="QRIS QR Code"
-                    className="w-full max-w-[300px] mx-auto"
-                  />
-                </div>
-                
-                <div className="mt-4 pt-4 border-t border-gray-700">
-                  <p className="text-gray-400 text-sm mb-1">Total Pembayaran:</p>
-                  <p className="text-xl font-bold text-white">
-                    Rp {paymentResult.amount.toLocaleString('id-ID')}
-                  </p>
-                </div>
-              </div>
-            )}
-            
-            {/* Alfamart/Indomaret Payment Code Box */}
-            {paymentResult.type === 'cstore' && (
-              <div className="bg-dark-200 rounded-xl p-6 mb-6">
-                <p className="text-gray-400 text-sm mb-2">Kode Pembayaran:</p>
-                <div className="flex items-center justify-between gap-4">
-                  <p className="font-mono text-2xl font-bold text-white">
-                    {paymentResult.paymentCode}
-                  </p>
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(paymentResult.paymentCode)
-                      toast.success('Kode pembayaran berhasil disalin!')
-                    }}
-                    className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium transition-colors"
-                  >
-                    Salin
-                  </button>
-                </div>
-                
-                <div className="mt-4 pt-4 border-t border-gray-700">
-                  <p className="text-gray-400 text-sm mb-1">Total Pembayaran:</p>
-                  <p className="text-xl font-bold text-white">
-                    Rp {paymentResult.amount.toLocaleString('id-ID')}
-                  </p>
-                </div>
-              </div>
-            )}
+            </div>
             
             {/* Payment Instructions */}
             <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 mb-6">
               <p className="text-blue-400 font-medium mb-3">
-                📋 Cara Pembayaran:
+                📋 Cara Pembayaran via {paymentResult.bank}:
               </p>
               <ol className="text-gray-300 text-sm space-y-2 list-decimal list-inside">
-                {paymentResult.type === 'va' && getPaymentInstructions(paymentResult.bankCode).map((step, index) => (
-                  <li key={index} className="leading-relaxed">{step}</li>
-                ))}
-                {paymentResult.type === 'qris' && getPaymentInstructions('qris').map((step, index) => (
-                  <li key={index} className="leading-relaxed">{step}</li>
-                ))}
-                {paymentResult.type === 'cstore' && getPaymentInstructions('alfamart').map((step, index) => (
+                {getPaymentInstructions(paymentResult.bankCode).map((step, index) => (
                   <li key={index} className="leading-relaxed">{step}</li>
                 ))}
               </ol>

@@ -11,10 +11,23 @@ import {
   ClockIcon,
   CheckCircleIcon,
   XCircleIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 import useAuthStore from '../store/authStore'
 import { ordersAPI, paymentsAPI, usersAPI } from '../services/api'
+
+// Available payment channels from iPaymu
+const BANK_CHANNELS = [
+  { code: 'bca', name: 'BCA', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/bca.png' },
+  { code: 'bni', name: 'BNI', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/bni.png' },
+  { code: 'bri', name: 'BRI', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/bri.png' },
+  { code: 'mandiri', name: 'Mandiri', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/mandiri.png' },
+  { code: 'cimb', name: 'CIMB Niaga', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/niaga.png' },
+  { code: 'permata', name: 'Permata', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/permata.png' },
+  { code: 'bsi', name: 'BSI', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/bsi.png' },
+  { code: 'danamon', name: 'Danamon', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/danamon.png' },
+]
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
@@ -198,6 +211,11 @@ function DashboardOrders() {
   const [loading, setLoading] = useState(true)
   const [orderPayments, setOrderPayments] = useState({}) // Store payment info for each order
   const [creatingPayment, setCreatingPayment] = useState(null) // Track which order is creating payment
+  
+  // Bank selection modal
+  const [showBankModal, setShowBankModal] = useState(false)
+  const [selectedOrder, setSelectedOrder] = useState(null)
+  const [selectedBank, setSelectedBank] = useState('bca')
 
   useEffect(() => {
     loadOrders()
@@ -243,25 +261,31 @@ function DashboardOrders() {
     
     // If payment exists with VA number, show it
     if (payment?.va_number) {
-      toast.success(`VA Number: ${payment.va_number}`, { duration: 10000 })
+      const bankName = BANK_CHANNELS.find(b => b.code === payment.payment_channel)?.name || payment.payment_channel?.toUpperCase() || 'Bank'
+      toast.success(
+        `VA ${bankName}: ${payment.va_number}\n\nSalin nomor VA dan lakukan pembayaran.`,
+        { duration: 15000 }
+      )
       return
     }
     
-    // If payment exists with QRIS, show it
-    if (payment?.qr_code_url) {
-      // Could open QR code in modal or new tab
-      window.open(payment.qr_code_url, '_blank')
-      return
-    }
+    // If no payment exists, show bank selection modal
+    setSelectedOrder(order)
+    setShowBankModal(true)
+  }
+  
+  const handleBankSelected = async () => {
+    if (!selectedBank || !selectedOrder) return
     
-    // If no payment exists, create one
-    setCreatingPayment(order.id)
+    setShowBankModal(false)
+    setCreatingPayment(selectedOrder.id)
+    
     try {
       const paymentResponse = await paymentsAPI.create({
-        order_id: order.id,
+        order_id: selectedOrder.id,
         payment_method: 'va',
-        payment_channel: 'bca',  // User can select bank in Services page
-        amount: order.total_price
+        payment_channel: selectedBank,
+        amount: selectedOrder.total_price
       })
       
       const paymentData = paymentResponse.data
@@ -271,22 +295,17 @@ function DashboardOrders() {
       // Update local state
       setOrderPayments(prev => ({
         ...prev,
-        [order.id]: paymentData
+        [selectedOrder.id]: paymentData
       }))
       
-      // Handle different payment types
+      // Show VA number
       if (paymentData.va_number) {
-        // VA payment - show VA number
+        const bankName = BANK_CHANNELS.find(b => b.code === selectedBank)?.name || selectedBank.toUpperCase()
         toast.success(
-          `✅ Pembayaran berhasil dibuat!\n\nVA ${paymentData.payment_channel?.toUpperCase()}: ${paymentData.va_number}\n\nSalin nomor VA dan lakukan pembayaran.`,
+          `✅ Pembayaran berhasil dibuat!\n\nVA ${bankName}: ${paymentData.va_number}\n\nSalin nomor VA dan lakukan pembayaran.`,
           { duration: 15000 }
         )
         // Reload to show in UI
-        loadOrders()
-      } else if (paymentData.qr_code_url) {
-        // QRIS payment - show QR code
-        toast.success('✅ QRIS berhasil dibuat! Membuka QR Code...')
-        window.open(paymentData.qr_code_url, '_blank')
         loadOrders()
       } else if (paymentData.payment_url) {
         // Redirect payment - open URL
@@ -415,6 +434,78 @@ function DashboardOrders() {
               </div>
             )
           })}
+        </div>
+      )}
+      
+      {/* Bank Selection Modal */}
+      {showBankModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-dark-300 rounded-2xl border border-gray-700/50 p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="font-montserrat font-bold text-2xl text-white">
+                Pilih Bank untuk Pembayaran
+              </h3>
+              <button
+                onClick={() => {
+                  setShowBankModal(false)
+                  setSelectedOrder(null)
+                }}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <XMarkIcon className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <p className="text-gray-400 mb-6">
+              Pilih bank untuk mendapatkan nomor Virtual Account
+            </p>
+            
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+              {BANK_CHANNELS.map((bank) => (
+                <button
+                  key={bank.code}
+                  onClick={() => setSelectedBank(bank.code)}
+                  className={`p-4 rounded-xl border-2 transition-all ${
+                    selectedBank === bank.code
+                      ? 'border-primary-500 bg-primary-500/10'
+                      : 'border-gray-700 hover:border-gray-600 bg-dark-200'
+                  }`}
+                >
+                  <img
+                    src={bank.logo}
+                    alt={bank.name}
+                    className="h-12 mx-auto object-contain mb-2"
+                  />
+                  <p className="text-sm text-gray-300 font-medium text-center">
+                    {bank.name}
+                  </p>
+                </button>
+              ))}
+            </div>
+            
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowBankModal(false)
+                  setSelectedOrder(null)
+                }}
+                className="flex-1 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl transition-colors"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleBankSelected}
+                disabled={!selectedBank}
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-primary-600 to-purple-600 hover:from-primary-700 hover:to-purple-700 text-white font-medium rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Lanjutkan Pembayaran
+              </button>
+            </div>
+          </motion.div>
         </div>
       )}
     </div>
