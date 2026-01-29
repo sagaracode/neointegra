@@ -193,9 +193,11 @@ function DashboardHome() {
 
 // Dashboard Orders Component
 function DashboardOrders() {
+  const navigate = useNavigate()
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
   const [orderPayments, setOrderPayments] = useState({}) // Store payment info for each order
+  const [creatingPayment, setCreatingPayment] = useState(null) // Track which order is creating payment
 
   useEffect(() => {
     loadOrders()
@@ -227,6 +229,49 @@ function DashboardOrders() {
       console.error('Failed to load orders:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handlePayNow = async (order) => {
+    const payment = orderPayments[order.id]
+    
+    // If payment already exists with URL, redirect to it
+    if (payment?.payment_url) {
+      window.open(payment.payment_url, '_blank')
+      return
+    }
+    
+    // If no payment exists, create one
+    setCreatingPayment(order.id)
+    try {
+      const paymentResponse = await paymentsAPI.create({
+        order_id: order.id,
+        payment_method: 'va',
+        payment_channel: 'bca',
+        amount: order.total_price
+      })
+      
+      const paymentData = paymentResponse.data
+      
+      // Update local state
+      setOrderPayments(prev => ({
+        ...prev,
+        [order.id]: paymentData
+      }))
+      
+      // Redirect to payment URL if available
+      if (paymentData.payment_url) {
+        window.open(paymentData.payment_url, '_blank')
+      } else {
+        toast.success('Payment created! Refresh to see payment details.')
+        loadOrders() // Reload to get updated payment info
+      }
+    } catch (error) {
+      console.error('Failed to create payment:', error)
+      const errorMsg = error.response?.data?.detail || 'Gagal membuat pembayaran'
+      toast.error(errorMsg)
+    } finally {
+      setCreatingPayment(null)
     }
   }
 
@@ -307,15 +352,24 @@ function DashboardOrders() {
                     <div className="font-montserrat font-bold text-xl text-white mb-3">
                       {formatCurrency(order.total_price)}
                     </div>
-                    {order.status === 'pending' && payment?.payment_url && (
-                      <a 
-                        href={payment.payment_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn btn-primary text-sm inline-block"
+                    {order.status === 'pending' && (
+                      <button
+                        onClick={() => handlePayNow(order)}
+                        disabled={creatingPayment === order.id}
+                        className="btn btn-primary text-sm inline-flex items-center gap-2"
                       >
-                        💳 Bayar Sekarang
-                      </a>
+                        {creatingPayment === order.id ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                            <span>Loading...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>💳</span>
+                            <span>Bayar Sekarang</span>
+                          </>
+                        )}
+                      </button>
                     )}
                   </div>
                 </div>
