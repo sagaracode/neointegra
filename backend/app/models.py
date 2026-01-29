@@ -67,15 +67,18 @@ class Payment(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     order_id = Column(Integer, ForeignKey("orders.id"), nullable=False)
-    payment_method = Column(String, nullable=False)  # va, qris, cod
-    payment_channel = Column(String, nullable=True)  # bca, bni, bri, mandiri (for VA)
+    payment_method = Column(String, nullable=False)  # va, qris, cstore, cod
+    payment_channel = Column(String, nullable=True)  # bca, bni, bri, mandiri (for VA), alfamart/indomaret (for cstore)
     amount = Column(Float, nullable=False)
     status = Column(String, default="pending")  # pending, success, failed, expired
     ipaymu_transaction_id = Column(String, nullable=True)
     ipaymu_session_id = Column(String, nullable=True)
     payment_url = Column(String, nullable=True)
     qr_code_url = Column(String, nullable=True)
+    qr_string = Column(Text, nullable=True)  # QRIS string for manual input
     va_number = Column(String, nullable=True)
+    payment_code = Column(String, nullable=True)  # For convenience store (Alfamart/Indomaret)
+    payment_name = Column(String, nullable=True)  # Store name display
     expired_at = Column(DateTime, nullable=True)
     paid_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)

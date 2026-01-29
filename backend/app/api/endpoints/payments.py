@@ -98,6 +98,18 @@ async def create_ipaymu_payment(payment_data: dict, payment_method: str):
             "referenceId": payment_data.get("reference_id", payment_data.get("order_number", "")),
             "paymentMethod": "qris"
         }
+    elif payment_method == "cstore":
+        # Convenience store payment (Alfamart/Indomaret)
+        body = {
+            "name": payment_data["name"],
+            "phone": payment_data["phone"],
+            "email": payment_data["email"],
+            "amount": str(int(payment_data["amount"])),  # String, not int!
+            "notifyUrl": payment_data["notify_url"],
+            "referenceId": payment_data.get("reference_id", payment_data.get("order_number", "")),
+            "paymentMethod": "cstore",
+            "paymentChannel": "alfamart"  # Default to alfamart, can be "indomaret" too
+        }
     else:
         raise ValueError(f"Unsupported payment method: {payment_method}")
     
@@ -162,6 +174,8 @@ async def create_ipaymu_payment(payment_data: dict, payment_method: str):
         print(f"[iPaymu Success] Va: {data.get('Va')}")
         print(f"[iPaymu Success] VaNumber: {data.get('VaNumber')}")
         print(f"[iPaymu Success] PaymentNo: {data.get('PaymentNo')}")
+        print(f"[iPaymu Success] PaymentCode: {data.get('PaymentCode')}")
+        print(f"[iPaymu Success] PaymentName: {data.get('PaymentName')}")
         print(f"[iPaymu Success] Url: {data.get('Url')}")
         print(f"[iPaymu Success] PaymentUrl: {data.get('PaymentUrl')}")
         print(f"[iPaymu Success] QRImage: {data.get('QRImage')}")
@@ -237,9 +251,21 @@ async def create_payment(
             payment_info_found = False
             
             if payment_data.payment_method == "qris":
+                # Store QR code image URL and string
                 new_payment.qr_code_url = ipaymu_response.get("QRImage") or ipaymu_response.get("QrString")
+                new_payment.qr_string = ipaymu_response.get("QrString")
                 print(f"[Payment QRIS] QR Code URL: {new_payment.qr_code_url}")
+                print(f"[Payment QRIS] QR String: {new_payment.qr_string}")
                 if new_payment.qr_code_url:
+                    payment_info_found = True
+                    
+            elif payment_data.payment_method == "cstore":
+                # Convenience store payment code
+                new_payment.payment_code = ipaymu_response.get("PaymentCode")
+                new_payment.payment_name = ipaymu_response.get("PaymentName") or "Alfamart/Indomaret"
+                print(f"[Payment Cstore] Payment Code: {new_payment.payment_code}")
+                print(f"[Payment Cstore] Payment Name: {new_payment.payment_name}")
+                if new_payment.payment_code:
                     payment_info_found = True
                     
             elif payment_data.payment_method == "va":

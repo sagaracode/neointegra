@@ -95,8 +95,8 @@ class OrderResponse(BaseModel):
 
 # ============= PAYMENT SCHEMAS =============
 class PaymentBase(BaseModel):
-    payment_method: str  # va, qris, cod
-    payment_channel: Optional[str] = None  # bca, bni, bri, mandiri
+    payment_method: str  # va, qris, cstore, cod
+    payment_channel: Optional[str] = None  # bca, bni, bri, mandiri (for VA), alfamart/indomaret (for cstore)
 
 class PaymentCreate(PaymentBase):
     order_id: int
@@ -111,7 +111,10 @@ class PaymentResponse(BaseModel):
     status: str
     payment_url: Optional[str]
     qr_code_url: Optional[str]
+    qr_string: Optional[str]
     va_number: Optional[str]
+    payment_code: Optional[str]
+    payment_name: Optional[str]
     expired_at: Optional[datetime]
     created_at: datetime
     
