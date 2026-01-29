@@ -68,11 +68,15 @@ async def create_ipaymu_payment(payment_data: dict, payment_method: str):
     url = f"{settings.IPAYMU_BASE_URL}/payment"
     
     # Prepare product list for iPaymu
+    # Get quantity from payment_data, default to 1
+    quantity = payment_data.get("quantity", 1)
+    unit_price = int(payment_data["amount"]) // quantity if quantity > 0 else int(payment_data["amount"])
+    
     product_list = payment_data.get("product", [
         {
             "name": payment_data.get("product_name", "Layanan NeoIntegra Tech"),
-            "price": int(payment_data["amount"]),
-            "qty": 1
+            "price": unit_price,
+            "qty": quantity
         }
     ])
     
@@ -200,7 +204,8 @@ async def create_payment(
                 "return_url": f"{settings.FRONTEND_URL}/payment/success?order_id={order.id}&order_number={order.order_number}&amount={payment_data.amount}",
                 "expired": 24,
                 "payment_channel": payment_data.payment_channel,
-                "product_name": service_name
+                "product_name": service_name,
+                "quantity": order.quantity
             }
             
             print(f"[Payment Creation] Calling iPaymu API for order {order.order_number}, amount: Rp {payment_data.amount:,.0f}")

@@ -60,7 +60,7 @@ function DashboardHome() {
         pendingOrders: orders.filter(o => o.status === 'pending').length,
         completedOrders: orders.filter(o => o.status === 'completed').length,
         totalSpent: orders.filter(o => o.status === 'paid' || o.status === 'completed')
-          .reduce((sum, o) => sum + (o.total_amount || 0), 0)
+          .reduce((sum, o) => sum + (o.total_price || 0), 0)
       })
     } catch (error) {
       console.error('Failed to load dashboard data:', error)
@@ -176,7 +176,7 @@ function DashboardHome() {
                     <div className="text-sm text-gray-400">{order.service_name}</div>
                   </div>
                   <div className="text-right">
-                    <div className="font-medium text-white">{formatCurrency(order.total_amount)}</div>
+                    <div className="font-medium text-white">{formatCurrency(order.total_price)}</div>
                     <span className={`text-xs px-2 py-1 rounded ${status.bg} ${status.color}`}>
                       {status.label}
                     </span>
@@ -262,7 +262,7 @@ function DashboardOrders() {
                   </div>
                   <div className="text-right">
                     <div className="font-montserrat font-bold text-xl text-white mb-2">
-                      {formatCurrency(order.total_amount)}
+                      {formatCurrency(order.total_price)}
                     </div>
                     {order.status === 'pending' && order.payment_url && (
                       <a 
@@ -355,7 +355,7 @@ function DashboardPayments() {
                     <td className="py-3 px-4 text-white font-medium">{payment.order_number}</td>
                     <td className="py-3 px-4 text-gray-300">{payment.service_name}</td>
                     <td className="py-3 px-4 text-gray-400">{formatDate(payment.created_at)}</td>
-                    <td className="py-3 px-4 text-white text-right font-medium">{formatCurrency(payment.total_amount)}</td>
+                    <td className="py-3 px-4 text-white text-right font-medium">{formatCurrency(payment.total_price)}</td>
                     <td className="py-3 px-4 text-center">
                       <span className={`text-xs px-2 py-1 rounded ${status.bg} ${status.color}`}>
                         {status.label}
