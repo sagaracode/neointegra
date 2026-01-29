@@ -18,6 +18,22 @@ const BANK_CHANNELS = [
   { code: 'danamon', name: 'Danamon', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/danamon.png' },
 ]
 
+// Payment instructions for each bank
+const getPaymentInstructions = (bankCode) => {
+  const instructions = {
+    bca: '1. Login m-BCA/KlikBCA\n2. Pilih Transfer > BCA Virtual Account\n3. Masukkan nomor VA\n4. Konfirmasi pembayaran',
+    bni: '1. Login BNI Mobile/Internet Banking\n2. Pilih Transfer > Virtual Account Billing\n3. Masukkan nomor VA\n4. Konfirmasi pembayaran',
+    bri: '1. Login BRI Mobile/Internet Banking\n2. Pilih Pembayaran > BRIVA\n3. Masukkan nomor VA\n4. Konfirmasi pembayaran',
+    mandiri: '1. Login Livin by Mandiri\n2. Pilih Bayar > Multipayment\n3. Masukkan nomor VA\n4. Konfirmasi pembayaran',
+    cimb: '1. Login OCTO Mobile/Clicks\n2. Pilih Transfer > Virtual Account\n3. Masukkan nomor VA\n4. Konfirmasi pembayaran',
+    permata: '1. Login PermataMobile X\n2. Pilih Bayar > Virtual Account\n3. Masukkan nomor VA\n4. Konfirmasi pembayaran',
+    bsi: '1. Login BSI Mobile\n2. Pilih Transfer > BSI Virtual Account\n3. Masukkan nomor VA\n4. Konfirmasi pembayaran',
+    danamon: '1. Login D-Bank PRO\n2. Pilih Transfer > Virtual Account\n3. Masukkan nomor VA\n4. Konfirmasi pembayaran'
+  }
+  
+  return instructions[bankCode] || '1. Buka aplikasi mobile banking\n2. Pilih Transfer/Bayar Virtual Account\n3. Masukkan nomor VA\n4. Konfirmasi pembayaran'
+}
+
 const serviceData = {
   'all-in': {
     title: 'Paket All In Service',
@@ -148,6 +164,10 @@ export default function Services() {
   const [showBankModal, setShowBankModal] = useState(false)
   const [selectedService, setSelectedService] = useState(null)
   const [selectedBank, setSelectedBank] = useState('bca')
+  
+  // Payment result modal state
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [paymentResult, setPaymentResult] = useState(null)
 
   useEffect(() => {
     loadServices()
@@ -213,11 +233,22 @@ export default function Services() {
 
       const paymentData = paymentResponse.data
 
-      // 3. Show success and redirect to dashboard orders
-      toast.success('🎉 Order berhasil dibuat! Silakan lanjutkan pembayaran.')
-      
-      // Redirect to dashboard orders page
-      navigate('/dashboard/orders')
+      // 3. Show VA number in modal with instructions
+      if (paymentData.va_number) {
+        const bankName = BANK_CHANNELS.find(b => b.code === selectedBank)?.name || selectedBank.toUpperCase()
+        
+        setPaymentResult({
+          vaNumber: paymentData.va_number,
+          bank: bankName,
+          bankCode: selectedBank,
+          amount: totalPrice,
+          orderId: orderId
+        })
+        setShowPaymentModal(true)
+      } else {
+        toast.success('🎉 Order berhasil dibuat! Cek dashboard untuk detail pembayaran.')
+        navigate('/dashboard/orders')
+      }
     } catch (error) {
       console.error('Checkout error:', error)
       
@@ -887,6 +918,88 @@ export default function Services() {
                 className="flex-1 px-6 py-3 bg-gradient-to-r from-primary-600 to-purple-600 hover:from-primary-700 hover:to-purple-700 text-white font-medium rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Lanjutkan Pembayaran
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+      
+      {/* Payment Result Modal - VA Number */}
+      {showPaymentModal && paymentResult && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-dark-300 rounded-2xl border border-gray-700/50 p-8 max-w-lg w-full"
+          >
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckIcon className="w-8 h-8 text-green-500" />
+              </div>
+              <h3 className="font-montserrat font-bold text-2xl text-white mb-2">
+                Pembayaran Berhasil Dibuat!
+              </h3>
+              <p className="text-gray-400">
+                Silakan lakukan pembayaran melalui {paymentResult.bank}
+              </p>
+            </div>
+            
+            {/* VA Number Box */}
+            <div className="bg-dark-200 rounded-xl p-6 mb-6">
+              <p className="text-gray-400 text-sm mb-2">Nomor Virtual Account:</p>
+              <div className="flex items-center justify-between gap-4">
+                <p className="font-mono text-2xl font-bold text-white">
+                  {paymentResult.vaNumber}
+                </p>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(paymentResult.vaNumber)
+                    toast.success('Nomor VA berhasil disalin!')
+                  }}
+                  className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium transition-colors"
+                >
+                  Salin
+                </button>
+              </div>
+              
+              <div className="mt-4 pt-4 border-t border-gray-700">
+                <p className="text-gray-400 text-sm mb-1">Total Pembayaran:</p>
+                <p className="text-xl font-bold text-white">
+                  Rp {paymentResult.amount.toLocaleString('id-ID')}
+                </p>
+              </div>
+            </div>
+            
+            {/* Payment Instructions */}
+            <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 mb-6">
+              <p className="text-blue-400 font-medium mb-3">
+                📋 Cara Pembayaran via {paymentResult.bank}:
+              </p>
+              <div className="text-gray-300 text-sm space-y-2 whitespace-pre-line">
+                {getPaymentInstructions(paymentResult.bankCode)}
+              </div>
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowPaymentModal(false)
+                  setPaymentResult(null)
+                }}
+                className="flex-1 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl transition-colors"
+              >
+                Tutup
+              </button>
+              <button
+                onClick={() => {
+                  setShowPaymentModal(false)
+                  setPaymentResult(null)
+                  navigate('/dashboard/orders')
+                }}
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-primary-600 to-purple-600 hover:from-primary-700 hover:to-purple-700 text-white font-medium rounded-xl transition-all"
+              >
+                Lihat Pesanan
               </button>
             </div>
           </motion.div>

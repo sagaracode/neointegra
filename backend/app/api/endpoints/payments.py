@@ -272,25 +272,10 @@ async def create_payment(
             db.commit()
             db.refresh(new_payment)
             
-            print(f"[Payment Creation] Success! Payment ID: {new_payment.id}, URL: {new_payment.payment_url}")
+            print(f"[Payment Creation] Success! Payment ID: {new_payment.id}, VA: {new_payment.va_number}")
             
-            # Send payment pending email with payment instructions
-            try:
-                send_payment_pending_email(
-                    to_email=user.email,
-                    payment_data={
-                        'customer_name': user.full_name,
-                        'order_number': order.order_number,
-                        'amount': payment_data.amount,
-                        'payment_method': payment_data.payment_method,
-                        'payment_channel': payment_data.payment_channel,
-                        'payment_url': new_payment.payment_url,
-                        'va_number': new_payment.va_number,
-                        'qr_code_url': new_payment.qr_code_url
-                    }
-                )
-            except Exception as e:
-                print(f"Failed to send payment pending email: {str(e)}")
+            # ONLY send email - Don't send on create, will send on callback success
+            # Email akan dikirim saat callback dari iPaymu (payment success)
             
         except HTTPException as e:
             # iPaymu API error - delete payment record and re-raise
