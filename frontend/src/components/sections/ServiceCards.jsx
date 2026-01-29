@@ -83,6 +83,13 @@ export default function ServiceCards() {
       return
     }
 
+    // Extra validation: slug must not be empty
+    if (!serviceSlug || typeof serviceSlug !== 'string' || !serviceSlug.trim()) {
+      toast.error('Layanan tidak valid. Silakan pilih ulang.');
+      setLoadingService(null);
+      return;
+    }
+
     setLoadingService(serviceSlug)
     try {
       // 1. Create order

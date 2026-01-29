@@ -32,6 +32,10 @@ async def create_order(
     """Create new order with service slug (simplified)"""
     user = get_user_from_token(authorization, db)
     
+    # Validate slug is not empty
+    if not order_data.service_slug or not order_data.service_slug.strip():
+        raise HTTPException(status_code=400, detail="service_slug tidak boleh kosong. Silakan pilih layanan dengan benar dari halaman layanan.")
+    
     # Debug logging
     print(f"[Order Creation] Received slug: '{order_data.service_slug}'")
     

@@ -154,6 +154,13 @@ export default function Services() {
       return
     }
 
+    // Extra validation: slug must not be empty
+    if (!serviceSlug || typeof serviceSlug !== 'string' || !serviceSlug.trim()) {
+      toast.error('Layanan tidak valid. Silakan pilih ulang.');
+      setCheckoutLoading(null);
+      return;
+    }
+
     setCheckoutLoading(serviceSlug)
     
     try {
