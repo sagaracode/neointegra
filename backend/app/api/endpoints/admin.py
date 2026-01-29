@@ -8,9 +8,10 @@ from ...schemas import MessageResponse
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
+@router.get("/init-services", response_model=MessageResponse)
 @router.post("/init-services", response_model=MessageResponse)
 async def initialize_services(db: Session = Depends(get_db)):
-    """Initialize or update services in database"""
+    """Initialize or update services in database - supports both GET and POST"""
     
     services_data = [
         {
