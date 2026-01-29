@@ -81,8 +81,9 @@ async def create_ipaymu_payment(payment_data: dict, payment_method: str):
             "amount": str(int(payment_data["amount"])),  # String, not int!
             "notifyUrl": payment_data["notify_url"],
             "referenceId": payment_data.get("reference_id", payment_data.get("order_number", "")),
-            "paymentMethod": "va",
-            "paymentChannel": payment_data["payment_channel"]
+            "paymentMethod": "va"
+            # paymentChannel not included = show ALL active banks in iPaymu dashboard
+            # To limit to specific bank, add: "paymentChannel": "bca" or "bni" etc.
         }
     elif payment_method == "qris":
         body = {
