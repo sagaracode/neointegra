@@ -1,10 +1,21 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowRightIcon } from '@heroicons/react/24/outline'
+import { ArrowRightIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { ordersAPI, paymentsAPI } from '../../services/api'
 import useAuthStore from '../../store/authStore'
 import toast from 'react-hot-toast'
+
+const BANK_CHANNELS = [
+  { id: 'bca', name: 'BCA', logo: '🏦' },
+  { id: 'bni', name: 'BNI', logo: '🏦' },
+  { id: 'bri', name: 'BRI', logo: '🏦' },
+  { id: 'mandiri', name: 'Mandiri', logo: '🏦' },
+  { id: 'cimb', name: 'CIMB Niaga', logo: '🏦' },
+  { id: 'permata', name: 'Permata', logo: '🏦' },
+  { id: 'bsi', name: 'BSI', logo: '🏦' },
+  { id: 'danamon', name: 'Danamon', logo: '🏦' },
+]
 
 const services = [
   {
@@ -74,6 +85,9 @@ export default function ServiceCards() {
   const navigate = useNavigate()
   const { isAuthenticated } = useAuthStore()
   const [loadingService, setLoadingService] = useState(null)
+  const [showBankModal, setShowBankModal] = useState(false)
+  const [selectedService, setSelectedService] = useState(null)
+  const [selectedBank, setSelectedBank] = useState(null)
 
   const handleCheckout = async (serviceSlug) => {
     // Check authentication
@@ -86,33 +100,44 @@ export default function ServiceCards() {
     // Extra validation: slug must not be empty
     if (!serviceSlug || typeof serviceSlug !== 'string' || !serviceSlug.trim()) {
       toast.error('Layanan tidak valid. Silakan pilih ulang.');
-      setLoadingService(null);
       return;
     }
 
-    setLoadingService(serviceSlug)
+    // Open bank selection modal
+    setSelectedService(serviceSlug)
+    setShowBankModal(true)
+  }
+
+  const handleBankSelected = async () => {
+    if (!selectedBank || !selectedService) return
+    setShowBankModal(false)
+    setLoadingService(selectedService)
+    
     try {
       // 1. Create order
       const orderResponse = await ordersAPI.create({
-        service_slug: serviceSlug,
+        service_slug: selectedService,
         quantity: 1,
-        notes: `Order from ServiceCards - ${serviceSlug}`
+        notes: `Order from ServiceCards - ${selectedService}`
       })
       
       const orderId = orderResponse.data.id
 
-      // 2. Create payment
+      // 2. Create payment with selected bank
       const paymentResponse = await paymentsAPI.create({
         order_id: orderId,
         payment_method: 'va',
-        payment_channel: 'bca',  // User can select bank in Services page
+        payment_channel: selectedBank,
         amount: orderResponse.data.total_price
       })
 
       const paymentData = paymentResponse.data
 
-      // 3. Show success and redirect to dashboard orders
-      toast.success('🎉 Order berhasil dibuat! Silakan lanjutkan pembayaran.')
+      // 3. Show success with VA number and redirect
+      const vaNumber = paymentData.va_number || paymentData.payment_no || 'Lihat di dashboard'
+      toast.success(`🎉 Order berhasil dibuat!\nNomor VA ${selectedBank.toUpperCase()}: ${vaNumber}`, {
+        duration: 15000,
+      })
       
       // Redirect to dashboard orders page
       navigate('/dashboard/orders')
@@ -122,6 +147,8 @@ export default function ServiceCards() {
       toast.error(errorMsg)
     } finally {
       setLoadingService(null)
+      setSelectedBank(null)
+      setSelectedService(null)
     }
   }
 
@@ -246,6 +273,75 @@ export default function ServiceCards() {
           </Link>
         </motion.div>
       </div>
+
+      {/* Bank Selection Modal */}
+      {showBankModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-dark-200 rounded-2xl p-6 max-w-2xl w-full border border-white/10 shadow-2xl"
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-montserrat font-bold text-xl text-white">
+                Pilih Bank untuk Virtual Account
+              </h3>
+              <button
+                onClick={() => {
+                  setShowBankModal(false)
+                  setSelectedBank(null)
+                  setSelectedService(null)
+                }}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <XMarkIcon className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Bank Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+              {BANK_CHANNELS.map((bank) => (
+                <button
+                  key={bank.id}
+                  onClick={() => setSelectedBank(bank.id)}
+                  className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                    selectedBank === bank.id
+                      ? 'border-primary-500 bg-primary-500/20'
+                      : 'border-white/10 hover:border-primary-400/50 bg-dark-100/50'
+                  }`}
+                >
+                  <div className="text-3xl mb-2">{bank.logo}</div>
+                  <div className="font-poppins font-semibold text-white text-sm">
+                    {bank.name}
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowBankModal(false)
+                  setSelectedBank(null)
+                  setSelectedService(null)
+                }}
+                className="btn btn-secondary flex-1"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleBankSelected}
+                disabled={!selectedBank}
+                className="btn btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Lanjutkan Pembayaran
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </section>
   )
 }
