@@ -67,20 +67,13 @@ async def create_ipaymu_payment(payment_data: dict, payment_method: str):
     """Create payment via iPaymu API"""
     url = f"{settings.IPAYMU_BASE_URL}/payment"
     
-    # Prepare product list for iPaymu
     # Get quantity from payment_data, default to 1
     quantity = payment_data.get("quantity", 1)
+    product_name = payment_data.get("product_name", "Layanan NeoIntegra Tech")
     unit_price = int(payment_data["amount"]) // quantity if quantity > 0 else int(payment_data["amount"])
     
-    product_list = payment_data.get("product", [
-        {
-            "name": payment_data.get("product_name", "Layanan NeoIntegra Tech"),
-            "price": unit_price,
-            "qty": quantity
-        }
-    ])
-    
     # Prepare request body based on payment method
+    # iPaymu requires product, qty, price as arrays
     if payment_method == "va":
         body = {
             "name": payment_data["name"],
@@ -92,7 +85,10 @@ async def create_ipaymu_payment(payment_data: dict, payment_method: str):
             "expiredType": "hours",
             "paymentMethod": "va",
             "paymentChannel": payment_data["payment_channel"],
-            "product": product_list
+            # iPaymu API requires these as arrays
+            "product": [product_name],
+            "qty": [quantity],
+            "price": [unit_price]
         }
     elif payment_method == "qris":
         body = {
@@ -104,7 +100,10 @@ async def create_ipaymu_payment(payment_data: dict, payment_method: str):
             "expired": payment_data["expired"],
             "expiredType": "hours",
             "paymentMethod": "qris",
-            "product": product_list
+            # iPaymu API requires these as arrays
+            "product": [product_name],
+            "qty": [quantity],
+            "price": [unit_price]
         }
     else:
         raise ValueError(f"Unsupported payment method: {payment_method}")
