@@ -208,19 +208,28 @@ async def create_payment(
             
             ipaymu_response = await create_ipaymu_payment(ipaymu_data, payment_data.payment_method)
             
+            # Log full response for debugging
+            print(f"[Payment Creation] Full iPaymu Response: {json.dumps(ipaymu_response, indent=2)}")
+            
             # Update payment with iPaymu data
             new_payment.ipaymu_transaction_id = ipaymu_response.get("TransactionId")
             new_payment.ipaymu_session_id = ipaymu_response.get("SessionID")
-            new_payment.payment_url = ipaymu_response.get("Url")
+            new_payment.payment_url = ipaymu_response.get("Url") or ipaymu_response.get("PaymentUrl")
             
             if payment_data.payment_method == "qris":
-                new_payment.qr_code_url = ipaymu_response.get("QRImage")
+                new_payment.qr_code_url = ipaymu_response.get("QRImage") or ipaymu_response.get("QrString")
+                print(f"[Payment QRIS] QR Code URL: {new_payment.qr_code_url}")
             elif payment_data.payment_method == "va":
-                new_payment.va_number = ipaymu_response.get("Va")
+                new_payment.va_number = ipaymu_response.get("Va") or ipaymu_response.get("VaNumber")
+                print(f"[Payment VA] VA Number: {new_payment.va_number}")
             
-            if not new_payment.payment_url:
-                print(f"[Payment Creation Warning] No payment_url in response!")
-                print(f"[Payment Creation Warning] Response: {ipaymu_response}")
+            if not new_payment.payment_url and not new_payment.va_number and not new_payment.qr_code_url:
+                print(f"[Payment Creation ERROR] No payment info in response!")
+                print(f"[Payment Creation ERROR] Response keys: {list(ipaymu_response.keys())}")
+                raise HTTPException(
+                    status_code=500,
+                    detail="iPaymu tidak mengembalikan informasi pembayaran. Silakan coba lagi atau hubungi admin."
+                )
             
             db.commit()
             db.refresh(new_payment)

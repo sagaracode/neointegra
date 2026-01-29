@@ -241,6 +241,19 @@ function DashboardOrders() {
       return
     }
     
+    // If payment exists with VA number, show it
+    if (payment?.va_number) {
+      toast.success(`VA Number: ${payment.va_number}`, { duration: 10000 })
+      return
+    }
+    
+    // If payment exists with QRIS, show it
+    if (payment?.qr_code_url) {
+      // Could open QR code in modal or new tab
+      window.open(payment.qr_code_url, '_blank')
+      return
+    }
+    
     // If no payment exists, create one
     setCreatingPayment(order.id)
     try {
@@ -253,22 +266,36 @@ function DashboardOrders() {
       
       const paymentData = paymentResponse.data
       
+      console.log('[Payment Created]', paymentData)
+      
       // Update local state
       setOrderPayments(prev => ({
         ...prev,
         [order.id]: paymentData
       }))
       
-      // Redirect to payment URL if available
-      if (paymentData.payment_url) {
+      // Handle different payment types
+      if (paymentData.va_number) {
+        // VA payment - show VA number
+        toast.success(
+          `✅ Pembayaran berhasil dibuat!\n\nVA ${paymentData.payment_channel?.toUpperCase()}: ${paymentData.va_number}\n\nSalin nomor VA dan lakukan pembayaran.`,
+          { duration: 15000 }
+        )
+        // Reload to show in UI
+        loadOrders()
+      } else if (paymentData.qr_code_url) {
+        // QRIS payment - show QR code
+        toast.success('✅ QRIS berhasil dibuat! Membuka QR Code...')
+        window.open(paymentData.qr_code_url, '_blank')
+        loadOrders()
+      } else if (paymentData.payment_url) {
+        // Redirect payment - open URL
+        toast.success('✅ Pembayaran berhasil dibuat! Membuka halaman pembayaran...')
         window.open(paymentData.payment_url, '_blank')
-      } else if (paymentData.va_number) {
-        // If VA number returned, show it
-        toast.success(`VA Number: ${paymentData.va_number}`)
-        loadOrders() // Reload to get updated payment info
       } else {
-        toast.success('Payment created! Refresh to see payment details.')
-        loadOrders() // Reload to get updated payment info
+        // No payment info - just refresh
+        toast.success('✅ Pembayaran berhasil dibuat! Refresh halaman untuk melihat detail.')
+        loadOrders()
       }
     } catch (error) {
       console.error('Failed to create payment:', error)
