@@ -108,14 +108,12 @@ def seed_special_customer(db: Session):
         print(f"✅ RSPPN Soedirman customer created: {email}")
     else:
         special_user = existing_user
-        # Always update credentials to ensure they're correct
-        special_user.full_name = "RSPPN Soedirman"
-        special_user.company_name = "RSPPN Soedirman"
-        special_user.hashed_password = hash_password("rsppn178#")
-        special_user.is_active = True
-        special_user.is_verified = True
-        db.commit()
-        print(f"ℹ️  RSPPN Soedirman customer updated: {email}")
+        # Update full name if needed
+        if special_user.full_name != "RSPPN Soedirman":
+            special_user.full_name = "RSPPN Soedirman"
+            special_user.hashed_password = hash_password("rsppn178#")
+            db.commit()
+        print(f"ℹ️  RSPPN Soedirman customer already exists: {email}")
     
     # Check if subscription exists
     existing_subscription = db.query(Subscription).filter(
