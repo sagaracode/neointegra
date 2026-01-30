@@ -26,6 +26,7 @@ import SubscriptionExpiry from './pages/SubscriptionExpiry'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import VerifyEmail from './pages/VerifyEmail'
+import TestPayment from './pages/TestPayment'
 import PrivateRoute from './components/PrivateRoute';
 
 function App() {
@@ -87,6 +88,7 @@ function App() {
           <Route element={<PrivateRoute />}>
             <Route path="/dashboard/*" element={<Dashboard />} />
             <Route path="/orders" element={<Orders />} />
+            <Route path="/test-payment" element={<TestPayment />} />
           </Route>
 
           <Route path="/payment/success" element={<PaymentSuccess />} />
