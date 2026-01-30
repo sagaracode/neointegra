@@ -102,7 +102,7 @@ export default function SubscriptionExpiry() {
 
       // Redirect to dashboard
       setTimeout(() => {
-        navigate('/dashboard/orders')
+        navigate('/dashboard')
       }, 1000)
     } catch (error) {
       console.error('Failed to create renewal:', error)
