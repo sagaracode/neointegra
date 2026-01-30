@@ -7,9 +7,21 @@ import {
   CalendarIcon,
   CreditCardIcon,
   CheckCircleIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline'
 import useAuthStore from '../store/authStore'
 import api from '../services/api'
+
+const BANK_CHANNELS = [
+  { code: 'bca', name: 'BCA', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/bca.png' },
+  { code: 'bni', name: 'BNI', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/bni.png' },
+  { code: 'bri', name: 'BRI', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/bri.png' },
+  { code: 'mandiri', name: 'Mandiri', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/mandiri.png' },
+  { code: 'cimb', name: 'CIMB Niaga', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/niaga.png' },
+  { code: 'permata', name: 'Permata', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/permata.png' },
+  { code: 'bsi', name: 'BSI', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/bsi.png' },
+  { code: 'danamon', name: 'Danamon', logo: 'https://storage.googleapis.com/ipaymu-docs/assets/danamon.png' },
+]
 
 export default function SubscriptionExpiry() {
   const navigate = useNavigate()
@@ -17,12 +29,8 @@ export default function SubscriptionExpiry() {
   const [subscription, setSubscription] = useState(null)
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
-  const [paymentMethods] = useState([
-    { id: 'va', name: 'Virtual Account', channels: ['bca', 'bni', 'bri', 'mandiri'] },
-    { id: 'qris', name: 'QRIS', channels: ['qris'] },
-  ])
-  const [selectedMethod, setSelectedMethod] = useState('va')
-  const [selectedChannel, setSelectedChannel] = useState('bca')
+  const [showBankModal, setShowBankModal] = useState(false)
+  const [selectedBank, setSelectedBank] = useState(null)
 
   useEffect(() => {
     fetchSubscription()
@@ -62,40 +70,47 @@ export default function SubscriptionExpiry() {
   const handleRenewal = async () => {
     if (!subscription) return
     
+    // Show bank selection modal
+    setShowBankModal(true)
+  }
+
+  const handleBankSelected = async () => {
+    if (!selectedBank || !subscription) return
+    
+    setShowBankModal(false)
     setCreating(true)
+    
     try {
       // Step 1: Create renewal order
       const orderResponse = await api.post(`/subscriptions/renew/${subscription.id}`)
       const { order_id } = orderResponse.data
 
-      // Step 2: Create payment
+      // Step 2: Create payment with selected bank
       const paymentResponse = await api.post('/payments/', {
         order_id: order_id,
-        payment_method: selectedMethod,
-        payment_channel: selectedChannel,
+        payment_method: 'va',
+        payment_channel: selectedBank,
       })
 
       const paymentData = paymentResponse.data
 
-      // Step 3: Redirect to payment page or show payment instructions
-      if (paymentData.payment_url) {
-        window.location.href = paymentData.payment_url
-      } else if (paymentData.va_number || paymentData.qr_code_url) {
-        // Show VA number or QRIS - redirect to payment pending page
-        navigate('/payment/pending', { 
-          state: { 
-            paymentInfo: paymentData
-          } 
-        })
-      } else {
-        toast.success('Pembayaran berhasil dibuat! Silakan cek dashboard untuk detail pembayaran.')
-        navigate('/dashboard')
-      }
+      // Step 3: Show success with VA number
+      const vaNumber = paymentData.va_number || paymentData.payment_no || 'Lihat di dashboard'
+      toast.success(`🎉 Pembayaran perpanjangan berhasil dibuat!\nNomor VA ${selectedBank.toUpperCase()}: ${vaNumber}`, {
+        duration: 15000,
+      })
+
+      // Redirect to dashboard
+      setTimeout(() => {
+        navigate('/dashboard/orders')
+      }, 1000)
     } catch (error) {
       console.error('Failed to create renewal:', error)
-      toast.error('Gagal membuat pembayaran perpanjangan. Silakan coba lagi.')
+      const errorMsg = error.response?.data?.detail || error.message || 'Gagal membuat pembayaran perpanjangan'
+      toast.error(errorMsg)
     } finally {
       setCreating(false)
+      setSelectedBank(null)
     }
   }
 
@@ -254,65 +269,18 @@ export default function SubscriptionExpiry() {
             </div>
           </div>
 
-          {/* Payment Method Selection */}
-          <div className="mb-6">
-            <label className="font-montserrat font-semibold text-white mb-3 block">
-              Pilih Metode Pembayaran
-            </label>
-            <div className="space-y-3">
-              {paymentMethods.map((method) => (
-                <div key={method.id}>
-                  <label
-                    className={`flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                      selectedMethod === method.id
-                        ? 'border-primary-500 bg-primary-500/10'
-                        : 'border-white/10 bg-dark-200 hover:border-primary-500/50'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="payment_method"
-                      value={method.id}
-                      checked={selectedMethod === method.id}
-                      onChange={(e) => {
-                        setSelectedMethod(e.target.value)
-                        if (method.channels.length > 0) {
-                          setSelectedChannel(method.channels[0])
-                        }
-                      }}
-                      className="mr-3"
-                    />
-                    <CreditCardIcon className="h-6 w-6 text-primary-400 mr-3" />
-                    <span className="font-poppins font-semibold text-white">
-                      {method.name}
-                    </span>
-                  </label>
-
-                  {/* Channel Selection */}
-                  {selectedMethod === method.id && method.channels.length > 1 && (
-                    <div className="mt-2 ml-12 space-y-2">
-                      {method.channels.map((channel) => (
-                        <label
-                          key={channel}
-                          className="flex items-center p-3 rounded-lg bg-dark-200 cursor-pointer hover:bg-dark-100"
-                        >
-                          <input
-                            type="radio"
-                            name="payment_channel"
-                            value={channel}
-                            checked={selectedChannel === channel}
-                            onChange={(e) => setSelectedChannel(e.target.value)}
-                            className="mr-3"
-                          />
-                          <span className="font-poppins text-white uppercase">
-                            {channel}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  )}
+          {/* Payment Method Info */}
+          <div className="mb-6 p-4 rounded-xl bg-blue-500/10 border border-blue-500/30">
+            <div className="flex items-start gap-3">
+              <CreditCardIcon className="w-6 h-6 text-blue-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <div className="font-poppins font-semibold text-white mb-1">
+                  Metode Pembayaran
                 </div>
-              ))}
+                <div className="font-poppins text-sm text-blue-300">
+                  Virtual Account - Pilih bank setelah klik tombol perpanjang
+                </div>
+              </div>
             </div>
           </div>
 
@@ -368,6 +336,83 @@ export default function SubscriptionExpiry() {
           </div>
         </motion.div>
       </div>
+
+      {/* Bank Selection Modal */}
+      {showBankModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-dark-200 rounded-2xl p-6 max-w-2xl w-full border border-white/10 shadow-2xl"
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-montserrat font-bold text-xl text-white">
+                Pilih Bank untuk Virtual Account
+              </h3>
+              <button
+                onClick={() => {
+                  setShowBankModal(false)
+                  setSelectedBank(null)
+                }}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <XMarkIcon className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Bank Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+              {BANK_CHANNELS.map((bank) => (
+                <button
+                  key={bank.code}
+                  onClick={() => setSelectedBank(bank.code)}
+                  className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                    selectedBank === bank.code
+                      ? 'border-primary-500 bg-primary-500/20'
+                      : 'border-white/10 hover:border-primary-400/50 bg-dark-100/50'
+                  }`}
+                >
+                  <img src={bank.logo} alt={bank.name} className="h-12 w-auto mx-auto mb-2 object-contain" />
+                  <div className="font-poppins font-semibold text-white text-sm">
+                    {bank.name}
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowBankModal(false)
+                  setSelectedBank(null)
+                }}
+                className="btn btn-secondary flex-1"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleBankSelected}
+                disabled={!selectedBank || creating}
+                className="btn btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {creating ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    Memproses...
+                  </span>
+                ) : (
+                  'Lanjutkan Pembayaran'
+                )}
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   )
 }
