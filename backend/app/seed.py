@@ -191,9 +191,9 @@ def seed_rsppn_payment_history(db: Session):
             payment_method="va",
             payment_channel="bca",
             status="success",
-            transaction_id=f"TRX-RSPPN-{datetime(2025, 2, 3).strftime('%Y%m%d')}",
+            ipaymu_transaction_id=f"IPAYMU-RSPPN-{datetime(2025, 2, 3).strftime('%Y%m%d')}",
+            ipaymu_session_id=f"SESSION-RSPPN-{datetime(2025, 2, 3).strftime('%Y%m%d')}",
             va_number="8808081234567890",
-            payment_info="Virtual Account BCA - Paid",
             created_at=datetime(2025, 2, 3, 10, 0, 0),
             paid_at=datetime(2025, 2, 3, 10, 30, 0)
         )
