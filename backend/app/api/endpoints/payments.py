@@ -8,11 +8,12 @@ import hmac
 import json
 
 from ...database import get_db
-from ...models import Payment, Order, Service
+from ...models import Payment, Order, Service, Subscription
 from ...schemas import PaymentCreate, PaymentResponse, PaymentCallbackRequest, MessageResponse
 from ...config import settings
 from ...email import send_payment_pending_email, send_payment_confirmation_email
 from .auth import get_current_user
+from datetime import timedelta
 
 router = APIRouter(prefix="/payments", tags=["Payments"])
 
@@ -365,6 +366,19 @@ async def payment_callback(request: Request, db: Session = Depends(get_db)):
             if order:
                 order.status = "paid"
                 print(f"[iPaymu Callback] Order {order.order_number} marked as paid")
+                
+                # Check if this is a renewal order (has subscription_id)
+                if order.subscription_id:
+                    subscription = db.query(Subscription).filter(Subscription.id == order.subscription_id).first()
+                    if subscription:
+                        # Extend subscription by 1 year from current end_date
+                        old_end = subscription.end_date
+                        subscription.end_date = old_end + timedelta(days=365)
+                        subscription.status = "active"
+                        subscription.updated_at = datetime.utcnow()
+                        print(f"[iPaymu Callback] Subscription #{subscription.id} extended")
+                        print(f"  Old end: {old_end}")
+                        print(f"  New end: {subscription.end_date}")
                 
                 # Send payment confirmation email
                 try:
