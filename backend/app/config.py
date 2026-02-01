@@ -43,11 +43,11 @@ class Settings(BaseSettings):
     ]
     
     # Email (SMTP)
-    SMTP_HOST: str = os.getenv("SMTP_HOST", "smtp.gmail.com")
-    SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
-    SMTP_USER: str = os.getenv("SMTP_USER", "")
-    SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
-    EMAIL_FROM: str = os.getenv("EMAIL_FROM", "noreply@neointegra.tech")
+    SMTP_HOST: str = os.getenv("MAIL_SERVER", os.getenv("SMTP_HOST", "smtp.gmail.com"))
+    SMTP_PORT: int = int(os.getenv("MAIL_PORT", os.getenv("SMTP_PORT", "587")))
+    SMTP_USER: str = os.getenv("MAIL_USERNAME", os.getenv("SMTP_USER", ""))
+    SMTP_PASSWORD: str = os.getenv("MAIL_PASSWORD", os.getenv("SMTP_PASSWORD", ""))
+    EMAIL_FROM: str = os.getenv("MAIL_FROM", os.getenv("EMAIL_FROM", "noreply@neointegra.tech"))
     
     # iPaymu Payment Gateway
     IPAYMU_VA: str = os.getenv("IPAYMU_VA", "")
