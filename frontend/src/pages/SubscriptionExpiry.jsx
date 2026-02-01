@@ -82,39 +82,64 @@ export default function SubscriptionExpiry() {
   }
 
   const handleBankSelected = async () => {
-    if (!selectedBank || !subscription) return
+    if (!selectedBank || !subscription) {
+      console.error('❌ Missing selectedBank or subscription')
+      toast.error('Data tidak lengkap. Silakan coba lagi.')
+      setShowBankModal(true) // Reopen modal
+      return
+    }
     
     setShowBankModal(false)
     setCreating(true)
     
     try {
+      console.log('🔄 [SubscriptionExpiry] Creating renewal for subscription:', subscription.id)
+      
       // Step 1: Create renewal order
       const orderResponse = await api.post(`/subscriptions/renew/${subscription.id}`)
-      const { order_id } = orderResponse.data
+      const { order_id, order } = orderResponse.data
+      console.log('✅ [SubscriptionExpiry] Renewal order created:', order_id)
 
       // Step 2: Create payment with selected bank
       const paymentResponse = await api.post('/payments/', {
         order_id: order_id,
         payment_method: 'va',
         payment_channel: selectedBank,
+        amount: order?.total_price || subscription.renewal_price || subscription.price || 0
       })
 
       const paymentData = paymentResponse.data
+      console.log('✅ [SubscriptionExpiry] Payment created:', paymentData)
 
       // Step 3: Show success with VA number
       const vaNumber = paymentData.va_number || paymentData.payment_no || 'Lihat di dashboard'
-      toast.success(`🎉 Pembayaran perpanjangan berhasil dibuat!\nNomor VA ${selectedBank.toUpperCase()}: ${vaNumber}`, {
-        duration: 15000,
-      })
+      const bankName = BANK_CHANNELS.find(b => b.code === selectedBank)?.name || selectedBank.toUpperCase()
+      
+      toast.success(
+        `🎉 Pembayaran perpanjangan berhasil dibuat!\n\nNomor VA ${bankName}: ${vaNumber}\n\nSalin dan lakukan pembayaran.`,
+        { duration: 15000 }
+      )
 
-      // Redirect to dashboard
+      // Redirect to dashboard after short delay
       setTimeout(() => {
-        navigate('/dashboard')
-      }, 1000)
+        navigate('/dashboard/payments')
+      }, 2000)
     } catch (error) {
-      console.error('Failed to create renewal:', error)
+      console.error('❌ [SubscriptionExpiry] Failed to create renewal:', error)
+      console.error('Error details:', error.response?.data)
+      
+      // Handle specific errors
+      if (error.response?.status === 401) {
+        toast.error('Sesi Anda telah berakhir. Silakan login kembali.')
+        setTimeout(() => navigate('/login'), 2000)
+        return
+      }
+      
       const errorMsg = error.response?.data?.detail || error.message || 'Gagal membuat pembayaran perpanjangan'
-      toast.error(errorMsg)
+      toast.error(`❌ ${errorMsg}`)
+      
+      // Reopen modal on error for retry
+      setShowBankModal(true)
     } finally {
       setCreating(false)
       setSelectedBank(null)

@@ -308,24 +308,34 @@ function DashboardOrders() {
   }
 
   const handleRenewalBankSelected = async () => {
-    if (!selectedBank || !subscription) return
+    if (!selectedBank || !subscription) {
+      console.error('❌ Missing selectedBank or subscription')
+      toast.error('Data tidak lengkap. Silakan coba lagi.')
+      return
+    }
     
     setShowRenewalBankModal(false)
     setCreatingRenewal(renewalOrderId)
     
     try {
+      console.log('🔄 [DashboardOrders] Creating renewal for subscription:', subscription.id)
+      
       // Step 1: Create renewal order
       const orderResponse = await api.post(`/subscriptions/renew/${subscription.id}`)
-      const { order_id } = orderResponse.data
+      const { order_id, order } = orderResponse.data
+      console.log('✅ [DashboardOrders] Renewal order created:', order_id)
 
       // Step 2: Create payment with selected bank
       const paymentResponse = await paymentsAPI.create({
         order_id: order_id,
         payment_method: 'va',
         payment_channel: selectedBank,
+        amount: order?.total_price || subscription.renewal_price || subscription.price || 0
       })
 
       const paymentData = paymentResponse.data
+      console.log('✅ [DashboardOrders] Payment created:', paymentData)
+      
       const vaNumber = paymentData.va_number || paymentData.payment_no || 'Lihat di dashboard'
       const bankName = BANK_CHANNELS.find(b => b.code === selectedBank)?.name || selectedBank.toUpperCase()
       
@@ -335,12 +345,21 @@ function DashboardOrders() {
       )
 
       // Reload orders
-      loadOrders()
-      loadSubscription()
+      await loadOrders()
+      await loadSubscription()
     } catch (error) {
-      console.error('Failed to create renewal:', error)
+      console.error('❌ [DashboardOrders] Failed to create renewal:', error)
+      console.error('Error details:', error.response?.data)
+      
+      // Handle specific errors
+      if (error.response?.status === 401) {
+        toast.error('Sesi Anda telah berakhir. Silakan login kembali.')
+        setTimeout(() => window.location.href = '/login', 2000)
+        return
+      }
+      
       const errorMsg = error.response?.data?.detail || error.message || 'Gagal membuat perpanjangan'
-      toast.error(errorMsg)
+      toast.error(`❌ ${errorMsg}`)
     } finally {
       setCreatingRenewal(null)
       setRenewalOrderId(null)
@@ -741,24 +760,33 @@ function DashboardPayments() {
   }
 
   const handleBankSelected = async () => {
-    if (!selectedBank || !subscription) return
+    if (!selectedBank || !subscription) {
+      console.error('❌ Missing selectedBank or subscription')
+      toast.error('Data tidak lengkap. Silakan coba lagi.')
+      return
+    }
     
     setShowBankModal(false)
     setCreatingRenewal(true)
     
     try {
+      console.log('🔄 [DashboardPayments] Creating renewal for subscription:', subscription.id)
+      
       // Step 1: Create renewal order
       const orderResponse = await api.post(`/subscriptions/renew/${subscription.id}`)
-      const { order_id } = orderResponse.data
+      const { order_id, order } = orderResponse.data
+      console.log('✅ [DashboardPayments] Renewal order created:', order_id)
 
-      // Step 2: Create payment with selected bank
-      const paymentResponse = await api.post('/payments/', {
+      // Step 2: Create payment with selected bank - Use paymentsAPI for consistency
+      const paymentResponse = await paymentsAPI.create({
         order_id: order_id,
         payment_method: 'va',
         payment_channel: selectedBank,
+        amount: order?.total_price || subscription.renewal_price || subscription.price || 0
       })
 
       const paymentData = paymentResponse.data
+      console.log('✅ [DashboardPayments] Payment created:', paymentData)
 
       // Step 3: Show success with VA number
       const vaNumber = paymentData.va_number || paymentData.payment_no || 'Lihat di dashboard'
@@ -770,12 +798,21 @@ function DashboardPayments() {
       )
 
       // Reload data
-      loadPayments()
-      loadSubscription()
+      await loadPayments()
+      await loadSubscription()
     } catch (error) {
-      console.error('Failed to create renewal:', error)
+      console.error('❌ [DashboardPayments] Failed to create renewal:', error)
+      console.error('Error details:', error.response?.data)
+      
+      // Handle specific errors
+      if (error.response?.status === 401) {
+        toast.error('Sesi Anda telah berakhir. Silakan login kembali.')
+        setTimeout(() => window.location.href = '/login', 2000)
+        return
+      }
+      
       const errorMsg = error.response?.data?.detail || error.message || 'Gagal membuat pembayaran perpanjangan'
-      toast.error(errorMsg)
+      toast.error(`❌ ${errorMsg}`)
     } finally {
       setCreatingRenewal(false)
       setSelectedBank('bca')
