@@ -171,10 +171,15 @@ async def verify_email(request: VerifyEmailRequest, db: Session = Depends(get_db
 @router.post("/forgot-password", response_model=MessageResponse)
 async def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_db)):
     """Request password reset"""
+    print(f"[Forgot Password] Request received for email: {request.email}")
+    
     user = db.query(User).filter(User.email == request.email).first()
     if not user:
-        # Don't reveal if email exists
+        print(f"[Forgot Password] User not found for email: {request.email}")
+        # Don't reveal if email exists for security
         return {"message": "If email exists, reset link has been sent"}
+    
+    print(f"[Forgot Password] User found: {user.email} (ID: {user.id})")
     
     # Create reset token
     reset_token = secrets.token_urlsafe(32)
@@ -182,11 +187,17 @@ async def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(
     user.reset_token_expires = datetime.utcnow() + timedelta(hours=1)
     db.commit()
     
+    print(f"[Forgot Password] Reset token created, expires: {user.reset_token_expires}")
+    
     # Send reset email
     try:
         send_password_reset_email(user.email, reset_token)
+        print(f"[Forgot Password] Reset email sent successfully to {user.email}")
     except Exception as e:
-        print(f"Failed to send reset email: {e}")
+        print(f"[Forgot Password] ❌ Failed to send reset email: {e}")
+        import traceback
+        traceback.print_exc()
+        # Still return success to not reveal if email exists
     
     return {"message": "If email exists, reset link has been sent"}
 

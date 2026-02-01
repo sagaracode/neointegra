@@ -12,14 +12,30 @@ export default function ForgotPassword() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    
+    // Validation
+    if (!email || !email.trim()) {
+      toast.error('Email tidak boleh kosong')
+      return
+    }
+    
     setIsLoading(true)
     
     try {
-      await api.post('/auth/forgot-password', null, { params: { email } })
+      console.log('🔄 Sending forgot password request for:', email)
+      
+      // Send as request body, not query param
+      await api.post('/auth/forgot-password', { email })
+      
+      console.log('✅ Forgot password request successful')
       setEmailSent(true)
       toast.success('Link reset password telah dikirim ke email Anda')
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Gagal mengirim email reset password')
+      console.error('❌ Forgot password error:', error)
+      console.error('Error response:', error.response?.data)
+      
+      const errorMsg = error.response?.data?.detail || error.message || 'Gagal mengirim email reset password'
+      toast.error(errorMsg)
     } finally {
       setIsLoading(false)
     }
