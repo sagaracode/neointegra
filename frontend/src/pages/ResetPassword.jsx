@@ -46,16 +46,19 @@ export default function ResetPassword() {
     setIsLoading(true)
     
     try {
-      await api.post('/auth/reset-password', null, {
-        params: {
-          token,
-          new_password: formData.newPassword
-        }
+      console.log('🔄 Sending reset password request...', { token: token?.substring(0, 20) + '...' })
+      
+      const response = await api.post('/auth/reset-password', {
+        token: token,
+        new_password: formData.newPassword
       })
+      
+      console.log('✅ Reset password successful:', response.data)
       setPasswordReset(true)
       toast.success('Password berhasil direset')
       setTimeout(() => navigate('/login'), 3000)
     } catch (error) {
+      console.error('❌ Reset password failed:', error.response?.data || error.message)
       toast.error(error.response?.data?.detail || 'Gagal reset password')
     } finally {
       setIsLoading(false)
