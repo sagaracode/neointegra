@@ -12,10 +12,12 @@ import {
   CheckCircleIcon,
   XCircleIcon,
   XMarkIcon,
+  ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 import useAuthStore from '../store/authStore'
 import { ordersAPI, paymentsAPI, usersAPI } from '../services/api'
+import api from '../services/api'
 
 // Available payment channels from iPaymu
 const BANK_CHANNELS = [
@@ -211,15 +213,35 @@ function DashboardOrders() {
   const [loading, setLoading] = useState(true)
   const [orderPayments, setOrderPayments] = useState({}) // Store payment info for each order
   const [creatingPayment, setCreatingPayment] = useState(null) // Track which order is creating payment
+  const [creatingRenewal, setCreatingRenewal] = useState(null) // Track which order is creating renewal
+  const [subscription, setSubscription] = useState(null)
   
   // Bank selection modal
   const [showBankModal, setShowBankModal] = useState(false)
+  const [showRenewalBankModal, setShowRenewalBankModal] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [selectedBank, setSelectedBank] = useState('bca')
+  const [renewalOrderId, setRenewalOrderId] = useState(null)
 
   useEffect(() => {
     loadOrders()
+    loadSubscription()
   }, [])
+
+  const loadSubscription = async () => {
+    try {
+      const response = await api.get('/subscriptions/my-subscriptions')
+      console.log('📊 [DashboardOrders] Loaded subscriptions:', response.data)
+      if (response.data && response.data.length > 0) {
+        setSubscription(response.data[0])
+        console.log('✅ [DashboardOrders] Subscription set:', response.data[0])
+      } else {
+        console.log('⚠️ [DashboardOrders] No subscription found')
+      }
+    } catch (error) {
+      console.error('❌ [DashboardOrders] Failed to load subscription:', error)
+    }
+  }
 
   const loadOrders = async () => {
     try {
@@ -272,6 +294,58 @@ function DashboardOrders() {
     // If no payment exists, show bank selection modal
     setSelectedOrder(order)
     setShowBankModal(true)
+  }
+
+  const handleRenewOrder = async (order) => {
+    // Check if subscription exists for this order
+    if (!subscription) {
+      toast.error('Subscription tidak ditemukan')
+      return
+    }
+    
+    setRenewalOrderId(order.id)
+    setShowRenewalBankModal(true)
+  }
+
+  const handleRenewalBankSelected = async () => {
+    if (!selectedBank || !subscription) return
+    
+    setShowRenewalBankModal(false)
+    setCreatingRenewal(renewalOrderId)
+    
+    try {
+      // Step 1: Create renewal order
+      const orderResponse = await api.post(`/subscriptions/renew/${subscription.id}`)
+      const { order_id } = orderResponse.data
+
+      // Step 2: Create payment with selected bank
+      const paymentResponse = await paymentsAPI.create({
+        order_id: order_id,
+        payment_method: 'va',
+        payment_channel: selectedBank,
+      })
+
+      const paymentData = paymentResponse.data
+      const vaNumber = paymentData.va_number || paymentData.payment_no || 'Lihat di dashboard'
+      const bankName = BANK_CHANNELS.find(b => b.code === selectedBank)?.name || selectedBank.toUpperCase()
+      
+      toast.success(
+        `🎉 Perpanjangan berhasil dibuat!\n\nNomor VA ${bankName}: ${vaNumber}\n\nSalin dan lakukan pembayaran.`,
+        { duration: 15000 }
+      )
+
+      // Reload orders
+      loadOrders()
+      loadSubscription()
+    } catch (error) {
+      console.error('Failed to create renewal:', error)
+      const errorMsg = error.response?.data?.detail || error.message || 'Gagal membuat perpanjangan'
+      toast.error(errorMsg)
+    } finally {
+      setCreatingRenewal(null)
+      setRenewalOrderId(null)
+      setSelectedBank('bca')
+    }
   }
   
   const handleBankSelected = async () => {
@@ -371,6 +445,10 @@ function DashboardOrders() {
             const status = statusConfig[order.status] || statusConfig.pending
             const payment = orderPayments[order.id] // Get payment info for this order
             
+            // Debug log untuk setiap order
+            const showRenewalButton = (order.status === 'completed' || order.status === 'paid') && subscription
+            console.log(`🔍 [Order ${order.order_number}] Status: ${order.status}, Subscription:`, subscription ? '✅ EXISTS' : '❌ NULL', 'ShowButton:', showRenewalButton)
+            
             return (
               <div key={order.id} className="card">
                 <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
@@ -425,6 +503,25 @@ function DashboardOrders() {
                           <>
                             <span>💳</span>
                             <span>Bayar Sekarang</span>
+                          </>
+                        )}
+                      </button>
+                    )}
+                    {(order.status === 'completed' || order.status === 'paid') && subscription && (
+                      <button
+                        onClick={() => handleRenewOrder(order)}
+                        disabled={creatingRenewal === order.id}
+                        className="btn btn-primary text-sm inline-flex items-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+                      >
+                        {creatingRenewal === order.id ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                            <span>Memproses...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>🔄</span>
+                            <span>Perpanjang Sekarang</span>
                           </>
                         )}
                       </button>
@@ -508,17 +605,91 @@ function DashboardOrders() {
           </motion.div>
         </div>
       )}
+
+      {/* Renewal Bank Selection Modal */}
+      {showRenewalBankModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-dark-200 rounded-2xl p-6 max-w-2xl w-full border border-white/10 shadow-2xl"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-montserrat font-bold text-xl text-white">
+                Pilih Bank untuk Perpanjangan
+              </h3>
+              <button
+                onClick={() => {
+                  setShowRenewalBankModal(false)
+                  setRenewalOrderId(null)
+                }}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <XMarkIcon className="w-6 h-6" />
+              </button>
+            </div>
+
+            <p className="text-gray-400 mb-6">
+              Pilih bank untuk perpanjangan langganan Anda
+            </p>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+              {BANK_CHANNELS.map((bank) => (
+                <button
+                  key={bank.code}
+                  onClick={() => setSelectedBank(bank.code)}
+                  className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                    selectedBank === bank.code
+                      ? 'border-primary-500 bg-primary-500/20'
+                      : 'border-white/10 hover:border-primary-400/50 bg-dark-100/50'
+                  }`}
+                >
+                  <img src={bank.logo} alt={bank.name} className="h-12 w-auto mx-auto mb-2 object-contain" />
+                  <div className="font-poppins font-semibold text-white text-sm">{bank.name}</div>
+                </button>
+              ))}
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowRenewalBankModal(false)
+                  setRenewalOrderId(null)
+                  setSelectedBank('bca')
+                }}
+                className="flex-1 btn btn-secondary"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleRenewalBankSelected}
+                disabled={!selectedBank || creatingRenewal}
+                className="flex-1 btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {creatingRenewal ? 'Memproses...' : 'Lanjutkan Pembayaran'}
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   )
 }
 
 // Dashboard Payments Component
 function DashboardPayments() {
+  const navigate = useNavigate()
   const [payments, setPayments] = useState([])
   const [loading, setLoading] = useState(true)
+  const [subscription, setSubscription] = useState(null)
+  const [loadingSubscription, setLoadingSubscription] = useState(true)
+  const [creatingRenewal, setCreatingRenewal] = useState(false)
+  const [showBankModal, setShowBankModal] = useState(false)
+  const [selectedBank, setSelectedBank] = useState('bca')
 
   useEffect(() => {
     loadPayments()
+    loadSubscription()
   }, [])
 
   const loadPayments = async () => {
@@ -536,6 +707,81 @@ function DashboardPayments() {
     }
   }
 
+  const loadSubscription = async () => {
+    try {
+      // Try expiring-soon first for warning display
+      let response = await api.get('/subscriptions/expiring-soon')
+      if (response.data && response.data.length > 0) {
+        setSubscription(response.data[0])
+      } else {
+        // Fallback to my-subscriptions to get any active subscription
+        response = await api.get('/subscriptions/my-subscriptions')
+        if (response.data && response.data.length > 0) {
+          setSubscription(response.data[0])
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load subscription:', error)
+    } finally {
+      setLoadingSubscription(false)
+    }
+  }
+
+  const calculateDaysRemaining = () => {
+    if (!subscription) return 0
+    const endDate = new Date(subscription.end_date)
+    const today = new Date()
+    const diffTime = endDate - today
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    return diffDays
+  }
+
+  const handleRenewal = () => {
+    setShowBankModal(true)
+  }
+
+  const handleBankSelected = async () => {
+    if (!selectedBank || !subscription) return
+    
+    setShowBankModal(false)
+    setCreatingRenewal(true)
+    
+    try {
+      // Step 1: Create renewal order
+      const orderResponse = await api.post(`/subscriptions/renew/${subscription.id}`)
+      const { order_id } = orderResponse.data
+
+      // Step 2: Create payment with selected bank
+      const paymentResponse = await api.post('/payments/', {
+        order_id: order_id,
+        payment_method: 'va',
+        payment_channel: selectedBank,
+      })
+
+      const paymentData = paymentResponse.data
+
+      // Step 3: Show success with VA number
+      const vaNumber = paymentData.va_number || paymentData.payment_no || 'Lihat di dashboard'
+      const bankName = BANK_CHANNELS.find(b => b.code === selectedBank)?.name || selectedBank.toUpperCase()
+      
+      toast.success(
+        `🎉 Perpanjangan berhasil dibuat!\n\nNomor VA ${bankName}: ${vaNumber}\n\nSalin dan lakukan pembayaran.`,
+        { duration: 15000 }
+      )
+
+      // Reload data
+      loadPayments()
+      loadSubscription()
+    } catch (error) {
+      console.error('Failed to create renewal:', error)
+      const errorMsg = error.response?.data?.detail || error.message || 'Gagal membuat pembayaran perpanjangan'
+      toast.error(errorMsg)
+    } finally {
+      setCreatingRenewal(false)
+      setSelectedBank('bca')
+    }
+  }
+
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency', currency: 'IDR', minimumFractionDigits: 0
@@ -548,9 +794,75 @@ function DashboardPayments() {
     })
   }
 
+  const daysRemaining = subscription ? calculateDaysRemaining() : 0
+  const isUrgent = daysRemaining > 0 && daysRemaining <= 7
+  const showExpiryWarning = daysRemaining > 0 && daysRemaining <= 30 // Show warning within 30 days
+
   return (
     <div>
       <h1 className="font-montserrat font-bold text-2xl text-white mb-6">Riwayat Pembayaran</h1>
+      
+      {/* Subscription Expiry Warning - Only show if expiring within 30 days */}
+      {!loadingSubscription && subscription && showExpiryWarning && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={`card mb-6 border-2 ${
+            isUrgent ? 'border-red-500' : 'border-yellow-500'
+          }`}
+        >
+          <div className="flex items-start gap-4">
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
+              isUrgent ? 'bg-red-500/20' : 'bg-yellow-500/20'
+            }`}>
+              <ExclamationTriangleIcon className={`w-6 h-6 ${
+                isUrgent ? 'text-red-500' : 'text-yellow-500'
+              }`} />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-montserrat font-bold text-lg text-white mb-2">
+                {isUrgent ? '⚠️ Peringatan Penting!' : '📢 Pemberitahuan Langganan'}
+              </h3>
+              <p className="text-gray-300 font-poppins mb-4">
+                Langganan <span className="font-bold text-primary-400">{subscription.service_name}</span> Anda akan berakhir dalam{' '}
+                <span className={`font-bold ${isUrgent ? 'text-red-400' : 'text-yellow-400'}`}>
+                  {daysRemaining} hari
+                </span>{' '}
+                pada tanggal{' '}
+                <span className="font-bold">
+                  {new Date(subscription.end_date).toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                  })}
+                </span>
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <button
+                  onClick={handleRenewal}
+                  disabled={creatingRenewal}
+                  className="btn-primary text-sm py-2 px-4 disabled:opacity-50"
+                >
+                  {creatingRenewal ? (
+                    <span className="flex items-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                      <span>Memproses...</span>
+                    </span>
+                  ) : (
+                    <span>🔄 Perpanjang Sekarang</span>
+                  )}
+                </button>
+                <div className="text-sm text-gray-400 flex items-center">
+                  <span>Harga Perpanjangan: </span>
+                  <span className="font-bold text-white ml-2">
+                    {formatCurrency(subscription.renewal_price || subscription.price)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
       
       {loading ? (
         <div className="card text-center py-12">
@@ -593,6 +905,65 @@ function DashboardPayments() {
               })}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Bank Selection Modal for Renewal */}
+      {showBankModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-dark-200 rounded-2xl p-6 max-w-2xl w-full border border-white/10 shadow-2xl"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-montserrat font-bold text-xl text-white">
+                Pilih Bank untuk Perpanjangan
+              </h3>
+              <button
+                onClick={() => setShowBankModal(false)}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <XMarkIcon className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+              {BANK_CHANNELS.map((bank) => (
+                <button
+                  key={bank.code}
+                  onClick={() => setSelectedBank(bank.code)}
+                  className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                    selectedBank === bank.code
+                      ? 'border-primary-500 bg-primary-500/20'
+                      : 'border-white/10 hover:border-primary-400/50 bg-dark-100/50'
+                  }`}
+                >
+                  <img src={bank.logo} alt={bank.name} className="h-12 w-auto mx-auto mb-2 object-contain" />
+                  <div className="font-poppins font-semibold text-white text-sm">{bank.name}</div>
+                </button>
+              ))}
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowBankModal(false)
+                  setSelectedBank('bca')
+                }}
+                className="flex-1 btn btn-secondary"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleBankSelected}
+                disabled={!selectedBank || creatingRenewal}
+                className="flex-1 btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {creatingRenewal ? 'Memproses...' : 'Lanjutkan Pembayaran'}
+              </button>
+            </div>
+          </motion.div>
         </div>
       )}
     </div>

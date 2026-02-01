@@ -38,13 +38,20 @@ export default function SubscriptionExpiry() {
 
   const fetchSubscription = async () => {
     try {
-      const response = await api.get('/subscriptions/expiring-soon')
+      // Try expiring-soon first
+      let response = await api.get('/subscriptions/expiring-soon')
       if (response.data && response.data.length > 0) {
-        // Get the first expiring subscription
         setSubscription(response.data[0])
+      } else {
+        // Fallback to my-subscriptions if no expiring found
+        response = await api.get('/subscriptions/my-subscriptions')
+        if (response.data && response.data.length > 0) {
+          setSubscription(response.data[0])
+        }
       }
     } catch (error) {
       console.error('Failed to fetch subscription:', error)
+      toast.error('Gagal memuat data subscription')
     } finally {
       setLoading(false)
     }
@@ -124,7 +131,7 @@ export default function SubscriptionExpiry() {
 
   if (!subscription) {
     return (
-      <div className="min-h-screen bg-dark-300 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-dark-300 pt-28 flex items-center justify-center p-4">
         <div className="card max-w-2xl w-full text-center">
           <CheckCircleIcon className="h-16 w-16 text-green-500 mx-auto mb-4" />
           <h1 className="font-montserrat font-bold text-2xl text-white mb-2">
@@ -148,7 +155,7 @@ export default function SubscriptionExpiry() {
   const isUrgent = daysRemaining <= 7
 
   return (
-    <div className="min-h-screen bg-dark-300 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-dark-300 pt-28 pb-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         {/* Warning Banner */}
         <motion.div
