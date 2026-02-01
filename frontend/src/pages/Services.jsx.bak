@@ -1147,8 +1147,77 @@ export default function Services() {
           </motion.div>
         </div>
       )}
-
-      {/* Payment Result Modal - Main Listing */}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-dark-300 rounded-2xl border border-gray-700/50 p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="font-montserrat font-bold text-2xl text-white">
+                Pilih Bank untuk Pembayaran
+              </h3>
+              <button
+                onClick={() => {
+                  setShowBankModal(false)
+                  setSelectedService(null)
+                }}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <XMarkIcon className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <p className="text-gray-400 mb-6">
+              Pilih bank untuk mendapatkan nomor Virtual Account
+            </p>
+            
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+              {BANK_CHANNELS.map((bank) => (
+                <button
+                  key={bank.code}
+                  onClick={() => setSelectedBank(bank.code)}
+                  className={`p-4 rounded-xl border-2 transition-all ${
+                    selectedBank === bank.code
+                      ? 'border-primary-500 bg-primary-500/20'
+                      : 'border-gray-300 hover:border-primary-400 bg-white'
+                  }`}
+                >
+                  <img
+                    src={bank.logo}
+                    alt={bank.name}
+                    className="h-12 mx-auto object-contain mb-2"
+                  />
+                  <p className="text-sm text-gray-900 font-medium text-center">
+                    {bank.name}
+                  </p>
+                </button>
+              ))}
+            </div>
+            
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowBankModal(false)
+                  setSelectedService(null)
+                }}
+                className="flex-1 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl transition-colors"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleBankSelected}
+                disabled={!selectedBank}
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-primary-600 to-purple-600 hover:from-primary-700 hover:to-purple-700 text-white font-medium rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Lanjutkan Pembayaran
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+      
+      {/* Payment Result Modal */}
       {showPaymentResultModal && paymentResult && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
           <motion.div
@@ -1157,11 +1226,11 @@ export default function Services() {
             className="bg-dark-300 rounded-2xl border border-gray-700/50 p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto"
           >
             <div className="text-center mb-6">
-              <div className="w-20 h-20 rounded-full bg-green-600/20 flex items-center justify-center mx-auto mb-4">
-                <CheckIcon className="w-10 h-10 text-green-500" />
+              <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckIcon className="w-8 h-8 text-green-500" />
               </div>
               <h3 className="font-montserrat font-bold text-2xl text-white mb-2">
-                Order Berhasil Dibuat!
+                Pembayaran Berhasil Dibuat!
               </h3>
               <p className="text-gray-400">
                 Silakan lakukan pembayaran melalui {paymentResult.bank}
