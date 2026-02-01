@@ -115,6 +115,13 @@ async def renew_subscription(
         "message": "Renewal order created successfully",
         "order_id": renewal_order.id,
         "order_number": renewal_order.order_number,
+        "order": {
+            "id": renewal_order.id,
+            "order_number": renewal_order.order_number,
+            "total_price": renewal_order.total_price,
+            "service_name": renewal_order.service_name,
+            "status": renewal_order.status
+        },
         "total": renewal_price,
         "subscription_id": subscription_id,
         "payment_method": renewal_data.payment_method,

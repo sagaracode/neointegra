@@ -95,8 +95,11 @@ export default function SubscriptionExpiry() {
     try {
       console.log('🔄 [SubscriptionExpiry] Creating renewal for subscription:', subscription.id)
       
-      // Step 1: Create renewal order
-      const orderResponse = await api.post(`/subscriptions/renew/${subscription.id}`)
+      // Step 1: Create renewal order (send payment method & channel as required by backend)
+      const orderResponse = await api.post(`/subscriptions/renew/${subscription.id}`, {
+        payment_method: 'va',
+        payment_channel: selectedBank
+      })
       const { order_id, order } = orderResponse.data
       console.log('✅ [SubscriptionExpiry] Renewal order created:', order_id)
 
