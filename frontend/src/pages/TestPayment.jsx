@@ -226,11 +226,11 @@ export default function TestPayment() {
                   className={`p-4 rounded-xl border-2 transition-all duration-200 ${
                     selectedBank === bank.code
                       ? 'border-primary-500 bg-primary-500/20'
-                      : 'border-white/10 hover:border-primary-400/50 bg-dark-100/50'
+                      : 'border-gray-300 hover:border-primary-400 bg-white'
                   }`}
                 >
                   <img src={bank.logo} alt={bank.name} className="h-12 w-auto mx-auto mb-2 object-contain" />
-                  <div className="font-poppins font-semibold text-white text-sm">
+                  <div className="font-poppins font-semibold text-gray-900 text-sm">
                     {bank.name}
                   </div>
                 </button>

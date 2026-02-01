@@ -953,8 +953,8 @@ export default function Services() {
                   onClick={() => setSelectedBank(bank.code)}
                   className={`p-4 rounded-xl border-2 transition-all ${
                     selectedBank === bank.code
-                      ? 'border-primary-500 bg-primary-500/10'
-                      : 'border-gray-700 hover:border-gray-600 bg-dark-200'
+                      ? 'border-primary-500 bg-primary-500/20'
+                      : 'border-gray-300 hover:border-primary-400 bg-white'
                   }`}
                 >
                   <img
@@ -962,7 +962,7 @@ export default function Services() {
                     alt={bank.name}
                     className="h-12 mx-auto object-contain mb-2"
                   />
-                  <p className="text-sm text-gray-300 font-medium text-center">
+                  <p className="text-sm text-gray-900 font-medium text-center">
                     {bank.name}
                   </p>
                 </button>
