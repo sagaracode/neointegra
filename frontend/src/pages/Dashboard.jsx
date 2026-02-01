@@ -134,6 +134,85 @@ function DashboardHome() {
         ))}
       </div>
 
+      {/* Service Access Links - Only for specific users */}
+      {user?.email === 'web@rsppn.co.id' && (
+        <div className="card">
+          <h2 className="font-montserrat font-bold text-lg text-white mb-4">
+            Layanan Anda
+          </h2>
+          <div className="grid md:grid-cols-3 gap-4">
+            <a
+              href="https://rsppn.co.id/cpanel"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-4 rounded-xl bg-gradient-to-br from-orange-500/20 to-red-500/20 hover:from-orange-500/30 hover:to-red-500/30 border border-orange-500/30 hover:border-orange-500/50 transition-all group"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-white font-bold text-sm">
+                  cP
+                </div>
+                <div className="font-montserrat font-semibold text-white group-hover:text-orange-400 transition-colors">
+                  cPanel
+                </div>
+              </div>
+              <p className="text-gray-400 text-sm">Kelola hosting & domain</p>
+              <div className="mt-2 text-xs text-orange-400 flex items-center gap-1">
+                <span>Buka cPanel</span>
+                <svg className="w-3 h-3 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </div>
+            </a>
+            
+            <a
+              href="https://rsppn.co.id/wp-admin"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-4 rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 hover:from-blue-500/30 hover:to-cyan-500/30 border border-blue-500/30 hover:border-blue-500/50 transition-all group"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm">
+                  WP
+                </div>
+                <div className="font-montserrat font-semibold text-white group-hover:text-blue-400 transition-colors">
+                  WordPress
+                </div>
+              </div>
+              <p className="text-gray-400 text-sm">Kelola konten website</p>
+              <div className="mt-2 text-xs text-blue-400 flex items-center gap-1">
+                <span>Buka Dashboard</span>
+                <svg className="w-3 h-3 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </div>
+            </a>
+            
+            <a
+              href="https://webmail.rsppn.co.id"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-4 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 border border-purple-500/30 hover:border-purple-500/50 transition-all group"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm">
+                  ✉️
+                </div>
+                <div className="font-montserrat font-semibold text-white group-hover:text-purple-400 transition-colors">
+                  Webmail
+                </div>
+              </div>
+              <p className="text-gray-400 text-sm">Akses email bisnis</p>
+              <div className="mt-2 text-xs text-purple-400 flex items-center gap-1">
+                <span>Buka Webmail</span>
+                <svg className="w-3 h-3 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </div>
+            </a>
+          </div>
+        </div>
+      )}
+
       {/* Quick Actions */}
       <div className="card">
         <h2 className="font-montserrat font-bold text-lg text-white mb-4">
