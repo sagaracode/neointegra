@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from ...database import get_db
 from ...models import Subscription, Order, User
 from ...schemas import SubscriptionResponse, SubscriptionRenewalCreate, MessageResponse
+from ...email import send_order_confirmation_email
 from .auth import get_current_user
 
 router = APIRouter(prefix="/subscriptions", tags=["Subscriptions"])
@@ -110,6 +111,26 @@ async def renew_subscription(
     db.add(renewal_order)
     db.commit()
     db.refresh(renewal_order)
+    
+    # Send order confirmation email
+    try:
+        send_order_confirmation_email(
+            to_email=user.email,
+            order_data={
+                'customer_name': user.full_name,
+                'order_number': renewal_order.order_number,
+                'service_name': renewal_order.service_name,
+                'quantity': 1,
+                'total_amount': renewal_price,
+                'status': 'pending'
+            }
+        )
+        print(f"✅ [Renewal] Email sent to {user.email} for order {renewal_order.order_number}")
+    except Exception as e:
+        print(f"❌ [Renewal] Failed to send email: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        # Don't fail the renewal if email fails
     
     return {
         "message": "Renewal order created successfully",
