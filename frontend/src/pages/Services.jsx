@@ -705,10 +705,9 @@ export default function Services() {
             </div>
           </div>
         </section>
-      </div>
-      
-      {/* Bank Selection Modal */}
-      {showBankModal && (
+
+        {/* Bank Selection Modal */}
+        {showBankModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -863,6 +862,7 @@ export default function Services() {
           </motion.div>
         </div>
       )}
+      </div>
     )
   }
 
