@@ -669,8 +669,8 @@ function DashboardOrders() {
                   onClick={() => setSelectedBank(bank.code)}
                   className={`p-4 rounded-xl border-2 transition-all ${
                     selectedBank === bank.code
-                      ? 'border-primary-500 bg-primary-500/10'
-                      : 'border-gray-700 hover:border-gray-600 bg-dark-200'
+                      ? 'border-primary-500 bg-primary-500/20'
+                      : 'border-gray-300 hover:border-primary-400 bg-white'
                   }`}
                 >
                   <img
@@ -678,7 +678,7 @@ function DashboardOrders() {
                     alt={bank.name}
                     className="h-12 mx-auto object-contain mb-2"
                   />
-                  <p className="text-sm text-gray-300 font-medium text-center">
+                  <p className="text-sm text-gray-900 font-medium text-center">
                     {bank.name}
                   </p>
                 </button>
@@ -742,11 +742,11 @@ function DashboardOrders() {
                   className={`p-4 rounded-xl border-2 transition-all duration-200 ${
                     selectedBank === bank.code
                       ? 'border-primary-500 bg-primary-500/20'
-                      : 'border-white/10 hover:border-primary-400/50 bg-dark-100/50'
+                      : 'border-gray-300 hover:border-primary-400 bg-white'
                   }`}
                 >
                   <img src={bank.logo} alt={bank.name} className="h-12 w-auto mx-auto mb-2 object-contain" />
-                  <div className="font-poppins font-semibold text-white text-sm">{bank.name}</div>
+                  <div className="font-poppins font-semibold text-gray-900 text-sm">{bank.name}</div>
                 </button>
               ))}
             </div>
@@ -1058,11 +1058,11 @@ function DashboardPayments() {
                   className={`p-4 rounded-xl border-2 transition-all duration-200 ${
                     selectedBank === bank.code
                       ? 'border-primary-500 bg-primary-500/20'
-                      : 'border-white/10 hover:border-primary-400/50 bg-dark-100/50'
+                      : 'border-gray-300 hover:border-primary-400 bg-white'
                   }`}
                 >
                   <img src={bank.logo} alt={bank.name} className="h-12 w-auto mx-auto mb-2 object-contain" />
-                  <div className="font-poppins font-semibold text-white text-sm">{bank.name}</div>
+                  <div className="font-poppins font-semibold text-gray-900 text-sm">{bank.name}</div>
                 </button>
               ))}
             </div>
