@@ -18,8 +18,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Create directory for SQLite
+# Create directory for SQLite database
 RUN mkdir -p /app/data
+
+# CRITICAL: Set database path to persistent volume
+# Database will be stored in /app/data/neointegratech.db
+# This directory MUST be mounted as a volume in production
+ENV DATABASE_URL="sqlite:////app/data/neointegratech.db"
 
 # Expose port
 EXPOSE 8000
