@@ -10,6 +10,7 @@ import {
   MagnifyingGlassIcon
 } from '@heroicons/react/24/outline'
 import { ordersAPI } from '../services/api'
+import PaymentStatusChecker from '../components/PaymentStatusChecker'
 
 const statusConfig = {
   pending: {
@@ -70,6 +71,11 @@ export default function Orders() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleStatusUpdate = (updatedPayment) => {
+    // Refresh orders when payment status changes
+    loadOrders()
   }
 
   const filteredOrders = orders.filter(order => {
@@ -241,6 +247,17 @@ export default function Orders() {
                           <p className="text-gray-400 font-poppins text-sm">
                             <span className="text-gray-500">Catatan:</span> {order.notes}
                           </p>
+                        </div>
+                      )}
+
+                      {/* Payment Status Checker - only for pending orders */}
+                      {order.status === 'pending' && (
+                        <div className="mt-4 pt-4 border-t border-white/10">
+                          <PaymentStatusChecker
+                            orderId={order.id}
+                            orderStatus={order.status}
+                            onStatusUpdate={handleStatusUpdate}
+                          />
                         </div>
                       )}
                     </div>
