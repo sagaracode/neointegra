@@ -62,9 +62,9 @@ async def initialize_services(db: Session = Depends(get_db)):
         {
             "name": "Test Payment Service",
             "slug": "test-payment",
-            "description": "Service untuk test pembayaran dengan nominal minimal Rp 5.000",
+            "description": "Service untuk test pembayaran dengan nominal minimal Rp 10.000 (minimum iPaymu)",
             "category": "test",
-            "price": 5000,
+            "price": 10000,
             "duration_days": 1,
             "features": '["Test Payment", "Minimal Amount", "Email Notification Test"]'
         }
@@ -99,9 +99,9 @@ async def add_test_payment_service(db: Session = Depends(get_db)):
     test_service_data = {
         "name": "Test Payment Service",
         "slug": "test-payment",
-        "description": "Service untuk test pembayaran dengan nominal minimal Rp 5.000",
+        "description": "Service untuk test pembayaran dengan nominal minimal Rp 10.000 (minimum iPaymu)",
         "category": "test",
-        "price": 5000,
+        "price": 10000,
         "duration_days": 1,
         "features": '["Test Payment", "Minimal Amount", "Email Notification Test"]'
     }

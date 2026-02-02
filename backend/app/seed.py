@@ -64,9 +64,9 @@ def seed_services(db: Session):
         {
             "name": "Test Payment Service",
             "slug": "test-payment",
-            "description": "Service untuk test pembayaran dengan nominal minimal Rp 5.000",
+            "description": "Service untuk test pembayaran dengan nominal minimal Rp 10.000 (minimum iPaymu)",
             "category": "test",
-            "price": 5000,
+            "price": 10000,
             "duration_days": 1,
             "features": '["Test Payment", "Minimal Amount", "Email Notification Test"]'
         }

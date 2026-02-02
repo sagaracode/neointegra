@@ -41,11 +41,11 @@ export default function TestPayment() {
     setLoading(true)
 
     try {
-      // 1. Create test order with Rp 5.000
+      // 1. Create test order with Rp 10.000
       const orderResponse = await ordersAPI.create({
         service_slug: 'test-payment',
         quantity: 1,
-        notes: 'Test Payment - Rp 5.000'
+        notes: 'Test Payment - Rp 10.000'
       })
 
       const orderId = orderResponse.data.id
@@ -55,7 +55,7 @@ export default function TestPayment() {
         order_id: orderId,
         payment_method: 'va',
         payment_channel: selectedBank,
-        amount: 5000 // Rp 5.000
+        amount: 10000 // Rp 10.000 (minimum iPaymu)
       })
 
       const paymentData = paymentResponse.data
@@ -92,7 +92,7 @@ export default function TestPayment() {
               Test Payment
             </span>
             <h1 className="font-montserrat font-bold text-4xl text-white mb-4">
-              Test Pembayaran Rp 5.000
+              Test Pembayaran Rp 10.000
             </h1>
             <p className="text-gray-400 font-poppins text-lg">
               Halaman untuk test integrasi pembayaran dengan nilai minimal
@@ -113,7 +113,7 @@ export default function TestPayment() {
               <div className="text-right">
                 <div className="text-gray-500 text-xs mb-1">Harga Test</div>
                 <div className="font-montserrat font-bold text-2xl text-primary-400">
-                  Rp 5.000
+                  Rp 10.000
                 </div>
               </div>
             </div>
@@ -126,7 +126,7 @@ export default function TestPayment() {
                 </svg>
                 <div>
                   <div className="text-white font-poppins">Nominal minimal untuk test</div>
-                  <div className="text-gray-500 text-sm">Hanya Rp 5.000 untuk testing</div>
+                  <div className="text-gray-500 text-sm">Rp 10.000 (minimum iPaymu)</div>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -173,7 +173,7 @@ export default function TestPayment() {
                   Processing...
                 </span>
               ) : (
-                '💳 Bayar Test Rp 5.000'
+                '💳 Bayar Test Rp 10.000'
               )}
             </button>
 
