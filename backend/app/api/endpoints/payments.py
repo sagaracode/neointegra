@@ -344,6 +344,113 @@ async def get_payment(
     
     return payment
 
+@router.post("/{payment_id}/check-status", response_model=PaymentResponse)
+async def check_payment_status(
+    payment_id: int,
+    authorization: Optional[str] = Header(None),
+    db: Session = Depends(get_db)
+):
+    """Manually check payment status from iPaymu and update local database"""
+    user = get_user_from_token(authorization, db)
+    
+    # Get payment and verify ownership
+    payment = db.query(Payment).join(Order).filter(
+        Payment.id == payment_id,
+        Order.user_id == user.id
+    ).first()
+    
+    if not payment:
+        raise HTTPException(status_code=404, detail="Payment not found")
+    
+    # If already success or failed, return current status
+    if payment.status in ["success", "failed", "cancelled"]:
+        return payment
+    
+    # Check status from iPaymu
+    if not payment.ipaymu_transaction_id:
+        raise HTTPException(status_code=400, detail="No iPaymu transaction ID found")
+    
+    try:
+        # Prepare request to check transaction status
+        url = f"{settings.IPAYMU_BASE_URL}/transaction"
+        body = {
+            "transactionId": payment.ipaymu_transaction_id
+        }
+        
+        signature = generate_ipaymu_signature(body, "POST")
+        
+        headers = {
+            "Content-Type": "application/json",
+            "va": settings.IPAYMU_VA,
+            "signature": signature,
+            "timestamp": datetime.utcnow().strftime("%Y%m%d%H%M%S")
+        }
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.post(url, json=body, headers=headers)
+            result = response.json()
+        
+        print(f"[Payment Status Check] Response: {result}")
+        
+        if result.get("Status") == 200 and result.get("Success"):
+            data = result.get("Data", {})
+            status_code = data.get("StatusCode")
+            
+            # Update payment based on status
+            if status_code == "1":  # Success/Paid
+                payment.status = "success"
+                payment.paid_at = datetime.utcnow()
+                
+                # Update order
+                order = db.query(Order).filter(Order.id == payment.order_id).first()
+                if order and order.status != "paid":
+                    order.status = "paid"
+                    
+                    # Send confirmation email
+                    try:
+                        from ...models import User
+                        user_data = db.query(User).filter(User.id == order.user_id).first()
+                        if user_data:
+                            send_payment_confirmation_email(
+                                to_email=user_data.email,
+                                payment_data={
+                                    'customer_name': user_data.full_name,
+                                    'order_number': order.order_number,
+                                    'amount': payment.amount,
+                                    'payment_method': payment.payment_method,
+                                    'status': 'success',
+                                    'transaction_id': payment.ipaymu_transaction_id
+                                }
+                            )
+                            print(f"[Payment Status Check] Confirmation email sent to {user_data.email}")
+                    except Exception as email_error:
+                        print(f"[Payment Status Check] Email error: {email_error}")
+                
+                db.commit()
+                print(f"[Payment Status Check] Payment #{payment.id} marked as SUCCESS")
+                
+            elif status_code == "0":  # Pending
+                payment.status = "pending"
+                db.commit()
+                print(f"[Payment Status Check] Payment still PENDING")
+                
+            else:  # Failed/Expired
+                payment.status = "failed"
+                db.commit()
+                print(f"[Payment Status Check] Payment marked as FAILED (status_code: {status_code})")
+        
+        db.refresh(payment)
+        return payment
+        
+    except Exception as e:
+        print(f"[Payment Status Check Error] {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to check payment status: {str(e)}"
+        )
+
 @router.post("/callback", response_model=MessageResponse)
 async def payment_callback(request: Request, db: Session = Depends(get_db)):
     """Handle iPaymu payment callback - supports both JSON and form-urlencoded"""
