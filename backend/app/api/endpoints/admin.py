@@ -90,3 +90,40 @@ async def initialize_services(db: Session = Depends(get_db)):
     return {
         "message": f"Services initialized successfully! Created: {created_count}, Updated: {updated_count}"
     }
+
+@router.post("/add-test-service", response_model=MessageResponse)
+@router.get("/add-test-service", response_model=MessageResponse)
+async def add_test_payment_service(db: Session = Depends(get_db)):
+    """Force add/update test-payment service - GUARANTEED to work"""
+    
+    test_service_data = {
+        "name": "Test Payment Service",
+        "slug": "test-payment",
+        "description": "Service untuk test pembayaran dengan nominal minimal Rp 5.000",
+        "category": "test",
+        "price": 5000,
+        "duration_days": 1,
+        "features": '["Test Payment", "Minimal Amount", "Email Notification Test"]'
+    }
+    
+    # Check if exists
+    existing = db.query(Service).filter(Service.slug == "test-payment").first()
+    
+    if existing:
+        # Update existing
+        for key, value in test_service_data.items():
+            setattr(existing, key, value)
+        db.commit()
+        db.refresh(existing)
+        return {
+            "message": f"✅ Test payment service UPDATED! Price: Rp {existing.price:,}"
+        }
+    else:
+        # Create new
+        new_service = Service(**test_service_data)
+        db.add(new_service)
+        db.commit()
+        db.refresh(new_service)
+        return {
+            "message": f"✅ Test payment service CREATED! Price: Rp {new_service.price:,}"
+        }
