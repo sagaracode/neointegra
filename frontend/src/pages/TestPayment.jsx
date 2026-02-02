@@ -41,11 +41,11 @@ export default function TestPayment() {
     setLoading(true)
 
     try {
-      // 1. Create test order with Rp 1.000
+      // 1. Create test order with Rp 5.000
       const orderResponse = await ordersAPI.create({
         service_slug: 'test-payment',
         quantity: 1,
-        notes: 'Test Payment - Rp 1.000'
+        notes: 'Test Payment - Rp 5.000'
       })
 
       const orderId = orderResponse.data.id
