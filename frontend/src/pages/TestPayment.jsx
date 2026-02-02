@@ -55,7 +55,7 @@ export default function TestPayment() {
         order_id: orderId,
         payment_method: 'va',
         payment_channel: selectedBank,
-        amount: 1000 // Rp 1.000
+        amount: 5000 // Rp 5.000
       })
 
       const paymentData = paymentResponse.data
@@ -92,7 +92,7 @@ export default function TestPayment() {
               Test Payment
             </span>
             <h1 className="font-montserrat font-bold text-4xl text-white mb-4">
-              Test Pembayaran Rp 1.000
+              Test Pembayaran Rp 5.000
             </h1>
             <p className="text-gray-400 font-poppins text-lg">
               Halaman untuk test integrasi pembayaran dengan nilai minimal
@@ -113,7 +113,7 @@ export default function TestPayment() {
               <div className="text-right">
                 <div className="text-gray-500 text-xs mb-1">Harga Test</div>
                 <div className="font-montserrat font-bold text-2xl text-primary-400">
-                  Rp 1.000
+                  Rp 5.000
                 </div>
               </div>
             </div>
@@ -126,7 +126,7 @@ export default function TestPayment() {
                 </svg>
                 <div>
                   <div className="text-white font-poppins">Nominal minimal untuk test</div>
-                  <div className="text-gray-500 text-sm">Hanya Rp 1.000 untuk testing</div>
+                  <div className="text-gray-500 text-sm">Hanya Rp 5.000 untuk testing</div>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -173,7 +173,7 @@ export default function TestPayment() {
                   Processing...
                 </span>
               ) : (
-                '💳 Bayar Test Rp 1.000'
+                '💳 Bayar Test Rp 5.000'
               )}
             </button>
 

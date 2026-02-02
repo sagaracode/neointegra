@@ -23,9 +23,9 @@ const contactInfo = [
   },
   {
     icon: ChatBubbleLeftRightIcon,
-    title: 'WhatsApp',
-    value: '+62 812 3456 7890',
-    link: 'https://wa.me/6281234567890',
+      title: 'WhatsApp',
+      value: '+62 851 2136 9617',
+      link: 'https://wa.me/6285121369617',
   },
   {
     icon: MapPinIcon,
