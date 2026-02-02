@@ -72,7 +72,7 @@ VITE_APP_TAGLINE=Solusi Integrasi Teknologi Terpadu
 
 # Contact (optional)
 VITE_CONTACT_EMAIL=hello@neointegratech.com
-VITE_CONTACT_PHONE=+62 21 1234 5678
+VITE_CONTACT_PHONE=+62 851 2136 9617
 VITE_CONTACT_ADDRESS=Jakarta, Indonesia
 ```
 

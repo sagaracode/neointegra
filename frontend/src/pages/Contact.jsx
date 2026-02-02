@@ -18,8 +18,8 @@ const contactInfo = [
   {
     icon: PhoneIcon,
     title: 'Phone',
-    value: '+62 21 1234 5678',
-    link: 'tel:+622112345678',
+    value: '+62 851 2136 9617',
+    link: 'tel:+6285121369617',
   },
   {
     icon: ChatBubbleLeftRightIcon,
