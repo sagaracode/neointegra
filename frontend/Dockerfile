@@ -7,16 +7,16 @@ WORKDIR /app
 # Copy package files first for better caching
 COPY package.json package-lock.json* ./
 
-# Install ALL dependencies (devDependencies needed for Vite)
-RUN npm install --legacy-peer-deps && \
-    npm list vite || echo "Checking vite installation..." && \
-    which vite || echo "Vite binary check..."
+# Install dependencies with timeout and retry
+RUN npm config set fetch-timeout 120000 && \
+    npm config set fetch-retries 5 && \
+    npm install --legacy-peer-deps
 
 # Copy source code
 COPY . .
 
 # Build with increased memory limit
-ENV NODE_OPTIONS="--max-old-space-size=2048"
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 RUN npm run build
 
 # Production stage
