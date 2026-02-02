@@ -261,8 +261,26 @@ async def create_payment(
             
             print(f"[Payment Creation] Success! Payment ID: {new_payment.id}, VA: {new_payment.va_number}")
             
-            # ONLY send email - Don't send on create, will send on callback success
-            # Email akan dikirim saat callback dari iPaymu (payment success)
+            # Send payment pending email notification
+            try:
+                send_payment_pending_email(
+                    to_email=user.email,
+                    payment_data={
+                        'customer_name': user.full_name,
+                        'order_number': order.order_number,
+                        'service_name': service_name,
+                        'amount': payment_data.amount,
+                        'payment_method': payment_data.payment_method.upper(),
+                        'payment_channel': payment_data.payment_channel.upper() if payment_data.payment_channel else '',
+                        'va_number': new_payment.va_number,
+                        'payment_url': new_payment.payment_url,
+                        'expired_at': new_payment.expired_at.strftime('%d %B %Y %H:%M') if new_payment.expired_at else ''
+                    }
+                )
+                print(f"[Payment Creation] Payment pending email sent to {user.email}")
+            except Exception as email_error:
+                print(f"[Payment Creation] Failed to send pending email: {str(email_error)}")
+                # Don't fail the payment creation if email fails
             
         except HTTPException as e:
             # iPaymu API error - delete payment record and re-raise

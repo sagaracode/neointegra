@@ -58,6 +58,15 @@ async def initialize_services(db: Session = Depends(get_db)):
             "price": 24000000,
             "duration_days": 365,
             "features": '["CDN Global & Caching", "Proteksi DDoS & Firewall", "SSL Full Encryption", "Proteksi Bot & Traffic Berbahaya", "Monitoring Keamanan 24/7"]'
+        },
+        {
+            "name": "Test Payment Service",
+            "slug": "test-payment",
+            "description": "Service untuk test pembayaran dengan nominal minimal Rp 5.000",
+            "category": "test",
+            "price": 5000,
+            "duration_days": 1,
+            "features": '["Test Payment", "Minimal Amount", "Email Notification Test"]'
         }
     ]
     
