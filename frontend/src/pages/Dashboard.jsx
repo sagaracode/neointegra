@@ -20,6 +20,7 @@ import useAuthStore from '../store/authStore'
 import { ordersAPI, paymentsAPI, usersAPI } from '../services/api'
 import api from '../services/api'
 import SEOAnalytics from './SEOAnalytics'
+import CPanelInfo from './CPanelInfo'
 
 // Available payment channels from iPaymu
 const BANK_CHANNELS = [
@@ -143,10 +144,8 @@ function DashboardHome() {
             Layanan Anda
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <a
-              href="https://rsppn.co.id/cpanel"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              to="/dashboard/cpanel-info"
               className="p-4 rounded-xl bg-gradient-to-br from-orange-500/20 to-red-500/20 hover:from-orange-500/30 hover:to-red-500/30 border border-orange-500/30 hover:border-orange-500/50 transition-all group"
             >
               <div className="flex items-center gap-3 mb-2">
@@ -159,12 +158,12 @@ function DashboardHome() {
               </div>
               <p className="text-gray-400 text-sm">Kelola hosting & domain</p>
               <div className="mt-2 text-xs text-orange-400 flex items-center gap-1">
-                <span>Buka cPanel</span>
+                <span>Lihat Info</span>
                 <svg className="w-3 h-3 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>
               </div>
-            </a>
+            </Link>
             
             <a
               href="https://rsppn.co.id/wp-admin"
@@ -1382,6 +1381,7 @@ export default function Dashboard() {
               <Route path="profile" element={<DashboardProfile />} />
               <Route path="settings" element={<DashboardSettings />} />
               <Route path="seo/rsppn-analytics" element={<SEOAnalytics />} />
+              <Route path="cpanel-info" element={<CPanelInfo />} />
             </Routes>
           </motion.main>
         </div>
