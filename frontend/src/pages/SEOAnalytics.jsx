@@ -99,22 +99,20 @@ function SEOAnalytics() {
           transition={{ delay: 0.1 }}
           className="card bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border-blue-500/30"
         >
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0 flex-1">
-              <p className="text-gray-400 font-poppins text-xs md:text-sm mb-1 md:mb-2 truncate">Traffic Growth</p>
-              <div className="flex items-end gap-1 md:gap-2 flex-wrap">
-                <span className="font-montserrat font-bold text-2xl md:text-3xl text-white whitespace-nowrap">
-                  {totalTrafficGrowth}%
-                </span>
-                <ArrowTrendingUpIcon className={`w-5 h-5 md:w-6 md:h-6 mb-1 flex-shrink-0 ${parseFloat(totalTrafficGrowth) >= 0 ? 'text-green-400' : 'text-red-400'}`} />
-              </div>
-              <p className="text-xs text-gray-500 mt-1 break-words">
-                {firstData.traffic.toLocaleString()} → {latestData.traffic.toLocaleString()}
-              </p>
+          <div className="flex flex-col items-center text-center">
+            <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center mb-3 md:mb-4">
+              <ChartBarIcon className="w-6 h-6 md:w-7 md:h-7 text-white" />
             </div>
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
-              <ChartBarIcon className="w-5 h-5 md:w-6 md:h-6 text-white" />
+            <p className="text-gray-400 font-poppins text-xs md:text-sm mb-2">Traffic Growth</p>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="font-montserrat font-bold text-2xl md:text-3xl text-white">
+                {totalTrafficGrowth}%
+              </span>
+              <ArrowTrendingUpIcon className={`w-5 h-5 ${parseFloat(totalTrafficGrowth) >= 0 ? 'text-green-400' : 'text-red-400'}`} />
             </div>
+            <p className="text-xs text-gray-500">
+              {firstData.traffic.toLocaleString()} → {latestData.traffic.toLocaleString()}
+            </p>
           </div>
         </motion.div>
 
@@ -124,22 +122,20 @@ function SEOAnalytics() {
           transition={{ delay: 0.15 }}
           className="card bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-green-500/30"
         >
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0 flex-1">
-              <p className="text-gray-400 font-poppins text-xs md:text-sm mb-1 md:mb-2 truncate">Health Score</p>
-              <div className="flex items-end gap-1 md:gap-2 flex-wrap">
-                <span className="font-montserrat font-bold text-2xl md:text-3xl text-white whitespace-nowrap">
-                  {avgHealthScore}
-                </span>
-                <span className="text-green-400 text-xs md:text-sm mb-1 flex-shrink-0">/100</span>
-              </div>
-              <p className="text-xs text-gray-500 mt-1 truncate">
-                Current: {latestData.healthScore}/100
-              </p>
+          <div className="flex flex-col items-center text-center">
+            <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center mb-3 md:mb-4">
+              <span className="text-white font-bold text-xl md:text-2xl">✓</span>
             </div>
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center flex-shrink-0">
-              <span className="text-white font-bold text-base md:text-lg">✓</span>
+            <p className="text-gray-400 font-poppins text-xs md:text-sm mb-2">Health Score</p>
+            <div className="flex items-center gap-1 mb-2">
+              <span className="font-montserrat font-bold text-2xl md:text-3xl text-white">
+                {avgHealthScore}
+              </span>
+              <span className="text-green-400 text-sm">/100</span>
             </div>
+            <p className="text-xs text-gray-500">
+              Current: {latestData.healthScore}/100
+            </p>
           </div>
         </motion.div>
 
@@ -149,22 +145,20 @@ function SEOAnalytics() {
           transition={{ delay: 0.2 }}
           className="card bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/30"
         >
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0 flex-1">
-              <p className="text-gray-400 font-poppins text-xs md:text-sm mb-1 md:mb-2 truncate">Avg Position</p>
-              <div className="flex items-end gap-1 md:gap-2 flex-wrap">
-                <span className="font-montserrat font-bold text-2xl md:text-3xl text-white whitespace-nowrap">
-                  #{latestData.avgPosition.toFixed(1)}
-                </span>
-                <ArrowTrendingUpIcon className="w-5 h-5 md:w-6 md:h-6 text-green-400 mb-1 flex-shrink-0" />
-              </div>
-              <p className="text-xs text-gray-500 mt-1 truncate">
-                From #{firstData.avgPosition.toFixed(1)}
-              </p>
+          <div className="flex flex-col items-center text-center">
+            <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-3 md:mb-4">
+              <MagnifyingGlassIcon className="w-6 h-6 md:w-7 md:h-7 text-white" />
             </div>
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
-              <MagnifyingGlassIcon className="w-5 h-5 md:w-6 md:h-6 text-white" />
+            <p className="text-gray-400 font-poppins text-xs md:text-sm mb-2">Avg Position</p>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="font-montserrat font-bold text-2xl md:text-3xl text-white">
+                #{latestData.avgPosition.toFixed(1)}
+              </span>
+              <ArrowTrendingUpIcon className="w-5 h-5 text-green-400" />
             </div>
+            <p className="text-xs text-gray-500">
+              From #{firstData.avgPosition.toFixed(1)}
+            </p>
           </div>
         </motion.div>
 
@@ -174,21 +168,17 @@ function SEOAnalytics() {
           transition={{ delay: 0.25 }}
           className="card bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/30"
         >
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0 flex-1">
-              <p className="text-gray-400 font-poppins text-xs md:text-sm mb-1 md:mb-2 truncate">Total Clicks</p>
-              <div className="flex items-end gap-1 md:gap-2 flex-wrap">
-                <span className="font-montserrat font-bold text-2xl md:text-3xl text-white whitespace-nowrap">
-                  {(totalClicks / 1000).toFixed(1)}K
-                </span>
-              </div>
-              <p className="text-xs text-gray-500 mt-1 break-words">
-                {totalImpressions.toLocaleString()} impressions
-              </p>
+          <div className="flex flex-col items-center text-center">
+            <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center mb-3 md:mb-4">
+              <CursorArrowRaysIcon className="w-6 h-6 md:w-7 md:h-7 text-white" />
             </div>
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center flex-shrink-0">
-              <CursorArrowRaysIcon className="w-5 h-5 md:w-6 md:h-6 text-white" />
-            </div>
+            <p className="text-gray-400 font-poppins text-xs md:text-sm mb-2">Total Clicks</p>
+            <span className="font-montserrat font-bold text-2xl md:text-3xl text-white mb-2">
+              {(totalClicks / 1000).toFixed(1)}K
+            </span>
+            <p className="text-xs text-gray-500">
+              {totalImpressions.toLocaleString()} impressions
+            </p>
           </div>
         </motion.div>
 
@@ -198,21 +188,17 @@ function SEOAnalytics() {
           transition={{ delay: 0.3 }}
           className="card bg-gradient-to-br from-rose-500/10 to-pink-500/10 border-rose-500/30"
         >
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0 flex-1">
-              <p className="text-gray-400 font-poppins text-xs md:text-sm mb-1 md:mb-2 truncate">Average CTR</p>
-              <div className="flex items-end gap-1 md:gap-2 flex-wrap">
-                <span className="font-montserrat font-bold text-2xl md:text-3xl text-white whitespace-nowrap">
-                  {avgCTR}%
-                </span>
-              </div>
-              <p className="text-xs text-gray-500 mt-1 truncate">
-                Click-through rate
-              </p>
+          <div className="flex flex-col items-center text-center">
+            <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center mb-3 md:mb-4">
+              <ArrowTrendingUpIcon className="w-6 h-6 md:w-7 md:h-7 text-white" />
             </div>
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center flex-shrink-0">
-              <ArrowTrendingUpIcon className="w-5 h-5 md:w-6 md:h-6 text-white" />
-            </div>
+            <p className="text-gray-400 font-poppins text-xs md:text-sm mb-2">Average CTR</p>
+            <span className="font-montserrat font-bold text-2xl md:text-3xl text-white mb-2">
+              {avgCTR}%
+            </span>
+            <p className="text-xs text-gray-500">
+              Click-through rate
+            </p>
           </div>
         </motion.div>
       </div>
@@ -415,9 +401,9 @@ function SEOAnalytics() {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ range, value }) => `${range}: ${value}%`}
+                  label={({ value }) => `${value}%`}
                   outerRadius={60}
-                  className="md:!outerRadius-[80]"
+                  className="md:!outerRadius-[70]"
                   fill="#8884d8"
                   dataKey="value"
                 >
@@ -433,7 +419,13 @@ function SEOAnalytics() {
                     color: '#fff',
                     fontSize: '12px'
                   }}
-                  formatter={(value) => `${value}%`}
+                  formatter={(value, name, props) => [`${value}%`, props.payload.range]}
+                />
+                <Legend 
+                  verticalAlign="bottom" 
+                  height={36}
+                  wrapperStyle={{ fontSize: '10px' }}
+                  formatter={(value, entry) => entry.payload.range}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -449,9 +441,9 @@ function SEOAnalytics() {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, value }) => `${name}: ${value}%`}
+                  label={({ value }) => `${value}%`}
                   outerRadius={60}
-                  className="md:!outerRadius-[80]"
+                  className="md:!outerRadius-[70]"
                   fill="#8884d8"
                   dataKey="value"
                 >
@@ -467,7 +459,12 @@ function SEOAnalytics() {
                     color: '#fff',
                     fontSize: '12px'
                   }}
-                  formatter={(value) => `${value}%`}
+                  formatter={(value, name) => [`${value}%`, name]}
+                />
+                <Legend 
+                  verticalAlign="bottom" 
+                  height={36}
+                  wrapperStyle={{ fontSize: '10px' }}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -483,9 +480,9 @@ function SEOAnalytics() {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, value }) => `${value}%`}
-                  outerRadius={60}
-                  className="md:!outerRadius-[80]"
+                  label={({ value }) => `${value}%`}
+                  outerRadius={55}
+                  className="md:!outerRadius-[70]"
                   fill="#8884d8"
                   dataKey="value"
                 >
@@ -506,7 +503,7 @@ function SEOAnalytics() {
                 <Legend 
                   verticalAlign="bottom" 
                   height={36}
-                  wrapperStyle={{ fontSize: '11px' }}
+                  wrapperStyle={{ fontSize: '10px' }}
                   formatter={(value, entry) => `${entry.payload.name}`}
                 />
               </PieChart>
