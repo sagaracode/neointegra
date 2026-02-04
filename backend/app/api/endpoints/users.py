@@ -4,8 +4,8 @@ from typing import Optional
 
 from ...database import get_db
 from ...models import User
-from ...schemas import UserResponse
-from .auth import get_current_user
+from ...schemas import UserResponse, UserUpdate
+from .auth import get_current_user, hash_password
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -39,3 +39,33 @@ async def get_user_profile(
         raise HTTPException(status_code=403, detail="Access denied")
     
     return current_user
+
+@router.put("/profile", response_model=UserResponse)
+async def update_user_profile(
+    user_data: UserUpdate,
+    authorization: Optional[str] = Header(None),
+    db: Session = Depends(get_db)
+):
+    """Update current user profile"""
+    user = get_user_from_token(authorization, db)
+    
+    # Update fields if provided
+    if user_data.full_name is not None:
+        user.full_name = user_data.full_name
+    
+    if user_data.phone is not None:
+        user.phone = user_data.phone
+    
+    if user_data.company_name is not None:
+        user.company_name = user_data.company_name
+    
+    if user_data.password is not None:
+        # Validate password length
+        if len(user_data.password) < 8:
+            raise HTTPException(status_code=400, detail="Password minimal 8 karakter")
+        user.hashed_password = hash_password(user_data.password)
+    
+    db.commit()
+    db.refresh(user)
+    
+    return user

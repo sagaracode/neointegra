@@ -40,6 +40,12 @@ class ResetPasswordRequest(BaseModel):
 class VerifyEmailRequest(BaseModel):
     token: str
 
+class UserUpdate(BaseModel):
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+    company_name: Optional[str] = None
+    password: Optional[str] = None
+
 # ============= SERVICE SCHEMAS =============
 class ServiceBase(BaseModel):
     name: str
