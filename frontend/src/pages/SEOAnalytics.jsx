@@ -250,7 +250,6 @@ function SEOAnalytics() {
               angle={-45}
               textAnchor="end"
               height={60}
-              height={80}
             />
             <YAxis 
               stroke="#9ca3af"
@@ -275,6 +274,7 @@ function SEOAnalytics() {
             />
           </AreaChart>
         </ResponsiveContainer>
+        </div>
       </motion.div>
 
       {/* Health Score & Keyword Position */}
