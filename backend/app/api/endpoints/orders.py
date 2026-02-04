@@ -7,6 +7,7 @@ from ...database import get_db
 from ...models import Order, Service, User
 from ...schemas import OrderCreate, OrderCreateSimple, OrderResponse
 from ...email import send_order_confirmation_email
+from ...timezone import now_jakarta
 from .auth import get_current_user
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
@@ -20,7 +21,7 @@ def get_user_from_token(authorization: Optional[str], db: Session) -> User:
 
 def generate_order_number() -> str:
     """Generate unique order number"""
-    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    timestamp = now_jakarta().strftime("%Y%m%d-%H%M%S")
     return f"ORD-{timestamp}"
 
 @router.post("/", response_model=OrderResponse, status_code=201)

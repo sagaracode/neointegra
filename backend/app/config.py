@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "NeoIntegra Tech API"
     APP_VERSION: str = "1.0.0"
     DEBUG: bool = True
+    TIMEZONE: str = "Asia/Jakarta"  # UTC+7
     
     # Database
     DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./neointegratech.db")

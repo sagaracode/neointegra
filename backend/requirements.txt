@@ -25,6 +25,7 @@ pydantic-settings==2.11.0
 
 # Utils
 pydantic==2.10.5
+pytz==2024.1
 
 # Rate Limiting
 slowapi==0.1.9

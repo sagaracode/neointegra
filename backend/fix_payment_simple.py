@@ -10,6 +10,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.database import SessionLocal
 from app.models import Order, Payment
+from app.timezone import now_jakarta
 from datetime import datetime
 
 print("\n" + "="*60)
@@ -56,7 +57,7 @@ try:
         
         print(f"\n📝 Step 2: Updating payment to SUCCESS...")
         payment.status = 'success'
-        payment.paid_at = datetime.now()
+        payment.paid_at = now_jakarta()
         print(f"✅ Payment updated")
     else:
         print(f"\n⚠️  Payment not found, creating new record...")
@@ -67,8 +68,8 @@ try:
             payment_channel='bni',
             status='success',
             va_number=va_number,
-            created_at=datetime.now(),
-            paid_at=datetime.now()
+            created_at=now_jakarta(),
+            paid_at=now_jakarta()
         )
         db.add(payment)
         print(f"✅ Payment record created")

@@ -12,6 +12,7 @@ from ...models import Payment, Order, Service, Subscription
 from ...schemas import PaymentCreate, PaymentResponse, PaymentCallbackRequest, MessageResponse
 from ...config import settings
 from ...email import send_payment_pending_email, send_payment_confirmation_email
+from ...timezone import now_jakarta
 from .auth import get_current_user
 from datetime import timedelta
 
@@ -99,8 +100,8 @@ async def create_ipaymu_payment(payment_data: dict, payment_method: str):
     # Generate signature using the EXACT JSON string that will be sent
     signature = generate_ipaymu_signature(body, "POST")
     
-    # Generate timestamp in format YYYYMMDDhhmmss
-    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    # Generate timestamp in format YYYYMMDDhhmmss (Jakarta time)
+    timestamp = now_jakarta().strftime("%Y%m%d%H%M%S")
     
     # Debug print
     print(f"[iPaymu Request] Method: {payment_method}")
@@ -399,7 +400,7 @@ async def check_payment_status(
             # Update payment based on status
             if status_code == "1":  # Success/Paid
                 payment.status = "success"
-                payment.paid_at = datetime.utcnow()
+                payment.paid_at = now_jakarta()
                 
                 # Update order
                 order = db.query(Order).filter(Order.id == payment.order_id).first()
@@ -484,7 +485,7 @@ async def payment_callback(request: Request, db: Session = Depends(get_db)):
         # Update payment status
         if status_code == "1":  # Success
             payment.status = "success"
-            payment.paid_at = datetime.utcnow()
+            payment.paid_at = now_jakarta()
             
             # Update order status
             order = db.query(Order).filter(Order.id == payment.order_id).first()

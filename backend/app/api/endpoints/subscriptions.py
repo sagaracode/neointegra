@@ -7,6 +7,7 @@ from ...database import get_db
 from ...models import Subscription, Order, User
 from ...schemas import SubscriptionResponse, SubscriptionRenewalCreate, MessageResponse
 from ...email import send_order_confirmation_email
+from ...timezone import now_jakarta
 from .auth import get_current_user
 
 router = APIRouter(prefix="/subscriptions", tags=["Subscriptions"])
@@ -91,8 +92,8 @@ async def renew_subscription(
     # Determine renewal price
     renewal_price = subscription.renewal_price if subscription.renewal_price else subscription.price
     
-    # Generate order number
-    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    # Generate order number (Jakarta time)
+    timestamp = now_jakarta().strftime("%Y%m%d-%H%M%S")
     order_number = f"ORD-{timestamp}"
     
     # Create renewal order
