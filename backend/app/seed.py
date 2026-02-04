@@ -145,7 +145,7 @@ def seed_special_customer(db: Session):
         print(f"ℹ️  Subscription already exists for {email}")
 
 def seed_rsppn_payment_history(db: Session):
-    """Seed payment history for RSPPN dated Feb 3, 2025"""
+    """Seed payment history for RSPPN dated Feb 7, 2025"""
     # Get RSPPN user
     rsppn_user = db.query(User).filter(User.email == "web@rsppn.co.id").first()
     if not rsppn_user:
