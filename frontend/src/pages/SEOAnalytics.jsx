@@ -22,6 +22,9 @@ import {
   ResponsiveContainer,
   Area,
   AreaChart,
+  PieChart,
+  Pie,
+  Cell,
 } from 'recharts'
 import toast from 'react-hot-toast'
 import seoDataJSON from '../data/seoData.json'
@@ -60,6 +63,9 @@ function SEOAnalytics() {
   const firstData = seoData.monthlyData[0]
   const totalTrafficGrowth = ((latestData.traffic - firstData.traffic) / firstData.traffic * 100).toFixed(1)
   const avgHealthScore = (seoData.monthlyData.reduce((sum, d) => sum + d.healthScore, 0) / seoData.monthlyData.length).toFixed(1)
+  const totalClicks = seoData.monthlyData.reduce((sum, d) => sum + d.clicks, 0)
+  const totalImpressions = seoData.monthlyData.reduce((sum, d) => sum + d.impressions, 0)
+  const avgCTR = ((totalClicks / totalImpressions) * 100).toFixed(1)
 
   return (
     <div className="min-h-screen bg-dark-300 p-4 md:p-8">
@@ -85,7 +91,7 @@ function SEOAnalytics() {
       </motion.div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -94,15 +100,15 @@ function SEOAnalytics() {
         >
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-gray-400 font-poppins text-sm mb-2">Total Traffic Growth</p>
+              <p className="text-gray-400 font-poppins text-sm mb-2">Traffic Growth</p>
               <div className="flex items-end gap-2">
                 <span className="font-montserrat font-bold text-3xl text-white">
                   {totalTrafficGrowth}%
                 </span>
-                <ArrowTrendingUpIcon className="w-6 h-6 text-green-400 mb-1" />
+                <ArrowTrendingUpIcon className={`w-6 h-6 mb-1 ${parseFloat(totalTrafficGrowth) >= 0 ? 'text-green-400' : 'text-red-400'}`} />
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                {firstData.traffic.toLocaleString()} → {latestData.traffic.toLocaleString()} pengunjung
+                {firstData.traffic.toLocaleString()} → {latestData.traffic.toLocaleString()}
               </p>
             </div>
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
@@ -114,12 +120,12 @@ function SEOAnalytics() {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.15 }}
           className="card bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-green-500/30"
         >
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-gray-400 font-poppins text-sm mb-2">Avg Health Score</p>
+              <p className="text-gray-400 font-poppins text-sm mb-2">Health Score</p>
               <div className="flex items-end gap-2">
                 <span className="font-montserrat font-bold text-3xl text-white">
                   {avgHealthScore}
@@ -139,12 +145,12 @@ function SEOAnalytics() {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.2 }}
           className="card bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/30"
         >
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-gray-400 font-poppins text-sm mb-2">Keyword Position</p>
+              <p className="text-gray-400 font-poppins text-sm mb-2">Avg Position</p>
               <div className="flex items-end gap-2">
                 <span className="font-montserrat font-bold text-3xl text-white">
                   #{latestData.avgPosition.toFixed(1)}
@@ -152,11 +158,59 @@ function SEOAnalytics() {
                 <ArrowTrendingUpIcon className="w-6 h-6 text-green-400 mb-1" />
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                Improved from #{firstData.avgPosition.toFixed(1)}
+                From #{firstData.avgPosition.toFixed(1)}
               </p>
             </div>
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
               <MagnifyingGlassIcon className="w-6 h-6 text-white" />
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.25 }}
+          className="card bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/30"
+        >
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-gray-400 font-poppins text-sm mb-2">Total Clicks</p>
+              <div className="flex items-end gap-2">
+                <span className="font-montserrat font-bold text-3xl text-white">
+                  {(totalClicks / 1000).toFixed(1)}K
+                </span>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                {totalImpressions.toLocaleString()} impressions
+              </p>
+            </div>
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+              <CursorArrowRaysIcon className="w-6 h-6 text-white" />
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3 }}
+          className="card bg-gradient-to-br from-rose-500/10 to-pink-500/10 border-rose-500/30"
+        >
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-gray-400 font-poppins text-sm mb-2">Average CTR</p>
+              <div className="flex items-end gap-2">
+                <span className="font-montserrat font-bold text-3xl text-white">
+                  {avgCTR}%
+                </span>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Click-through rate
+              </p>
+            </div>
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center">
+              <ArrowTrendingUpIcon className="w-6 h-6 text-white" />
             </div>
           </div>
         </motion.div>
@@ -325,11 +379,253 @@ function SEOAnalytics() {
         </motion.div>
       </div>
 
-      {/* Keyword Management Section */}
+      {/* Demographics Section - Pie Charts */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.7 }}
+        className="card mb-8"
+      >
+        <div className="mb-6">
+          <h2 className="font-montserrat font-bold text-xl text-white mb-1">
+            Demografi Pengunjung
+          </h2>
+          <p className="text-gray-400 font-poppins text-sm">
+            Profil pengunjung berdasarkan usia, jenis kelamin, dan lokasi (Jabodetabek)
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Age Distribution */}
+          <div className="p-4 rounded-xl bg-dark-200/50 border border-gray-700">
+            <h3 className="font-montserrat font-semibold text-white mb-4 text-center">Rentang Usia</h3>
+            <ResponsiveContainer width="100%" height={250}>
+              <PieChart>
+                <Pie
+                  data={seoData.demographics.age}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ range, value }) => `${range}: ${value}%`}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {seoData.demographics.age.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#1f2937',
+                    border: '1px solid #374151',
+                    borderRadius: '8px',
+                    color: '#fff'
+                  }}
+                  formatter={(value) => `${value}%`}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Gender Distribution */}
+          <div className="p-4 rounded-xl bg-dark-200/50 border border-gray-700">
+            <h3 className="font-montserrat font-semibold text-white mb-4 text-center">Jenis Kelamin</h3>
+            <ResponsiveContainer width="100%" height={250}>
+              <PieChart>
+                <Pie
+                  data={seoData.demographics.gender}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, value }) => `${name}: ${value}%`}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {seoData.demographics.gender.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#1f2937',
+                    border: '1px solid #374151',
+                    borderRadius: '8px',
+                    color: '#fff'
+                  }}
+                  formatter={(value) => `${value}%`}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Location Distribution */}
+          <div className="p-4 rounded-xl bg-dark-200/50 border border-gray-700">
+            <h3 className="font-montserrat font-semibold text-white mb-4 text-center">Lokasi (Jabodetabek)</h3>
+            <ResponsiveContainer width="100%" height={250}>
+              <PieChart>
+                <Pie
+                  data={seoData.demographics.location}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, value }) => `${value}%`}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {seoData.demographics.location.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#1f2937',
+                    border: '1px solid #374151',
+                    borderRadius: '8px',
+                    color: '#fff'
+                  }}
+                  formatter={(value, name) => [`${value}%`, name]}
+                />
+                <Legend 
+                  verticalAlign="bottom" 
+                  height={36}
+                  formatter={(value, entry) => `${entry.payload.name}`}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Keyword Metrics Table - Like Ahrefs */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.8 }}
+        className="card mb-8"
+      >
+        <div className="mb-6">
+          <h2 className="font-montserrat font-bold text-xl text-white mb-1">
+            Keyword Metrics Overview
+          </h2>
+          <p className="text-gray-400 font-poppins text-sm">
+            Data keyword difficulty, volume, traffic, dan posisi seperti Ahrefs
+          </p>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-dark-200">
+              <tr className="border-b border-gray-700">
+                <th className="px-4 py-3 text-left font-montserrat font-semibold text-white text-sm">Keyword</th>
+                <th className="px-4 py-3 text-center font-montserrat font-semibold text-white text-sm">KD</th>
+                <th className="px-4 py-3 text-center font-montserrat font-semibold text-white text-sm">Volume</th>
+                <th className="px-4 py-3 text-center font-montserrat font-semibold text-white text-sm">Traffic</th>
+                <th className="px-4 py-3 text-center font-montserrat font-semibold text-white text-sm">CPC</th>
+                <th className="px-4 py-3 text-center font-montserrat font-semibold text-white text-sm">CPS</th>
+                <th className="px-4 py-3 text-center font-montserrat font-semibold text-white text-sm">Position</th>
+                <th className="px-4 py-3 text-left font-montserrat font-semibold text-white text-sm">URL</th>
+              </tr>
+            </thead>
+            <tbody>
+              {seoData.keywordMetrics.map((kw, index) => (
+                <tr key={index} className="border-b border-gray-800 hover:bg-dark-200/50 transition-colors">
+                  <td className="px-4 py-3 text-white font-poppins">{kw.keyword}</td>
+                  <td className="px-4 py-3 text-center">
+                    <span className={`inline-block px-2 py-1 rounded text-sm font-semibold ${
+                      kw.kd <= 10 ? 'bg-green-500/20 text-green-400' :
+                      kw.kd <= 20 ? 'bg-yellow-500/20 text-yellow-400' :
+                      kw.kd <= 30 ? 'bg-orange-500/20 text-orange-400' :
+                      'bg-red-500/20 text-red-400'
+                    }`}>
+                      {kw.kd}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-center text-gray-300 font-poppins">{kw.volume.toLocaleString()}</td>
+                  <td className="px-4 py-3 text-center text-emerald-400 font-poppins font-semibold">{kw.traffic.toLocaleString()}</td>
+                  <td className="px-4 py-3 text-center text-gray-300 font-poppins">${kw.cpc}</td>
+                  <td className="px-4 py-3 text-center text-gray-300 font-poppins">{kw.cps}</td>
+                  <td className="px-4 py-3 text-center">
+                    <span className={`inline-block px-2 py-1 rounded text-sm font-semibold ${
+                      kw.position <= 3 ? 'bg-green-500/20 text-green-400' :
+                      kw.position <= 10 ? 'bg-blue-500/20 text-blue-400' :
+                      'bg-gray-500/20 text-gray-400'
+                    }`}>
+                      #{kw.position}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-blue-400 font-poppins text-sm truncate max-w-xs">{kw.url}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </motion.div>
+
+      {/* Performance on Search Results - Like GSC */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.9 }}
+        className="card mb-8"
+      >
+        <div className="mb-6">
+          <h2 className="font-montserrat font-bold text-xl text-white mb-1">
+            Performance on Search Results
+          </h2>
+          <p className="text-gray-400 font-poppins text-sm">
+            Halaman dengan performa terbaik - Clicks, Impressions, CTR, Position
+          </p>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-dark-200">
+              <tr className="border-b border-gray-700">
+                <th className="px-4 py-3 text-left font-montserrat font-semibold text-white text-sm">Halaman</th>
+                <th className="px-4 py-3 text-center font-montserrat font-semibold text-white text-sm">Clicks</th>
+                <th className="px-4 py-3 text-center font-montserrat font-semibold text-white text-sm">Impressions</th>
+                <th className="px-4 py-3 text-center font-montserrat font-semibold text-white text-sm">CTR</th>
+                <th className="px-4 py-3 text-center font-montserrat font-semibold text-white text-sm">Position</th>
+              </tr>
+            </thead>
+            <tbody>
+              {seoData.topPages.map((page, index) => (
+                <tr key={index} className="border-b border-gray-800 hover:bg-dark-200/50 transition-colors">
+                  <td className="px-4 py-3">
+                    <div className="flex flex-col">
+                      <span className="text-white font-poppins font-medium">{page.title}</span>
+                      <span className="text-blue-400 text-sm truncate max-w-md">{page.url}</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-center text-emerald-400 font-poppins font-semibold">
+                    {page.clicks.toLocaleString()}
+                  </td>
+                  <td className="px-4 py-3 text-center text-gray-300 font-poppins">
+                    {page.impressions.toLocaleString()}
+                  </td>
+                  <td className="px-4 py-3 text-center text-purple-400 font-poppins font-semibold">
+                    {page.ctr}%
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <span className="inline-block px-2 py-1 rounded bg-blue-500/20 text-blue-400 text-sm font-semibold">
+                      #{page.position.toFixed(1)}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </motion.div>
+
+      {/* Keyword Management Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.0 }}
         className="card"
       >
         <div className="flex items-center justify-between mb-6">
@@ -457,7 +753,7 @@ function SEOAnalytics() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.8 }}
+        transition={{ delay: 1.1 }}
         className="card mt-8"
       >
         <div className="mb-6">
@@ -475,7 +771,7 @@ function SEOAnalytics() {
               key={index}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.9 + index * 0.05 }}
+              transition={{ delay: 1.2 + index * 0.05 }}
               className="p-4 rounded-xl bg-dark-200 border border-gray-700 hover:border-purple-500/50 transition-colors"
             >
               <div className="flex items-center justify-between mb-3">

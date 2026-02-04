@@ -9,6 +9,9 @@
       "trafficChange": 0,
       "healthScore": 72,
       "avgPosition": 28.5,
+      "clicks": 890,
+      "impressions": 35600,
+      "ctr": 2.5,
       "focusKeywords": [
         "rsppn",
         "rsppn soedirman",
@@ -22,8 +25,11 @@
       "date": "2025-03",
       "traffic": 1580,
       "trafficChange": 26.4,
-      "healthScore": 75,
-      "avgPosition": 25.8,
+      "healthScore": 74,
+      "avgPosition": 26.2,
+      "clicks": 1120,
+      "impressions": 42800,
+      "ctr": 2.6,
       "focusKeywords": [
         "rsppn bintaro",
         "rs kemhan bintaro",
@@ -35,10 +41,13 @@
     {
       "month": "April 2025",
       "date": "2025-04",
-      "traffic": 2100,
-      "trafficChange": 32.9,
-      "healthScore": 78,
-      "avgPosition": 22.4,
+      "traffic": 1890,
+      "trafficChange": 19.6,
+      "healthScore": 76,
+      "avgPosition": 24.8,
+      "clicks": 1340,
+      "impressions": 48200,
+      "ctr": 2.8,
       "focusKeywords": [
         "rehabilitasi medik komprehensif jakarta",
         "terapi robotik rsppn",
@@ -50,10 +59,13 @@
     {
       "month": "Mei 2025",
       "date": "2025-05",
-      "traffic": 2680,
-      "trafficChange": 27.6,
-      "healthScore": 81,
-      "avgPosition": 19.7,
+      "traffic": 2450,
+      "trafficChange": 29.6,
+      "healthScore": 78,
+      "avgPosition": 22.1,
+      "clicks": 1680,
+      "impressions": 56700,
+      "ctr": 3.0,
       "focusKeywords": [
         "operasi bedah saraf canggih",
         "mri 3 tesla jakarta selatan",
@@ -65,10 +77,13 @@
     {
       "month": "Juni 2025",
       "date": "2025-06",
-      "traffic": 3250,
-      "trafficChange": 21.3,
-      "healthScore": 83,
-      "avgPosition": 17.2,
+      "traffic": 2280,
+      "trafficChange": -6.9,
+      "healthScore": 79,
+      "avgPosition": 21.5,
+      "clicks": 1520,
+      "impressions": 52100,
+      "ctr": 2.9,
       "focusKeywords": [
         "medical check up umum bintaro",
         "hiperbarik oksigen terapi jakarta",
@@ -80,10 +95,13 @@
     {
       "month": "Juli 2025",
       "date": "2025-07",
-      "traffic": 3890,
-      "trafficChange": 19.7,
-      "healthScore": 85,
-      "avgPosition": 15.6,
+      "traffic": 2890,
+      "trafficChange": 26.8,
+      "healthScore": 81,
+      "avgPosition": 19.3,
+      "clicks": 1950,
+      "impressions": 61400,
+      "ctr": 3.2,
       "focusKeywords": [
         "dokter spesialis saraf rsppn",
         "dokter bedah plastik bintaro",
@@ -95,10 +113,13 @@
     {
       "month": "Agustus 2025",
       "date": "2025-08",
-      "traffic": 4580,
-      "trafficChange": 17.7,
-      "healthScore": 87,
-      "avgPosition": 14.1,
+      "traffic": 3520,
+      "trafficChange": 21.8,
+      "healthScore": 83,
+      "avgPosition": 17.6,
+      "clicks": 2380,
+      "impressions": 72600,
+      "ctr": 3.3,
       "focusKeywords": [
         "jadwal praktek dr dimas sri utami",
         "dr angelina juwita wibowo spesialis saraf",
@@ -110,10 +131,13 @@
     {
       "month": "September 2025",
       "date": "2025-09",
-      "traffic": 5320,
-      "trafficChange": 16.2,
-      "healthScore": 88,
-      "avgPosition": 12.8,
+      "traffic": 3380,
+      "trafficChange": -4.0,
+      "healthScore": 84,
+      "avgPosition": 16.8,
+      "clicks": 2240,
+      "impressions": 69800,
+      "ctr": 3.2,
       "focusKeywords": [
         "cara daftar online rsppn",
         "booking dokter rsppn soedirman",
@@ -125,10 +149,13 @@
     {
       "month": "Oktober 2025",
       "date": "2025-10",
-      "traffic": 6150,
-      "trafficChange": 15.6,
-      "healthScore": 90,
-      "avgPosition": 11.5,
+      "traffic": 4150,
+      "trafficChange": 22.8,
+      "healthScore": 86,
+      "avgPosition": 14.2,
+      "clicks": 2820,
+      "impressions": 84300,
+      "ctr": 3.3,
       "focusKeywords": [
         "spesialis penyakit dalam bintaro",
         "dokter gigi dan mulut rsppn",
@@ -140,10 +167,13 @@
     {
       "month": "November 2025",
       "date": "2025-11",
-      "traffic": 7080,
-      "trafficChange": 15.1,
-      "healthScore": 91,
-      "avgPosition": 10.3,
+      "traffic": 4920,
+      "trafficChange": 18.6,
+      "healthScore": 88,
+      "avgPosition": 12.5,
+      "clicks": 3340,
+      "impressions": 98700,
+      "ctr": 3.4,
       "focusKeywords": [
         "spesialis kulit dan kelamin bintaro",
         "dokter urologi jakarta selatan",
@@ -155,10 +185,13 @@
     {
       "month": "Desember 2025",
       "date": "2025-12",
-      "traffic": 8250,
-      "trafficChange": 16.5,
-      "healthScore": 92,
-      "avgPosition": 9.2,
+      "traffic": 5680,
+      "trafficChange": 15.4,
+      "healthScore": 90,
+      "avgPosition": 10.8,
+      "clicks": 3850,
+      "impressions": 112400,
+      "ctr": 3.4,
       "focusKeywords": [
         "rs militer jakarta selatan",
         "rumah sakit bpjs bintaro",
@@ -170,10 +203,13 @@
     {
       "month": "Januari 2026",
       "date": "2026-01",
-      "traffic": 9580,
-      "trafficChange": 16.1,
-      "healthScore": 93,
-      "avgPosition": 8.1,
+      "traffic": 6420,
+      "trafficChange": 13.0,
+      "healthScore": 92,
+      "avgPosition": 9.1,
+      "clicks": 4360,
+      "impressions": 126800,
+      "ctr": 3.4,
       "focusKeywords": [
         "apakah rsppn soedirman menerima pasien umum",
         "rumah sakit kemhan yang baru diresmikan jokowi",
@@ -185,10 +221,13 @@
     {
       "month": "Februari 2026",
       "date": "2026-02",
-      "traffic": 11200,
-      "trafficChange": 16.9,
-      "healthScore": 95,
-      "avgPosition": 7.3,
+      "traffic": 7280,
+      "trafficChange": 13.4,
+      "healthScore": 94,
+      "avgPosition": 7.8,
+      "clicks": 4940,
+      "impressions": 142600,
+      "ctr": 3.5,
       "focusKeywords": [
         "biaya tes bebas narkoba di rsppn",
         "jadwal poli sabtu rsppn soedirman",
@@ -196,6 +235,172 @@
         "alamat lengkap rs panglima besar soedirman",
         "rsppn soedirman karir"
       ]
+    }
+  ],
+  "demographics": {
+    "age": [
+      { "range": "18-24", "value": 8, "color": "#3b82f6" },
+      { "range": "25-34", "value": 24, "color": "#8b5cf6" },
+      { "range": "35-44", "value": 32, "color": "#ec4899" },
+      { "range": "45-54", "value": 22, "color": "#f59e0b" },
+      { "range": "55-64", "value": 10, "color": "#10b981" },
+      { "range": "65+", "value": 4, "color": "#6b7280" }
+    ],
+    "gender": [
+      { "name": "Perempuan", "value": 58, "color": "#ec4899" },
+      { "name": "Laki-laki", "value": 42, "color": "#3b82f6" }
+    ],
+    "location": [
+      { "name": "Jakarta Selatan", "value": 35, "color": "#8b5cf6" },
+      { "name": "Tangerang Selatan", "value": 28, "color": "#3b82f6" },
+      { "name": "Jakarta Barat", "value": 15, "color": "#10b981" },
+      { "name": "Depok", "value": 12, "color": "#f59e0b" },
+      { "name": "Bekasi", "value": 6, "color": "#ec4899" },
+      { "name": "Bogor", "value": 4, "color": "#6366f1" }
+    ]
+  },
+  "topPages": [
+    {
+      "url": "https://rsppn.co.id/",
+      "title": "Beranda - RSPPN Panglima Besar Soedirman",
+      "clicks": 1240,
+      "impressions": 42300,
+      "ctr": 2.9,
+      "position": 4.2
+    },
+    {
+      "url": "https://rsppn.co.id/layanan/igd",
+      "title": "IGD 24 Jam - RSPPN Soedirman",
+      "clicks": 890,
+      "impressions": 28700,
+      "ctr": 3.1,
+      "position": 5.8
+    },
+    {
+      "url": "https://rsppn.co.id/jadwal-dokter",
+      "title": "Jadwal Dokter RSPPN Soedirman",
+      "clicks": 756,
+      "impressions": 24500,
+      "ctr": 3.1,
+      "position": 6.2
+    },
+    {
+      "url": "https://rsppn.co.id/layanan/poliklinik",
+      "title": "Poliklinik Spesialis - RSPPN",
+      "clicks": 623,
+      "impressions": 21800,
+      "ctr": 2.9,
+      "position": 7.1
+    },
+    {
+      "url": "https://rsppn.co.id/fasilitas/mri",
+      "title": "MRI 3 Tesla - Fasilitas RSPPN",
+      "clicks": 512,
+      "impressions": 19200,
+      "ctr": 2.7,
+      "position": 8.4
+    }
+  ],
+  "keywordMetrics": [
+    {
+      "keyword": "rsppn",
+      "kd": 27,
+      "volume": 2500,
+      "traffic": 1900,
+      "cpc": 0.25,
+      "cps": 0.94,
+      "position": 1,
+      "url": "https://rsppn.co.id/"
+    },
+    {
+      "keyword": "rsppn soedirman",
+      "kd": 20,
+      "volume": 1800,
+      "traffic": 1450,
+      "cpc": 0.15,
+      "cps": 0.98,
+      "position": 1,
+      "url": "https://rsppn.co.id/"
+    },
+    {
+      "keyword": "rsppn bintaro",
+      "kd": 18,
+      "volume": 1200,
+      "traffic": 980,
+      "cpc": 0.18,
+      "cps": 0.96,
+      "position": 2,
+      "url": "https://rsppn.co.id/"
+    },
+    {
+      "keyword": "rumah sakit kemhan",
+      "kd": 22,
+      "volume": 950,
+      "traffic": 720,
+      "cpc": 0.22,
+      "cps": 0.89,
+      "position": 3,
+      "url": "https://rsppn.co.id/"
+    },
+    {
+      "keyword": "jadwal dokter rsppn",
+      "kd": 15,
+      "volume": 850,
+      "traffic": 680,
+      "cpc": 0.12,
+      "cps": 1.02,
+      "position": 2,
+      "url": "https://rsppn.co.id/jadwal-dokter"
+    },
+    {
+      "keyword": "igd rsppn",
+      "kd": 12,
+      "volume": 720,
+      "traffic": 590,
+      "cpc": 0.10,
+      "cps": 1.05,
+      "position": 3,
+      "url": "https://rsppn.co.id/layanan/igd"
+    },
+    {
+      "keyword": "rs panglima besar soedirman",
+      "kd": 25,
+      "volume": 680,
+      "traffic": 520,
+      "cpc": 0.20,
+      "cps": 0.92,
+      "position": 2,
+      "url": "https://rsppn.co.id/"
+    },
+    {
+      "keyword": "rumah sakit bintaro",
+      "kd": 35,
+      "volume": 5500,
+      "traffic": 420,
+      "cpc": 0.35,
+      "cps": 0.78,
+      "position": 12,
+      "url": "https://rsppn.co.id/"
+    },
+    {
+      "keyword": "mcu rsppn",
+      "kd": 10,
+      "volume": 480,
+      "traffic": 390,
+      "cpc": 0.08,
+      "cps": 1.08,
+      "position": 4,
+      "url": "https://rsppn.co.id/layanan/mcu"
+    },
+    {
+      "keyword": "biaya rawat inap rsppn",
+      "kd": 8,
+      "volume": 420,
+      "traffic": 340,
+      "cpc": 0.06,
+      "cps": 1.12,
+      "position": 5,
+      "url": "https://rsppn.co.id/informasi/tarif"
     }
   ],
   "allKeywords": [
