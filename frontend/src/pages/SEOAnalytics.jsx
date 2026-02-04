@@ -69,22 +69,22 @@ function SEOAnalytics() {
   const avgCTR = ((totalClicks / totalImpressions) * 100).toFixed(1)
 
   return (
-    <div className="min-h-screen bg-dark-300 p-4 md:p-8">
+    <div className="min-h-screen bg-dark-300 p-3 md:p-8">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-8"
+        className="mb-6 md:mb-8"
       >
-        <div className="flex items-center gap-4 mb-2">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 flex items-center justify-center shadow-lg shadow-purple-500/30">
-            <RocketLaunchIcon className="w-8 h-8 text-white" />
+        <div className="flex items-center gap-3 md:gap-4 mb-2">
+          <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 flex items-center justify-center shadow-lg shadow-purple-500/30 flex-shrink-0">
+            <RocketLaunchIcon className="w-6 h-6 md:w-8 md:h-8 text-white" />
           </div>
-          <div>
-            <h1 className="font-montserrat font-bold text-3xl md:text-4xl text-white">
+          <div className="min-w-0 flex-1">
+            <h1 className="font-montserrat font-bold text-xl md:text-3xl lg:text-4xl text-white break-words">
               SEO Report Bulanan
             </h1>
-            <p className="text-gray-400 font-poppins mt-1">
+            <p className="text-gray-400 font-poppins mt-1 text-xs md:text-sm break-words">
               Analitik SEO untuk {seoData.domain} • {seoData.period}
             </p>
           </div>
@@ -92,28 +92,28 @@ function SEOAnalytics() {
       </motion.div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 md:gap-4 mb-6 md:mb-8">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
           className="card bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border-blue-500/30"
         >
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-gray-400 font-poppins text-sm mb-2">Traffic Growth</p>
-              <div className="flex items-end gap-2">
-                <span className="font-montserrat font-bold text-3xl text-white">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <p className="text-gray-400 font-poppins text-xs md:text-sm mb-1 md:mb-2 truncate">Traffic Growth</p>
+              <div className="flex items-end gap-1 md:gap-2 flex-wrap">
+                <span className="font-montserrat font-bold text-2xl md:text-3xl text-white whitespace-nowrap">
                   {totalTrafficGrowth}%
                 </span>
-                <ArrowTrendingUpIcon className={`w-6 h-6 mb-1 ${parseFloat(totalTrafficGrowth) >= 0 ? 'text-green-400' : 'text-red-400'}`} />
+                <ArrowTrendingUpIcon className={`w-5 h-5 md:w-6 md:h-6 mb-1 flex-shrink-0 ${parseFloat(totalTrafficGrowth) >= 0 ? 'text-green-400' : 'text-red-400'}`} />
               </div>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 mt-1 break-words">
                 {firstData.traffic.toLocaleString()} → {latestData.traffic.toLocaleString()}
               </p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-              <ChartBarIcon className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
+              <ChartBarIcon className="w-5 h-5 md:w-6 md:h-6 text-white" />
             </div>
           </div>
         </motion.div>
@@ -124,21 +124,21 @@ function SEOAnalytics() {
           transition={{ delay: 0.15 }}
           className="card bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-green-500/30"
         >
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-gray-400 font-poppins text-sm mb-2">Health Score</p>
-              <div className="flex items-end gap-2">
-                <span className="font-montserrat font-bold text-3xl text-white">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <p className="text-gray-400 font-poppins text-xs md:text-sm mb-1 md:mb-2 truncate">Health Score</p>
+              <div className="flex items-end gap-1 md:gap-2 flex-wrap">
+                <span className="font-montserrat font-bold text-2xl md:text-3xl text-white whitespace-nowrap">
                   {avgHealthScore}
                 </span>
-                <span className="text-green-400 text-sm mb-1">/100</span>
+                <span className="text-green-400 text-xs md:text-sm mb-1 flex-shrink-0">/100</span>
               </div>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 mt-1 truncate">
                 Current: {latestData.healthScore}/100
               </p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
-              <span className="text-white font-bold text-lg">✓</span>
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center flex-shrink-0">
+              <span className="text-white font-bold text-base md:text-lg">✓</span>
             </div>
           </div>
         </motion.div>
@@ -149,21 +149,21 @@ function SEOAnalytics() {
           transition={{ delay: 0.2 }}
           className="card bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/30"
         >
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-gray-400 font-poppins text-sm mb-2">Avg Position</p>
-              <div className="flex items-end gap-2">
-                <span className="font-montserrat font-bold text-3xl text-white">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <p className="text-gray-400 font-poppins text-xs md:text-sm mb-1 md:mb-2 truncate">Avg Position</p>
+              <div className="flex items-end gap-1 md:gap-2 flex-wrap">
+                <span className="font-montserrat font-bold text-2xl md:text-3xl text-white whitespace-nowrap">
                   #{latestData.avgPosition.toFixed(1)}
                 </span>
-                <ArrowTrendingUpIcon className="w-6 h-6 text-green-400 mb-1" />
+                <ArrowTrendingUpIcon className="w-5 h-5 md:w-6 md:h-6 text-green-400 mb-1 flex-shrink-0" />
               </div>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 mt-1 truncate">
                 From #{firstData.avgPosition.toFixed(1)}
               </p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-              <MagnifyingGlassIcon className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+              <MagnifyingGlassIcon className="w-5 h-5 md:w-6 md:h-6 text-white" />
             </div>
           </div>
         </motion.div>
@@ -174,20 +174,20 @@ function SEOAnalytics() {
           transition={{ delay: 0.25 }}
           className="card bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/30"
         >
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-gray-400 font-poppins text-sm mb-2">Total Clicks</p>
-              <div className="flex items-end gap-2">
-                <span className="font-montserrat font-bold text-3xl text-white">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <p className="text-gray-400 font-poppins text-xs md:text-sm mb-1 md:mb-2 truncate">Total Clicks</p>
+              <div className="flex items-end gap-1 md:gap-2 flex-wrap">
+                <span className="font-montserrat font-bold text-2xl md:text-3xl text-white whitespace-nowrap">
                   {(totalClicks / 1000).toFixed(1)}K
                 </span>
               </div>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 mt-1 break-words">
                 {totalImpressions.toLocaleString()} impressions
               </p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
-              <CursorArrowRaysIcon className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center flex-shrink-0">
+              <CursorArrowRaysIcon className="w-5 h-5 md:w-6 md:h-6 text-white" />
             </div>
           </div>
         </motion.div>
@@ -198,20 +198,20 @@ function SEOAnalytics() {
           transition={{ delay: 0.3 }}
           className="card bg-gradient-to-br from-rose-500/10 to-pink-500/10 border-rose-500/30"
         >
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-gray-400 font-poppins text-sm mb-2">Average CTR</p>
-              <div className="flex items-end gap-2">
-                <span className="font-montserrat font-bold text-3xl text-white">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <p className="text-gray-400 font-poppins text-xs md:text-sm mb-1 md:mb-2 truncate">Average CTR</p>
+              <div className="flex items-end gap-1 md:gap-2 flex-wrap">
+                <span className="font-montserrat font-bold text-2xl md:text-3xl text-white whitespace-nowrap">
                   {avgCTR}%
                 </span>
               </div>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 mt-1 truncate">
                 Click-through rate
               </p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center">
-              <ArrowTrendingUpIcon className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+              <ArrowTrendingUpIcon className="w-5 h-5 md:w-6 md:h-6 text-white" />
             </div>
           </div>
         </motion.div>
@@ -222,18 +222,19 @@ function SEOAnalytics() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className="card mb-8"
+        className="card mb-6 md:mb-8"
       >
-        <div className="mb-6">
-          <h2 className="font-montserrat font-bold text-xl text-white mb-1">
+        <div className="mb-4 md:mb-6">
+          <h2 className="font-montserrat font-bold text-lg md:text-xl text-white mb-1 break-words">
             Traffic Organik Timeline
           </h2>
-          <p className="text-gray-400 font-poppins text-sm">
+          <p className="text-gray-400 font-poppins text-xs md:text-sm break-words">
             Perkembangan pengunjung dari Februari 2025 - Februari 2026
           </p>
         </div>
         
-        <ResponsiveContainer width="100%" height={350}>
+        <div className="-mx-3 md:mx-0">
+          <ResponsiveContainer width="100%" height={300} className="md:!h-[350px]">
           <AreaChart data={seoData.monthlyData}>
             <defs>
               <linearGradient id="trafficGradient" x1="0" y1="0" x2="0" y2="1">
@@ -245,9 +246,10 @@ function SEOAnalytics() {
             <XAxis 
               dataKey="month" 
               stroke="#9ca3af"
-              tick={{ fill: '#9ca3af', fontSize: 12 }}
+              tick={{ fill: '#9ca3af', fontSize: 10 }}
               angle={-45}
               textAnchor="end"
+              height={60}
               height={80}
             />
             <YAxis 
@@ -276,36 +278,37 @@ function SEOAnalytics() {
       </motion.div>
 
       {/* Health Score & Keyword Position */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.5 }}
           className="card"
         >
-          <div className="mb-6">
-            <h2 className="font-montserrat font-bold text-xl text-white mb-1">
+          <div className="mb-4 md:mb-6">
+            <h2 className="font-montserrat font-bold text-lg md:text-xl text-white mb-1 break-words">
               Website Health Score
             </h2>
-            <p className="text-gray-400 font-poppins text-sm">
+            <p className="text-gray-400 font-poppins text-xs md:text-sm break-words">
               Kesehatan teknis website
             </p>
           </div>
           
-          <ResponsiveContainer width="100%" height={280}>
+          <div className="-mx-3 md:mx-0">
+          <ResponsiveContainer width="100%" height={250} className="md:!h-[280px]">
             <LineChart data={seoData.monthlyData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
               <XAxis 
                 dataKey="month" 
                 stroke="#9ca3af"
-                tick={{ fill: '#9ca3af', fontSize: 11 }}
+                tick={{ fill: '#9ca3af', fontSize: 9 }}
                 angle={-45}
                 textAnchor="end"
-                height={80}
+                height={60}
               />
               <YAxis 
                 stroke="#9ca3af"
-                tick={{ fill: '#9ca3af', fontSize: 12 }}
+                tick={{ fill: '#9ca3af', fontSize: 10 }}
                 domain={[0, 100]}
               />
               <Tooltip
@@ -313,7 +316,8 @@ function SEOAnalytics() {
                   backgroundColor: '#1f2937',
                   border: '1px solid #374151',
                   borderRadius: '8px',
-                  color: '#fff'
+                  color: '#fff',
+                  fontSize: '12px'
                 }}
               />
               <Line 
@@ -321,11 +325,12 @@ function SEOAnalytics() {
                 dataKey="healthScore" 
                 stroke="#10b981" 
                 strokeWidth={3}
-                dot={{ fill: '#10b981', r: 4 }}
+                dot={{ fill: '#10b981', r: 3 }}
                 name="Health Score"
               />
             </LineChart>
           </ResponsiveContainer>
+          </div>
         </motion.div>
 
         <motion.div
@@ -334,29 +339,30 @@ function SEOAnalytics() {
           transition={{ delay: 0.6 }}
           className="card"
         >
-          <div className="mb-6">
-            <h2 className="font-montserrat font-bold text-xl text-white mb-1">
+          <div className="mb-4 md:mb-6">
+            <h2 className="font-montserrat font-bold text-lg md:text-xl text-white mb-1 break-words">
               Posisi Keyword (Avg)
             </h2>
-            <p className="text-gray-400 font-poppins text-sm">
+            <p className="text-gray-400 font-poppins text-xs md:text-sm break-words">
               Rata-rata peringkat di Google (semakin kecil semakin baik)
             </p>
           </div>
           
-          <ResponsiveContainer width="100%" height={280}>
+          <div className="-mx-3 md:mx-0">
+          <ResponsiveContainer width="100%" height={250} className="md:!h-[280px]">
             <LineChart data={seoData.monthlyData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
               <XAxis 
                 dataKey="month" 
                 stroke="#9ca3af"
-                tick={{ fill: '#9ca3af', fontSize: 11 }}
+                tick={{ fill: '#9ca3af', fontSize: 9 }}
                 angle={-45}
                 textAnchor="end"
-                height={80}
+                height={60}
               />
               <YAxis 
                 stroke="#9ca3af"
-                tick={{ fill: '#9ca3af', fontSize: 12 }}
+                tick={{ fill: '#9ca3af', fontSize: 10 }}
                 reversed
               />
               <Tooltip
@@ -364,7 +370,8 @@ function SEOAnalytics() {
                   backgroundColor: '#1f2937',
                   border: '1px solid #374151',
                   borderRadius: '8px',
-                  color: '#fff'
+                  color: '#fff',
+                  fontSize: '12px'
                 }}
               />
               <Line 
@@ -372,11 +379,12 @@ function SEOAnalytics() {
                 dataKey="avgPosition" 
                 stroke="#f59e0b" 
                 strokeWidth={3}
-                dot={{ fill: '#f59e0b', r: 4 }}
+                dot={{ fill: '#f59e0b', r: 3 }}
                 name="Avg Position"
               />
             </LineChart>
           </ResponsiveContainer>
+          </div>
         </motion.div>
       </div>
 
@@ -385,22 +393,22 @@ function SEOAnalytics() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.7 }}
-        className="card mb-8"
+        className="card mb-6 md:mb-8"
       >
-        <div className="mb-6">
-          <h2 className="font-montserrat font-bold text-xl text-white mb-1">
+        <div className="mb-4 md:mb-6">
+          <h2 className="font-montserrat font-bold text-lg md:text-xl text-white mb-1 break-words">
             Demografi Pengunjung
           </h2>
-          <p className="text-gray-400 font-poppins text-sm">
+          <p className="text-gray-400 font-poppins text-xs md:text-sm break-words">
             Profil pengunjung berdasarkan usia, jenis kelamin, dan lokasi (Jabodetabek)
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {/* Age Distribution */}
-          <div className="p-4 rounded-xl bg-dark-200/50 border border-gray-700">
-            <h3 className="font-montserrat font-semibold text-white mb-4 text-center">Rentang Usia</h3>
-            <ResponsiveContainer width="100%" height={250}>
+          <div className="p-3 md:p-4 rounded-xl bg-dark-200/50 border border-gray-700">
+            <h3 className="font-montserrat font-semibold text-white mb-3 md:mb-4 text-center text-sm md:text-base break-words">Rentang Usia</h3>
+            <ResponsiveContainer width="100%" height={200} className="md:!h-[250px]">
               <PieChart>
                 <Pie
                   data={seoData.demographics.age}
@@ -408,7 +416,8 @@ function SEOAnalytics() {
                   cy="50%"
                   labelLine={false}
                   label={({ range, value }) => `${range}: ${value}%`}
-                  outerRadius={80}
+                  outerRadius={60}
+                  className="md:!outerRadius-[80]"
                   fill="#8884d8"
                   dataKey="value"
                 >
@@ -421,7 +430,8 @@ function SEOAnalytics() {
                     backgroundColor: '#1f2937',
                     border: '1px solid #374151',
                     borderRadius: '8px',
-                    color: '#fff'
+                    color: '#fff',
+                    fontSize: '12px'
                   }}
                   formatter={(value) => `${value}%`}
                 />
@@ -430,9 +440,9 @@ function SEOAnalytics() {
           </div>
 
           {/* Gender Distribution */}
-          <div className="p-4 rounded-xl bg-dark-200/50 border border-gray-700">
-            <h3 className="font-montserrat font-semibold text-white mb-4 text-center">Jenis Kelamin</h3>
-            <ResponsiveContainer width="100%" height={250}>
+          <div className="p-3 md:p-4 rounded-xl bg-dark-200/50 border border-gray-700">
+            <h3 className="font-montserrat font-semibold text-white mb-3 md:mb-4 text-center text-sm md:text-base break-words">Jenis Kelamin</h3>
+            <ResponsiveContainer width="100%" height={200} className="md:!h-[250px]">
               <PieChart>
                 <Pie
                   data={seoData.demographics.gender}
@@ -440,7 +450,8 @@ function SEOAnalytics() {
                   cy="50%"
                   labelLine={false}
                   label={({ name, value }) => `${name}: ${value}%`}
-                  outerRadius={80}
+                  outerRadius={60}
+                  className="md:!outerRadius-[80]"
                   fill="#8884d8"
                   dataKey="value"
                 >
@@ -453,7 +464,8 @@ function SEOAnalytics() {
                     backgroundColor: '#1f2937',
                     border: '1px solid #374151',
                     borderRadius: '8px',
-                    color: '#fff'
+                    color: '#fff',
+                    fontSize: '12px'
                   }}
                   formatter={(value) => `${value}%`}
                 />
@@ -462,9 +474,9 @@ function SEOAnalytics() {
           </div>
 
           {/* Location Distribution */}
-          <div className="p-4 rounded-xl bg-dark-200/50 border border-gray-700">
-            <h3 className="font-montserrat font-semibold text-white mb-4 text-center">Lokasi (Jabodetabek)</h3>
-            <ResponsiveContainer width="100%" height={250}>
+          <div className="p-3 md:p-4 rounded-xl bg-dark-200/50 border border-gray-700">
+            <h3 className="font-montserrat font-semibold text-white mb-3 md:mb-4 text-center text-sm md:text-base break-words">Lokasi (Jabodetabek)</h3>
+            <ResponsiveContainer width="100%" height={200} className="md:!h-[250px]">
               <PieChart>
                 <Pie
                   data={seoData.demographics.location}
@@ -472,7 +484,8 @@ function SEOAnalytics() {
                   cy="50%"
                   labelLine={false}
                   label={({ name, value }) => `${value}%`}
-                  outerRadius={80}
+                  outerRadius={60}
+                  className="md:!outerRadius-[80]"
                   fill="#8884d8"
                   dataKey="value"
                 >
@@ -485,13 +498,15 @@ function SEOAnalytics() {
                     backgroundColor: '#1f2937',
                     border: '1px solid #374151',
                     borderRadius: '8px',
-                    color: '#fff'
+                    color: '#fff',
+                    fontSize: '12px'
                   }}
                   formatter={(value, name) => [`${value}%`, name]}
                 />
                 <Legend 
                   verticalAlign="bottom" 
                   height={36}
+                  wrapperStyle={{ fontSize: '11px' }}
                   formatter={(value, entry) => `${entry.payload.name}`}
                 />
               </PieChart>
@@ -505,37 +520,37 @@ function SEOAnalytics() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8 }}
-        className="card mb-8"
+        className="card mb-6 md:mb-8"
       >
-        <div className="mb-6">
-          <h2 className="font-montserrat font-bold text-xl text-white mb-1">
+        <div className="mb-4 md:mb-6">
+          <h2 className="font-montserrat font-bold text-lg md:text-xl text-white mb-1 break-words">
             Keyword Metrics Overview
           </h2>
-          <p className="text-gray-400 font-poppins text-sm">
+          <p className="text-gray-400 font-poppins text-xs md:text-sm break-words">
             Data keyword difficulty, volume, traffic, dan posisi seperti Ahrefs
           </p>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        <div className="overflow-x-auto -mx-3 md:mx-0">
+          <table className="w-full min-w-[640px]">
             <thead className="bg-dark-200">
               <tr className="border-b border-gray-700">
-                <th className="px-4 py-3 text-left font-montserrat font-semibold text-white text-sm">Keyword</th>
-                <th className="px-4 py-3 text-center font-montserrat font-semibold text-white text-sm">KD</th>
-                <th className="px-4 py-3 text-center font-montserrat font-semibold text-white text-sm">Volume</th>
-                <th className="px-4 py-3 text-center font-montserrat font-semibold text-white text-sm">Traffic</th>
-                <th className="px-4 py-3 text-center font-montserrat font-semibold text-white text-sm">CPC</th>
-                <th className="px-4 py-3 text-center font-montserrat font-semibold text-white text-sm">CPS</th>
-                <th className="px-4 py-3 text-center font-montserrat font-semibold text-white text-sm">Position</th>
-                <th className="px-4 py-3 text-left font-montserrat font-semibold text-white text-sm">URL</th>
+                <th className="px-2 md:px-4 py-2 md:py-3 text-left font-montserrat font-semibold text-white text-xs md:text-sm whitespace-nowrap">Keyword</th>
+                <th className="px-2 md:px-4 py-2 md:py-3 text-center font-montserrat font-semibold text-white text-xs md:text-sm">KD</th>
+                <th className="px-2 md:px-4 py-2 md:py-3 text-center font-montserrat font-semibold text-white text-xs md:text-sm whitespace-nowrap">Volume</th>
+                <th className="px-2 md:px-4 py-2 md:py-3 text-center font-montserrat font-semibold text-white text-xs md:text-sm whitespace-nowrap">Traffic</th>
+                <th className="px-2 md:px-4 py-2 md:py-3 text-center font-montserrat font-semibold text-white text-xs md:text-sm">CPC</th>
+                <th className="px-2 md:px-4 py-2 md:py-3 text-center font-montserrat font-semibold text-white text-xs md:text-sm">CPS</th>
+                <th className="px-2 md:px-4 py-2 md:py-3 text-center font-montserrat font-semibold text-white text-xs md:text-sm whitespace-nowrap">Position</th>
+                <th className="px-2 md:px-4 py-2 md:py-3 text-left font-montserrat font-semibold text-white text-xs md:text-sm">URL</th>
               </tr>
             </thead>
             <tbody>
               {seoData.keywordMetrics.map((kw, index) => (
                 <tr key={index} className="border-b border-gray-800 hover:bg-dark-200/50 transition-colors">
-                  <td className="px-4 py-3 text-white font-poppins">{kw.keyword}</td>
-                  <td className="px-4 py-3 text-center">
-                    <span className={`inline-block px-2 py-1 rounded text-sm font-semibold ${
+                  <td className="px-2 md:px-4 py-2 md:py-3 text-white font-poppins text-xs md:text-sm whitespace-nowrap">{kw.keyword}</td>
+                  <td className="px-2 md:px-4 py-2 md:py-3 text-center">
+                    <span className={`inline-block px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-semibold whitespace-nowrap ${
                       kw.kd <= 10 ? 'bg-green-500/20 text-green-400' :
                       kw.kd <= 20 ? 'bg-yellow-500/20 text-yellow-400' :
                       kw.kd <= 30 ? 'bg-orange-500/20 text-orange-400' :
@@ -544,12 +559,12 @@ function SEOAnalytics() {
                       {kw.kd}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-center text-gray-300 font-poppins">{kw.volume.toLocaleString()}</td>
-                  <td className="px-4 py-3 text-center text-emerald-400 font-poppins font-semibold">{kw.traffic.toLocaleString()}</td>
-                  <td className="px-4 py-3 text-center text-gray-300 font-poppins">${kw.cpc}</td>
-                  <td className="px-4 py-3 text-center text-gray-300 font-poppins">{kw.cps}</td>
-                  <td className="px-4 py-3 text-center">
-                    <span className={`inline-block px-2 py-1 rounded text-sm font-semibold ${
+                  <td className="px-2 md:px-4 py-2 md:py-3 text-center text-gray-300 font-poppins text-xs md:text-sm whitespace-nowrap">{kw.volume.toLocaleString()}</td>
+                  <td className="px-2 md:px-4 py-2 md:py-3 text-center text-emerald-400 font-poppins font-semibold text-xs md:text-sm whitespace-nowrap">{kw.traffic.toLocaleString()}</td>
+                  <td className="px-2 md:px-4 py-2 md:py-3 text-center text-gray-300 font-poppins text-xs md:text-sm whitespace-nowrap">${kw.cpc}</td>
+                  <td className="px-2 md:px-4 py-2 md:py-3 text-center text-gray-300 font-poppins text-xs md:text-sm">{kw.cps}</td>
+                  <td className="px-2 md:px-4 py-2 md:py-3 text-center">
+                    <span className={`inline-block px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-semibold whitespace-nowrap ${
                       kw.position <= 3 ? 'bg-green-500/20 text-green-400' :
                       kw.position <= 10 ? 'bg-blue-500/20 text-blue-400' :
                       'bg-gray-500/20 text-gray-400'
@@ -557,7 +572,7 @@ function SEOAnalytics() {
                       #{kw.position}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-blue-400 font-poppins text-sm truncate max-w-xs">{kw.url}</td>
+                  <td className="px-2 md:px-4 py-2 md:py-3 text-blue-400 font-poppins text-xs truncate max-w-[120px] md:max-w-xs">{kw.url}</td>
                 </tr>
               ))}
             </tbody>
@@ -570,48 +585,48 @@ function SEOAnalytics() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.9 }}
-        className="card mb-8"
+        className="card mb-6 md:mb-8"
       >
-        <div className="mb-6">
-          <h2 className="font-montserrat font-bold text-xl text-white mb-1">
+        <div className="mb-4 md:mb-6">
+          <h2 className="font-montserrat font-bold text-lg md:text-xl text-white mb-1 break-words">
             Performance on Search Results
           </h2>
-          <p className="text-gray-400 font-poppins text-sm">
+          <p className="text-gray-400 font-poppins text-xs md:text-sm break-words">
             Halaman dengan performa terbaik - Clicks, Impressions, CTR, Position
           </p>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        <div className="overflow-x-auto -mx-3 md:mx-0">
+          <table className="w-full min-w-[640px]">
             <thead className="bg-dark-200">
               <tr className="border-b border-gray-700">
-                <th className="px-4 py-3 text-left font-montserrat font-semibold text-white text-sm">Halaman</th>
-                <th className="px-4 py-3 text-center font-montserrat font-semibold text-white text-sm">Clicks</th>
-                <th className="px-4 py-3 text-center font-montserrat font-semibold text-white text-sm">Impressions</th>
-                <th className="px-4 py-3 text-center font-montserrat font-semibold text-white text-sm">CTR</th>
-                <th className="px-4 py-3 text-center font-montserrat font-semibold text-white text-sm">Position</th>
+                <th className="px-2 md:px-4 py-2 md:py-3 text-left font-montserrat font-semibold text-white text-xs md:text-sm">Halaman</th>
+                <th className="px-2 md:px-4 py-2 md:py-3 text-center font-montserrat font-semibold text-white text-xs md:text-sm whitespace-nowrap">Clicks</th>
+                <th className="px-2 md:px-4 py-2 md:py-3 text-center font-montserrat font-semibold text-white text-xs md:text-sm whitespace-nowrap">Impressions</th>
+                <th className="px-2 md:px-4 py-2 md:py-3 text-center font-montserrat font-semibold text-white text-xs md:text-sm">CTR</th>
+                <th className="px-2 md:px-4 py-2 md:py-3 text-center font-montserrat font-semibold text-white text-xs md:text-sm whitespace-nowrap">Position</th>
               </tr>
             </thead>
             <tbody>
               {seoData.topPages.map((page, index) => (
                 <tr key={index} className="border-b border-gray-800 hover:bg-dark-200/50 transition-colors">
-                  <td className="px-4 py-3">
-                    <div className="flex flex-col">
-                      <span className="text-white font-poppins font-medium">{page.title}</span>
-                      <span className="text-blue-400 text-sm truncate max-w-md">{page.url}</span>
+                  <td className="px-2 md:px-4 py-2 md:py-3">
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-white font-poppins font-medium text-xs md:text-sm break-words">{page.title}</span>
+                      <span className="text-blue-400 text-xs truncate max-w-[200px] md:max-w-md">{page.url}</span>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-center text-emerald-400 font-poppins font-semibold">
+                  <td className="px-2 md:px-4 py-2 md:py-3 text-center text-emerald-400 font-poppins font-semibold text-xs md:text-sm whitespace-nowrap">
                     {page.clicks.toLocaleString()}
                   </td>
-                  <td className="px-4 py-3 text-center text-gray-300 font-poppins">
+                  <td className="px-2 md:px-4 py-2 md:py-3 text-center text-gray-300 font-poppins text-xs md:text-sm whitespace-nowrap">
                     {page.impressions.toLocaleString()}
                   </td>
-                  <td className="px-4 py-3 text-center text-purple-400 font-poppins font-semibold">
+                  <td className="px-2 md:px-4 py-2 md:py-3 text-center text-purple-400 font-poppins font-semibold text-xs md:text-sm whitespace-nowrap">
                     {page.ctr}%
                   </td>
-                  <td className="px-4 py-3 text-center">
-                    <span className="inline-block px-2 py-1 rounded bg-blue-500/20 text-blue-400 text-sm font-semibold">
+                  <td className="px-2 md:px-4 py-2 md:py-3 text-center">
+                    <span className="inline-block px-1.5 md:px-2 py-0.5 md:py-1 rounded bg-blue-500/20 text-blue-400 text-xs font-semibold whitespace-nowrap">
                       #{page.position.toFixed(1)}
                     </span>
                   </td>
@@ -629,20 +644,20 @@ function SEOAnalytics() {
         transition={{ delay: 1.0 }}
         className="card"
       >
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="font-montserrat font-bold text-xl text-white mb-1">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-0 mb-4 md:mb-6">
+          <div className="min-w-0 flex-1">
+            <h2 className="font-montserrat font-bold text-lg md:text-xl text-white mb-1 break-words">
               Daftar Kata Kunci SEO
             </h2>
-            <p className="text-gray-400 font-poppins text-sm">
+            <p className="text-gray-400 font-poppins text-xs md:text-sm break-words">
               Total {keywords.length} kata kunci • Kelola target SEO Anda
             </p>
           </div>
           <button
             onClick={() => setShowAddKeyword(!showAddKeyword)}
-            className="btn-primary flex items-center gap-2"
+            className="btn-primary flex items-center gap-2 justify-center md:justify-start whitespace-nowrap"
           >
-            <PlusIcon className="w-5 h-5" />
+            <PlusIcon className="w-4 h-4 md:w-5 md:h-5" />
             <span className="hidden sm:inline">Tambah Keyword</span>
           </button>
         </div>
@@ -653,32 +668,34 @@ function SEOAnalytics() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="mb-6 p-4 rounded-xl bg-dark-200 border border-purple-500/30"
+            className="mb-4 md:mb-6 p-3 md:p-4 rounded-xl bg-dark-200 border border-purple-500/30"
           >
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-2 md:gap-3">
               <input
                 type="text"
                 value={newKeyword}
                 onChange={(e) => setNewKeyword(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleAddKeyword()}
                 placeholder="Masukkan kata kunci baru..."
-                className="flex-1 px-4 py-2 bg-dark-100 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                className="flex-1 px-3 md:px-4 py-2 bg-dark-100 border border-gray-600 rounded-lg text-white text-sm md:text-base placeholder-gray-500 focus:outline-none focus:border-purple-500"
               />
-              <button
-                onClick={handleAddKeyword}
-                className="btn-primary"
-              >
-                Simpan
-              </button>
-              <button
-                onClick={() => {
-                  setShowAddKeyword(false)
-                  setNewKeyword('')
-                }}
-                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white transition-colors"
-              >
-                Batal
-              </button>
+              <div className="flex gap-2 md:gap-3">
+                <button
+                  onClick={handleAddKeyword}
+                  className="btn-primary flex-1 sm:flex-initial text-sm md:text-base px-4 md:px-6"
+                >
+                  Simpan
+                </button>
+                <button
+                  onClick={() => {
+                    setShowAddKeyword(false)
+                    setNewKeyword('')
+                  }}
+                  className="flex-1 sm:flex-initial px-3 md:px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white text-sm md:text-base transition-colors"
+                >
+                  Batal
+                </button>
+              </div>
             </div>
           </motion.div>
         )}
@@ -696,18 +713,18 @@ function SEOAnalytics() {
         </div>
 
         {/* Keywords Table */}
-        <div className="overflow-x-auto">
-          <div className="max-h-96 overflow-y-auto custom-scrollbar">
+        <div className="overflow-x-auto -mx-3 md:mx-0">
+          <div className="max-h-96 overflow-y-auto custom-scrollbar min-w-[300px]">
             <table className="w-full">
               <thead className="sticky top-0 bg-dark-200 z-10">
                 <tr className="border-b border-gray-700">
-                  <th className="px-4 py-3 text-left font-montserrat font-semibold text-white text-sm">
+                  <th className="px-2 md:px-4 py-2 md:py-3 text-left font-montserrat font-semibold text-white text-xs md:text-sm">
                     #
                   </th>
-                  <th className="px-4 py-3 text-left font-montserrat font-semibold text-white text-sm">
+                  <th className="px-2 md:px-4 py-2 md:py-3 text-left font-montserrat font-semibold text-white text-xs md:text-sm">
                     Kata Kunci
                   </th>
-                  <th className="px-4 py-3 text-right font-montserrat font-semibold text-white text-sm">
+                  <th className="px-2 md:px-4 py-2 md:py-3 text-right font-montserrat font-semibold text-white text-xs md:text-sm">
                     Aksi
                   </th>
                 </tr>
@@ -721,19 +738,19 @@ function SEOAnalytics() {
                     transition={{ delay: index * 0.02 }}
                     className="border-b border-gray-800 hover:bg-dark-200/50 transition-colors"
                   >
-                    <td className="px-4 py-3 text-gray-400 font-poppins text-sm">
+                    <td className="px-2 md:px-4 py-2 md:py-3 text-gray-400 font-poppins text-xs md:text-sm">
                       {index + 1}
                     </td>
-                    <td className="px-4 py-3 text-white font-poppins">
+                    <td className="px-2 md:px-4 py-2 md:py-3 text-white font-poppins text-xs md:text-sm break-words">
                       {keyword}
                     </td>
-                    <td className="px-4 py-3 text-right">
+                    <td className="px-2 md:px-4 py-2 md:py-3 text-right">
                       <button
                         onClick={() => handleDeleteKeyword(keyword)}
                         className="text-red-400 hover:text-red-300 transition-colors p-1"
                         title="Hapus keyword"
                       >
-                        <XMarkIcon className="w-5 h-5" />
+                        <XMarkIcon className="w-4 h-4 md:w-5 md:h-5" />
                       </button>
                     </td>
                   </motion.tr>
@@ -744,7 +761,7 @@ function SEOAnalytics() {
         </div>
 
         {filteredKeywords.length === 0 && (
-          <div className="text-center py-8 text-gray-400">
+          <div className="text-center py-6 md:py-8 text-gray-400 text-sm md:text-base">
             Tidak ada kata kunci yang ditemukan
           </div>
         )}
@@ -755,31 +772,31 @@ function SEOAnalytics() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.1 }}
-        className="card mt-8"
+        className="card mt-6 md:mt-8"
       >
-        <div className="mb-6">
-          <h2 className="font-montserrat font-bold text-xl text-white mb-1">
+        <div className="mb-4 md:mb-6">
+          <h2 className="font-montserrat font-bold text-lg md:text-xl text-white mb-1 break-words">
             Fokus Kata Kunci Per Bulan
           </h2>
-          <p className="text-gray-400 font-poppins text-sm">
+          <p className="text-gray-400 font-poppins text-xs md:text-sm break-words">
             5 kata kunci prioritas untuk setiap bulan
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
           {seoData.monthlyData.map((month, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 1.2 + index * 0.05 }}
-              className="p-4 rounded-xl bg-dark-200 border border-gray-700 hover:border-purple-500/50 transition-colors"
+              className="p-3 md:p-4 rounded-xl bg-dark-200 border border-gray-700 hover:border-purple-500/50 transition-colors"
             >
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-montserrat font-semibold text-white">
+              <div className="flex items-center justify-between mb-2 md:mb-3">
+                <h3 className="font-montserrat font-semibold text-white text-sm md:text-base break-words">
                   {month.month}
                 </h3>
-                <span className={`text-xs px-2 py-1 rounded-full ${
+                <span className={`text-xs px-2 py-1 rounded-full flex-shrink-0 whitespace-nowrap ${
                   month.trafficChange > 0 
                     ? 'bg-green-500/20 text-green-400' 
                     : month.trafficChange === 0 
@@ -789,14 +806,14 @@ function SEOAnalytics() {
                   {month.trafficChange > 0 ? '+' : ''}{month.trafficChange}%
                 </span>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1.5 md:space-y-2">
                 {month.focusKeywords.map((keyword, kIndex) => (
                   <div 
                     key={kIndex}
-                    className="text-sm text-gray-300 font-poppins flex items-start gap-2"
+                    className="text-xs md:text-sm text-gray-300 font-poppins flex items-start gap-2"
                   >
-                    <span className="text-purple-400 mt-1">•</span>
-                    <span>{keyword}</span>
+                    <span className="text-purple-400 mt-0.5 md:mt-1 flex-shrink-0">•</span>
+                    <span className="break-words">{keyword}</span>
                   </div>
                 ))}
               </div>
