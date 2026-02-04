@@ -63,7 +63,7 @@ def setup_rsppn_complete():
         
         if not order:
             print(f"\n📦 Creating order...")
-            order_number = f"ORD-RSPPN-{datetime(2025, 2, 3).strftime('%Y%m%d%H%M%S')}"
+            order_number = f"ORD-RSPPN-{datetime(2025, 2, 7).strftime('%Y%m%d%H%M%S')}"
             order = Order(
                 user_id=user.id,
                 order_number=order_number,
@@ -74,7 +74,7 @@ def setup_rsppn_complete():
                 total_price=81000000,
                 status="completed",
                 notes="Paket All In Service - Pembayaran Initial",
-                created_at=datetime(2025, 2, 3, 10, 0, 0)
+                created_at=datetime(2025, 2, 7, 10, 0, 0)
             )
             db.add(order)
             db.commit()
@@ -97,11 +97,11 @@ def setup_rsppn_complete():
                 payment_method="va",
                 payment_channel="bca",
                 status="success",
-                ipaymu_transaction_id="IPAYMU-RSPPN-20250203",
-                ipaymu_session_id="SESSION-RSPPN-20250203",
+                ipaymu_transaction_id="IPAYMU-RSPPN-20250207",
+                ipaymu_session_id="SESSION-RSPPN-20250207",
                 va_number="8808081234567890",
-                created_at=datetime(2025, 2, 3, 10, 0, 0),
-                paid_at=datetime(2025, 2, 3, 10, 30, 0)
+                created_at=datetime(2025, 2, 7, 10, 0, 0),
+                paid_at=datetime(2025, 2, 7, 10, 30, 0)
             )
             db.add(payment)
             db.commit()
@@ -112,7 +112,7 @@ def setup_rsppn_complete():
             # Update to success status
             payment.status = "success"
             if not payment.paid_at:
-                payment.paid_at = datetime(2025, 2, 3, 10, 30, 0)
+                payment.paid_at = datetime(2025, 2, 7, 10, 30, 0)
             db.commit()
         
         # 5. Create/Update Subscription
@@ -126,8 +126,8 @@ def setup_rsppn_complete():
                 user_id=user.id,
                 package_name="Paket All In Service",
                 package_type="yearly",
-                start_date=datetime(2025, 2, 3),
-                end_date=datetime(2026, 2, 3),
+                start_date=datetime(2025, 2, 7),
+                end_date=datetime(2026, 2, 7),
                 price=81000000,
                 renewal_price=81000000,
                 is_active=True,
@@ -142,8 +142,8 @@ def setup_rsppn_complete():
             print(f"\n✅ Subscription exists")
             # Update subscription details
             subscription.package_name = "Paket All In Service"
-            subscription.start_date = datetime(2025, 2, 3)
-            subscription.end_date = datetime(2026, 2, 3)
+            subscription.start_date = datetime(2025, 2, 7)
+            subscription.end_date = datetime(2026, 2, 7)
             subscription.price = 81000000
             subscription.renewal_price = 81000000
             subscription.is_active = True

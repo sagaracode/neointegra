@@ -121,13 +121,13 @@ def seed_special_customer(db: Session):
     ).first()
     
     if not existing_subscription:
-        # Create subscription: started Feb 3, 2025, expires Feb 3, 2026
+        # Create subscription: started Feb 7, 2025, expires Feb 7, 2026
         subscription = Subscription(
             user_id=special_user.id,
             package_name="Paket All In Service",
             package_type="yearly",
-            start_date=datetime(2025, 2, 3),
-            end_date=datetime(2026, 2, 3),
+            start_date=datetime(2025, 2, 7),
+            end_date=datetime(2026, 2, 7),
             price=81000000,
             renewal_price=81000000,
             is_active=True,
@@ -138,8 +138,8 @@ def seed_special_customer(db: Session):
         db.commit()
         print(f"✅ RSPPN subscription created!")
         print(f"   - Package: Paket All In Service")
-        print(f"   - Started: 3 Februari 2025")
-        print(f"   - Expires: 3 Februari 2026")
+        print(f"   - Started: 7 Februari 2025")
+        print(f"   - Expires: 7 Februari 2026")
         print(f"   - Price: Rp 81,000,000")
     else:
         print(f"ℹ️  Subscription already exists for {email}")
@@ -165,8 +165,8 @@ def seed_rsppn_payment_history(db: Session):
     ).first()
     
     if not existing_order:
-        # Create order dated Feb 3, 2025
-        order_number = f"ORD-RSPPN-{datetime(2025, 2, 3).strftime('%Y%m%d%H%M%S')}"
+        # Create order dated Feb 7, 2025
+        order_number = f"ORD-RSPPN-{datetime(2025, 2, 7).strftime('%Y%m%d%H%M%S')}"
         order = Order(
             user_id=rsppn_user.id,
             order_number=order_number,
@@ -177,12 +177,12 @@ def seed_rsppn_payment_history(db: Session):
             total_price=81000000,
             status="completed",
             notes="Paket All In Service - Kontrak Tahunan",
-            created_at=datetime(2025, 2, 3, 10, 0, 0)
+            created_at=datetime(2025, 2, 7, 10, 0, 0)
         )
         db.add(order)
         db.commit()
         db.refresh(order)
-        print(f"✅ RSPPN order created (Feb 3, 2025)")
+        print(f"✅ RSPPN order created (Feb 7, 2025)")
         
         # Create completed payment
         payment = Payment(
@@ -191,16 +191,16 @@ def seed_rsppn_payment_history(db: Session):
             payment_method="va",
             payment_channel="bca",
             status="success",
-            ipaymu_transaction_id=f"IPAYMU-RSPPN-{datetime(2025, 2, 3).strftime('%Y%m%d')}",
-            ipaymu_session_id=f"SESSION-RSPPN-{datetime(2025, 2, 3).strftime('%Y%m%d')}",
+            ipaymu_transaction_id=f"IPAYMU-RSPPN-{datetime(2025, 2, 7).strftime('%Y%m%d')}",
+            ipaymu_session_id=f"SESSION-RSPPN-{datetime(2025, 2, 7).strftime('%Y%m%d')}",
             va_number="8808081234567890",
-            created_at=datetime(2025, 2, 3, 10, 0, 0),
-            paid_at=datetime(2025, 2, 3, 10, 30, 0)
+            created_at=datetime(2025, 2, 7, 10, 0, 0),
+            paid_at=datetime(2025, 2, 7, 10, 30, 0)
         )
         db.add(payment)
         db.commit()
         print(f"✅ RSPPN payment history created")
-        print(f"   - Date: 3 Februari 2025")
+        print(f"   - Date: 7 Februari 2025")
         print(f"   - Amount: Rp 81,000,000")
         print(f"   - Status: Paid (Success)")
         print(f"   - Method: Virtual Account BCA")
