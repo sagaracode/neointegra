@@ -158,7 +158,7 @@ function DashboardHome() {
               </div>
               <p className="text-gray-400 text-sm">Kelola hosting & domain</p>
               <div className="mt-2 text-xs text-orange-400 flex items-center gap-1">
-                <span>Lihat Info</span>
+                <span>Buka cPanel</span>
                 <svg className="w-3 h-3 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>
