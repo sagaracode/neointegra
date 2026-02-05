@@ -14,6 +14,7 @@ import {
   XMarkIcon,
   ExclamationTriangleIcon,
   RocketLaunchIcon,
+  ShieldCheckIcon,
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 import useAuthStore from '../store/authStore'
@@ -21,6 +22,7 @@ import { ordersAPI, paymentsAPI, usersAPI } from '../services/api'
 import api from '../services/api'
 import SEOAnalytics from './SEOAnalytics'
 import CPanelInfo from './CPanelInfo'
+import CyberSecurityDashboard from './CyberSecurityDashboard'
 
 // Available payment channels from iPaymu
 const BANK_CHANNELS = [
@@ -210,6 +212,34 @@ function DashboardHome() {
                 </svg>
               </div>
             </a>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-4 mt-4">
+            <Link
+              to="/dashboard/cybersecurity"
+              className="p-4 rounded-xl bg-gradient-to-br from-red-500/20 via-orange-500/20 to-yellow-500/20 hover:from-red-500/30 hover:via-orange-500/30 hover:to-yellow-500/30 border border-red-500/30 hover:border-red-500/50 transition-all group relative overflow-hidden"
+            >
+              {/* Animated shine effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
+              
+              <div className="relative">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-red-500 via-orange-500 to-yellow-500 flex items-center justify-center text-white shadow-lg shadow-red-500/30">
+                    <ShieldCheckIcon className="w-5 h-5" />
+                  </div>
+                  <div className="font-montserrat font-semibold text-white group-hover:text-red-400 transition-colors">
+                    Cybersecurity
+                  </div>
+                </div>
+                <p className="text-gray-400 text-sm">Monitoring keamanan sistem</p>
+                <div className="mt-2 text-xs text-red-400 flex items-center gap-1">
+                  <span>Lihat Dashboard</span>
+                  <svg className="w-3 h-3 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </div>
+              </div>
+            </Link>
 
             <Link
               to="/dashboard/seo/rsppn-analytics"
@@ -1382,6 +1412,7 @@ export default function Dashboard() {
               <Route path="settings" element={<DashboardSettings />} />
               <Route path="seo/rsppn-analytics" element={<SEOAnalytics />} />
               <Route path="cpanel-info" element={<CPanelInfo />} />
+              <Route path="cybersecurity" element={<CyberSecurityDashboard />} />
             </Routes>
           </motion.main>
         </div>
