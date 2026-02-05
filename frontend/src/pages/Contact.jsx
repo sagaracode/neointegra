@@ -30,8 +30,8 @@ const contactInfo = [
   {
     icon: MapPinIcon,
     title: 'Address',
-    value: 'Jakarta, Indonesia',
-    link: '#',
+    value: 'Komplek, Sentral Senayan II, Plaza Senayan, Jl. Asia Afrika No.8 11th floor, Senayan, Kecamatan Tanah Abang, Kota Jakarta Pusat, Daerah Khusus Ibukota Jakarta 10270',
+    link: 'https://maps.app.goo.gl/2QwQw1Qw1Qw1Qw1Q8',
   },
 ]
 
@@ -214,11 +214,17 @@ export default function Contact() {
               transition={{ delay: 0.3 }}
               className="space-y-8"
             >
-              <div className="card h-64 md:h-80 flex items-center justify-center bg-dark-100">
-                <div className="text-center">
-                  <MapPinIcon className="w-16 h-16 text-primary-400 mx-auto mb-4" />
-                  <p className="text-gray-400 font-poppins">Jakarta, Indonesia</p>
-                </div>
+              <div className="card h-64 md:h-80 flex items-center justify-center bg-dark-100 p-0 overflow-hidden">
+                <iframe
+                  title="Lokasi Kantor Neointegra"
+                  src="https://www.google.com/maps?q=Komplek,+Sentral+Senayan+II,+Plaza+Senayan,+Jl.+Asia+Afrika+No.8+11th+floor,+Senayan,+Kecamatan+Tanah+Abang,+Kota+Jakarta+Pusat,+Daerah+Khusus+Ibukota+Jakarta+10270&output=embed"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                ></iframe>
               </div>
 
               <div className="card">
