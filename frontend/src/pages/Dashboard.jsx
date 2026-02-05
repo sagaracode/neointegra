@@ -145,7 +145,7 @@ function DashboardHome() {
           <h2 className="font-montserrat font-bold text-lg text-white mb-4">
             Layanan Anda
           </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Link
               to="/dashboard/cpanel-info"
               className="p-4 rounded-xl bg-gradient-to-br from-orange-500/20 to-red-500/20 hover:from-orange-500/30 hover:to-red-500/30 border border-orange-500/30 hover:border-orange-500/50 transition-all group"
@@ -212,9 +212,7 @@ function DashboardHome() {
                 </svg>
               </div>
             </a>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-4 mt-4">
+
             <Link
               to="/dashboard/cybersecurity"
               className="p-4 rounded-xl bg-gradient-to-br from-red-500/20 via-orange-500/20 to-yellow-500/20 hover:from-red-500/30 hover:via-orange-500/30 hover:to-yellow-500/30 border border-red-500/30 hover:border-red-500/50 transition-all group relative overflow-hidden"
